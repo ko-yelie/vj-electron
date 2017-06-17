@@ -1,13 +1,6 @@
 <template>
   <div>
-    <p>
-      <router-link to="control">
-        <button>コントロール画面</button>
-      </router-link>
-      <router-link to="visual">
-        <button>ビジュアル画面</button>
-      </router-link>
-    </p>
+    <p>コントロール画面</p>
   </div>
 </template>
 
