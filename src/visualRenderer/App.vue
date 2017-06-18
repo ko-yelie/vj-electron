@@ -1,12 +1,10 @@
-<template>
-  <div id="app" class="wrapper">
-    <router-view></router-view>
-  </div>
+<template lang="pug">
+  p ビジュアル画面
 </template>
 
 <script>
 export default {
-  name: 'electron-vue'
+  name: 'visual-page'
 }
 </script>
 
@@ -21,15 +19,7 @@ export default {
 
 body { font-family: 'Source Sans Pro', sans-serif; }
 
-.wrapper {
-  background:
-    radial-gradient(
-      ellipse at top left,
-      rgba(255, 255, 255, 1) 40%,
-      rgba(229, 229, 229, .9) 100%
-    );
-  height: 100vh;
-  padding: 20px 40px;
-  width: 100vw;
+p {
+  font-size: 2rem;
 }
 </style>
