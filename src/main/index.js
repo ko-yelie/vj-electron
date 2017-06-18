@@ -2,7 +2,8 @@
 
 import {
   app,
-  BrowserWindow
+  BrowserWindow,
+  ipcMain
 } from 'electron'
 
 /**
@@ -44,7 +45,6 @@ function createWindow () {
 
 function createVisualWindow (mainWindow) {
   visualWindow = new BrowserWindow({
-    parent: mainWindow,
     width: 1024,
     height: 768
   })
@@ -53,6 +53,11 @@ function createVisualWindow (mainWindow) {
 
   visualWindow.on('closed', () => {
     visualWindow = null
+    ipcMain.removeAllListeners(['dispatch-connect'])
+  })
+
+  ipcMain.on('dispatch-connect', (event, typeName, payload) => {
+    visualWindow.webContents.send('dispatch-connect', typeName, payload)
   })
 }
 
