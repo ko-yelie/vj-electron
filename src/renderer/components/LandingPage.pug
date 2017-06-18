@@ -2,10 +2,21 @@ div
   md-toolbar
     h1.md-title コントロール画面
 
-  p
-    range-slider(
-      class="slider"
-      min="10"
-      max="1000"
-      step="10"
-      v-model="sliderValue")
+  md-layout
+    md-layout(md-column='')
+      p
+        range-slider(
+          class="slider"
+          min="10"
+          max="1000"
+          step="10"
+          v-model="sliderValue")
+
+    //- ビデオリスト
+    md-layout(md-column='', md-flex='33')
+      p {{ activeId }}
+      md-list
+        md-list-item(v-for="video in videos", :class="getVideoClass(video)", @click.native="changeActiveId(video)")
+          md-avatar.md-large
+            img(:src="'http://i.ytimg.com/vi/' + video.id + '/default.jpg'", alt="")
+          span {{ video.title }}
