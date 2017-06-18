@@ -1,5 +1,3 @@
-div {
-  p {
-    font-size: 2rem;
-  }
-}
+$rail-fill-color: #3f51b5;
+
+@import '~vue-range-slider/dist/vue-range-slider.scss';
