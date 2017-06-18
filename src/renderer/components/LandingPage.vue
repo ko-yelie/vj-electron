@@ -1,7 +1,6 @@
-<template>
-  <div>
-    <p>コントロール画面</p>
-  </div>
+<template lang="pug">
+  div
+    p コントロール画面
 </template>
 
 <script>
@@ -10,5 +9,10 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+div {
+  p {
+    font-size: 2rem;
+  }
+}
 </style>
