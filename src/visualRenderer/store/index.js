@@ -5,16 +5,16 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    videoStack: []
+    displayingVideos: []
   },
   mutations: {
-    CHANGE_ACTIVE_ID (state, video) {
-      state.videoStack.push(video)
+    UPDATE_DISPLAYING_VIDEOS (state, videos) {
+      state.displayingVideos = videos
     }
   },
   actions: {
-    changeActiveId ({ commit }, video) {
-      commit('CHANGE_ACTIVE_ID', video)
+    updateDisplayingVideos ({ commit }, videos) {
+      commit('UPDATE_DISPLAYING_VIDEOS', videos)
     }
   },
   strict: process.env.NODE_ENV !== 'production'

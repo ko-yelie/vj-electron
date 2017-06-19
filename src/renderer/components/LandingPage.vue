@@ -1,5 +1,6 @@
 <script>
 import { mapState } from 'vuex'
+import draggable from 'vuedraggable'
 import RangeSlider from 'vue-range-slider'
 
 export default {
@@ -10,21 +11,30 @@ export default {
     }
   },
   components: {
+    draggable,
     RangeSlider
   },
-  computed: mapState({
-    videos: state => state.Video.videos,
-    activeId: state => state.Video.activeId
-  }),
-  methods: {
-    getVideoClass (video) {
-      return {
-        'md-active': video.id === this.activeId
+  computed: {
+    ...mapState({
+    }),
+    videos: {
+      get () {
+        return this.$store.state.Video.videos
+      },
+      set (value) {
+        this.$store.dispatch('updateVideos', value)
       }
     },
-    changeActiveId (video) {
-      this.$store.dispatch('changeActiveId', video)
+    displayingVideos: {
+      get () {
+        return this.$store.state.Video.displayingVideos
+      },
+      set (value) {
+        this.$store.dispatch('updateDisplayingVideos', value)
+      }
     }
+  },
+  methods: {
   }
 }
 </script>

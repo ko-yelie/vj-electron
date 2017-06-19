@@ -2,16 +2,11 @@ $rail-fill-color: #3f51b5;
 
 @import '~vue-range-slider/dist/vue-range-slider.scss';
 
-.md-list-item {
-  &.md-active {
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 1px;
-      height: 100%;
-      background-color: $rail-fill-color;
-    }
-  }
+.displaying-videos {
+  display: block;
+  min-height: 40px;
+}
+
+.videos {
+  min-height: 20px;
 }
