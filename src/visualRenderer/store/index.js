@@ -5,11 +5,11 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    activeId: ''
+    videoStack: []
   },
   mutations: {
     CHANGE_ACTIVE_ID (state, video) {
-      state.activeId = video.id
+      state.videoStack.push(video)
     }
   },
   actions: {
