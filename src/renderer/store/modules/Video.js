@@ -31,6 +31,9 @@ export default {
     },
     UPDATE_OPACITY (state, { video, opacity }) {
       video.opacity = opacity
+    },
+    REMOVE_VIDEO (state, video) {
+      state.displayingVideos.splice(state.displayingVideos.indexOf(video), 1)
     }
   },
   actions: {
@@ -44,6 +47,11 @@ export default {
     },
     updateOpacity ({ commit, state }, payload) {
       commit('UPDATE_OPACITY', payload)
+
+      ipcRenderer.send('dispatch-connect', 'updateDisplayingVideos', state.displayingVideos)
+    },
+    removeVideo ({ commit, state }, video) {
+      commit('REMOVE_VIDEO', video)
 
       ipcRenderer.send('dispatch-connect', 'updateDisplayingVideos', state.displayingVideos)
     }

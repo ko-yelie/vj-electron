@@ -5,8 +5,22 @@ $rail-fill-color: #3f51b5;
 .displaying-videos {
   display: block;
   min-height: 40px;
+
+  &-item {
+    transition: 1s;
+  }
 }
 
 .videos {
   min-height: 20px;
+}
+
+// Animation
+.flip-list {
+  &-enter, &-leave-active {
+    opacity: 0;
+  }
+  &-move {
+    transition: transform 1s;
+  }
 }

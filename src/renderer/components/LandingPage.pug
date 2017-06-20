@@ -10,8 +10,8 @@ div
           v-model='displayingVideos'
           :options="{ group: 'video' }"
         )
-          transition-group.displaying-videos
-            vj-video(
+          transition-group.displaying-videos(name="flip-list")
+            vj-video.displaying-videos-item(
               v-for="(video, index) in displayingVideos"
               :key='index'
               :video="video"
