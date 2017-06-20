@@ -25,19 +25,27 @@ export default {
   mutations: {
     UPDATE_VIDEOS (state, videos) {
       state.videos = videos
-      ipcRenderer.send('dispatch-connect', 'updateVideos', videos)
     },
-    UPDATE_DISPLAYING_VIDEOS (state, videos) {
-      state.displayingVideos = videos
-      ipcRenderer.send('dispatch-connect', 'updateDisplayingVideos', videos)
+    UPDATE_DISPLAYING_VIDEOS (state, displayingVideos) {
+      state.displayingVideos = displayingVideos
+    },
+    UPDATE_OPACITY (state, { video, opacity }) {
+      video.opacity = opacity
     }
   },
   actions: {
     updateVideos ({ commit }, videos) {
       commit('UPDATE_VIDEOS', videos)
     },
-    updateDisplayingVideos ({ commit }, videos) {
-      commit('UPDATE_DISPLAYING_VIDEOS', videos)
+    updateDisplayingVideos ({ commit, state }, displayingVideos) {
+      commit('UPDATE_DISPLAYING_VIDEOS', displayingVideos)
+
+      ipcRenderer.send('dispatch-connect', 'updateDisplayingVideos', state.displayingVideos)
+    },
+    updateOpacity ({ commit, state }, payload) {
+      commit('UPDATE_OPACITY', payload)
+
+      ipcRenderer.send('dispatch-connect', 'updateDisplayingVideos', state.displayingVideos)
     }
   }
 }

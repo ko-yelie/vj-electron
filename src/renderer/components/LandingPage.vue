@@ -1,7 +1,8 @@
 <script>
 import { mapState } from 'vuex'
 import draggable from 'vuedraggable'
-import RangeSlider from 'vue-range-slider'
+
+import VjVideo from './LandingPage/VjVideo'
 
 export default {
   name: 'landing-page',
@@ -12,7 +13,7 @@ export default {
   },
   components: {
     draggable,
-    RangeSlider
+    VjVideo
   },
   computed: {
     ...mapState({
@@ -21,16 +22,16 @@ export default {
       get () {
         return this.$store.state.Video.videos
       },
-      set (value) {
-        this.$store.dispatch('updateVideos', value)
+      set (videos) {
+        this.$store.dispatch('updateVideos', videos)
       }
     },
     displayingVideos: {
       get () {
         return this.$store.state.Video.displayingVideos
       },
-      set (value) {
-        this.$store.dispatch('updateDisplayingVideos', value)
+      set (displayingVideos) {
+        this.$store.dispatch('updateDisplayingVideos', displayingVideos)
       }
     }
   },

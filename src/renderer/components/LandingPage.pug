@@ -11,22 +11,11 @@ div
           :options="{ group: 'video' }"
         )
           transition-group.displaying-videos
-            md-card(
-              v-for="video in displayingVideos"
-              :key='video.id'
+            vj-video(
+              v-for="(video, index) in displayingVideos"
+              :key='index'
+              :video="video"
             )
-              md-card-media-cover(md-text-scrim='')
-                md-card-media(md-ratio='16:9')
-                  img(:src="video.thumbnail", alt="")
-                md-card-area
-                  md-card-header
-                    .md-title {{ video.title }}
-                  md-card-actions
-                    range-slider(
-                      min="0"
-                      max="1"
-                      step="10"
-                      v-model="video.opacity")
 
     //- ビデオリスト
     md-layout(md-column='', md-flex='33')
@@ -37,8 +26,8 @@ div
         )
           transition-group
             md-list-item(
-              v-for="video in videos"
-              :key='video.id'
+              v-for="(video, index) in videos"
+              :key='index'
             )
               md-avatar.md-large
                 img(:src="video.thumbnail", alt="")
