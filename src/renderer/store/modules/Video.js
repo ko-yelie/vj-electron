@@ -13,7 +13,7 @@ const videoData = [
 const videos = videoData.map(({ id, title }) => ({
   id,
   title,
-  thumbnail: 'http://i.ytimg.com/vi/' + id + '/default.jpg',
+  thumbnail: `./src/renderer/assets/${id}.jpg`,
   opacity: 1
 }))
 
