@@ -11,8 +11,8 @@ export default new Vuex.Store({
     REMOVE_DISPLAYING_VIDEO () {}
   },
   actions: {
-    addDisplayingVideo ({ commit }, addedVideo) {
-      commit('ADD_DISPLAYING_VIDEO', addedVideo)
+    addDisplayingVideo ({ commit }, video) {
+      commit('ADD_DISPLAYING_VIDEO', video)
     },
     updateDisplayingVideosOrder ({ commit }, displayingVideos) {
       commit('UPDATE_DISPLAYING_VIDEOS_ORDER', displayingVideos)
@@ -20,8 +20,8 @@ export default new Vuex.Store({
     updateOpacity ({ commit }, video) {
       commit('UPDATE_OPACITY', video)
     },
-    removeDisplayingVideo ({ commit }, removedVideo) {
-      commit('REMOVE_DISPLAYING_VIDEO', removedVideo)
+    removeDisplayingVideo ({ commit }, video) {
+      commit('REMOVE_DISPLAYING_VIDEO', video)
     }
   },
   strict: process.env.NODE_ENV !== 'production'
