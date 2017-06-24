@@ -51,13 +51,13 @@ export default {
     updateDisplayingVideos ({ commit, state }, displayingVideos) {
       commit('UPDATE_DISPLAYING_VIDEOS', displayingVideos)
     },
-    addDisplayingVideo ({ commit, state }, video) {
+    addDisplayingVideo ({ commit, dispatch }, video) {
       const id = uniqueId()
       const copyVideo = Object.assign({ id }, video)
       commit('ADD_DISPLAYING_VIDEO', { video, copyVideo })
 
       dispatchToVisual('addDisplayingVideo', copyVideo)
-      dispatchToVisual('updateDisplayingVideosOrder', state.displayingVideos)
+      dispatch('updateDisplayingVideosOrder')
     },
     updateDisplayingVideosOrder ({ commit, state }) {
       dispatchToVisual('updateDisplayingVideosOrder', state.displayingVideos)
