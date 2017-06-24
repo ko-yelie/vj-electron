@@ -1,16 +1,8 @@
 import { ipcRenderer } from 'electron'
 import { uniqueId } from 'lodash'
 
-const videoData = [
-  {
-    videoId: 'AovB1kid35o',
-    title: 'AOKI takamasa // rhythm variation 06'
-  },
-  {
-    videoId: 'ZQ1zjPqJBPQ',
-    title: 'Alva Noto + Opiate - Opto File 2 - 2001'
-  }
-]
+import videoData from '../../assets/videos.json'
+
 const videos = videoData.map(({ videoId, title }) => ({
   videoId,
   title,
