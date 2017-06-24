@@ -8,13 +8,23 @@ export default new Vuex.Store({
     displayingVideos: []
   },
   mutations: {
-    UPDATE_DISPLAYING_VIDEOS (state, videos) {
-      state.displayingVideos = videos
-    }
+    ADD_DISPLAYING_VIDEO () {},
+    UPDATE_DISPLAYING_VIDEOS_ORDER () {},
+    UPDATE_OPACITY () {},
+    REMOVE_DISPLAYING_VIDEO () {}
   },
   actions: {
-    updateDisplayingVideos ({ commit }, videos) {
-      commit('UPDATE_DISPLAYING_VIDEOS', videos)
+    addDisplayingVideo ({ commit }, addedVideo) {
+      commit('ADD_DISPLAYING_VIDEO', addedVideo)
+    },
+    updateDisplayingVideosOrder ({ commit }, displayingVideos) {
+      commit('UPDATE_DISPLAYING_VIDEOS_ORDER', displayingVideos)
+    },
+    updateOpacity ({ commit }, video) {
+      commit('UPDATE_OPACITY', video)
+    },
+    removeDisplayingVideo ({ commit }, video) {
+      commit('REMOVE_DISPLAYING_VIDEO', video)
     }
   },
   strict: process.env.NODE_ENV !== 'production'

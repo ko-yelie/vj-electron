@@ -56,8 +56,8 @@ function createVisualWindow (mainWindow) {
     ipcMain.removeAllListeners(['dispatch-connect'])
   })
 
-  ipcMain.on('dispatch-connect', (event, typeName, payload) => {
-    visualWindow.webContents.send('dispatch-connect', typeName, payload)
+  ipcMain.on('dispatch-connect', (event, typeName, ...payload) => {
+    visualWindow.webContents.send('dispatch-connect', typeName, ...payload)
   })
 }
 

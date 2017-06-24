@@ -14,7 +14,7 @@ md-card
           value="video.opacity"
           @input="updateOpacity"
         )
-        md-button(@click.native="removeVideo") Remove
+        md-button(@click.native="removeDisplayingVideo") Remove
 </template>
 
 <script>
@@ -32,8 +32,8 @@ export default {
         opacity
       })
     },
-    removeVideo () {
-      this.$store.dispatch('removeVideo', this.video)
+    removeDisplayingVideo () {
+      this.$store.dispatch('removeDisplayingVideo', this.video)
     }
   }
 }

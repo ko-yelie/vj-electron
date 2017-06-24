@@ -6,11 +6,6 @@ import VjVideo from './LandingPage/VjVideo'
 
 export default {
   name: 'landing-page',
-  data () {
-    return {
-      sliderValue: 50
-    }
-  },
   components: {
     draggable,
     VjVideo
@@ -36,6 +31,12 @@ export default {
     }
   },
   methods: {
+    addDisplayingVideo (evt) {
+      this.$store.dispatch('addDisplayingVideo', evt.item._underlying_vm_)
+    },
+    updateDisplayingVideosOrder () {
+      this.$store.dispatch('updateDisplayingVideosOrder')
+    }
   }
 }
 </script>

@@ -1,21 +1,26 @@
 import { ipcRenderer } from 'electron'
+import { uniqueId } from 'lodash'
 
 const videoData = [
   {
-    id: 'AovB1kid35o',
+    videoId: 'AovB1kid35o',
     title: 'AOKI takamasa // rhythm variation 06'
   },
   {
-    id: 'ZQ1zjPqJBPQ',
+    videoId: 'ZQ1zjPqJBPQ',
     title: 'Alva Noto + Opiate - Opto File 2 - 2001'
   }
 ]
-const videos = videoData.map(({ id, title }) => ({
-  id,
+const videos = videoData.map(({ videoId, title }) => ({
+  videoId,
   title,
-  thumbnail: `./src/renderer/assets/${id}.jpg`,
+  thumbnail: `./src/renderer/assets/${videoId}.jpg`,
   opacity: 1
 }))
+
+function dispatchToVisual (typeName, ...payload) {
+  ipcRenderer.send('dispatch-connect', typeName, ...payload)
+}
 
 export default {
   state: {
@@ -29,10 +34,18 @@ export default {
     UPDATE_DISPLAYING_VIDEOS (state, displayingVideos) {
       state.displayingVideos = displayingVideos
     },
+    ADD_DISPLAYING_VIDEO (state, { video, copyVideo }) {
+      state.displayingVideos.splice(state.displayingVideos.indexOf(video), 1, copyVideo)
+    },
+    UPDATE_DISPLAYING_VIDEOS_ORDER (state) {
+      state.displayingVideos.map((video, index) => {
+        video.order = index
+      })
+    },
     UPDATE_OPACITY (state, { video, opacity }) {
       video.opacity = opacity
     },
-    REMOVE_VIDEO (state, video) {
+    REMOVE_DISPLAYING_VIDEO (state, video) {
       state.displayingVideos.splice(state.displayingVideos.indexOf(video), 1)
     }
   },
@@ -42,18 +55,30 @@ export default {
     },
     updateDisplayingVideos ({ commit, state }, displayingVideos) {
       commit('UPDATE_DISPLAYING_VIDEOS', displayingVideos)
-
-      ipcRenderer.send('dispatch-connect', 'updateDisplayingVideos', state.displayingVideos)
     },
-    updateOpacity ({ commit, state }, payload) {
+    addDisplayingVideo ({ commit, state }, video) {
+      const id = uniqueId()
+      const copyVideo = Object.assign({ id }, video)
+      commit('ADD_DISPLAYING_VIDEO', { video, copyVideo })
+      commit('UPDATE_DISPLAYING_VIDEOS_ORDER')
+
+      dispatchToVisual('addDisplayingVideo', copyVideo)
+      dispatchToVisual('updateDisplayingVideosOrder', state.displayingVideos)
+    },
+    updateDisplayingVideosOrder ({ commit, state }) {
+      commit('UPDATE_DISPLAYING_VIDEOS_ORDER')
+
+      dispatchToVisual('updateDisplayingVideosOrder', state.displayingVideos)
+    },
+    updateOpacity ({ commit }, payload) {
       commit('UPDATE_OPACITY', payload)
 
-      ipcRenderer.send('dispatch-connect', 'updateDisplayingVideos', state.displayingVideos)
+      dispatchToVisual('updateOpacity', payload.video)
     },
-    removeVideo ({ commit, state }, video) {
-      commit('REMOVE_VIDEO', video)
+    removeDisplayingVideo ({ commit }, video) {
+      commit('REMOVE_DISPLAYING_VIDEO', video)
 
-      ipcRenderer.send('dispatch-connect', 'updateDisplayingVideos', state.displayingVideos)
+      dispatchToVisual('removeDisplayingVideo', video)
     }
   }
 }
