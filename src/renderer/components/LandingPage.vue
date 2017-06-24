@@ -1,8 +1,9 @@
 <script>
-import { mapState } from 'vuex'
 import draggable from 'vuedraggable'
 
 import VjVideo from './LandingPage/VjVideo'
+
+let displayingVideosCache = []
 
 export default {
   name: 'landing-page',
@@ -11,8 +12,6 @@ export default {
     VjVideo
   },
   computed: {
-    ...mapState({
-    }),
     videos: {
       get () {
         return this.$store.state.Video.videos
@@ -26,16 +25,14 @@ export default {
         return this.$store.state.Video.displayingVideos
       },
       set (displayingVideos) {
-        this.$store.dispatch('updateDisplayingVideos', displayingVideos)
+        displayingVideosCache = displayingVideos
       }
     }
   },
   methods: {
-    addDisplayingVideo (evt) {
-      this.$store.dispatch('addDisplayingVideo', evt.item._underlying_vm_)
-    },
-    updateDisplayingVideosOrder () {
-      this.$store.dispatch('updateDisplayingVideosOrder')
+    changeDisplayingVideos (evt) {
+      this.$store.dispatch('updateDisplayingVideos', displayingVideosCache)
+      this.$store.dispatch('changeDisplayingVideos', evt)
     }
   }
 }

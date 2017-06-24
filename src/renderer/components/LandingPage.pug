@@ -9,13 +9,12 @@ div
         draggable(
           v-model='displayingVideos'
           :options="{ group: 'video' }"
-          @add="addDisplayingVideo"
-          @update="updateDisplayingVideosOrder"
+          @change="changeDisplayingVideos"
         )
           transition-group.displaying-videos(name="flip-list")
             vj-video.displaying-videos-item(
               v-for="video in displayingVideos"
-              :key='video.videoId'
+              :key='video.id'
               :video="video"
             )
 
@@ -28,8 +27,8 @@ div
         )
           transition-group
             md-list-item(
-              v-for="(video, index) in videos"
-              :key='index'
+              v-for="video in videos"
+              :key='video.videoId'
             )
               md-avatar.md-large
                 img(:src="video.thumbnail", alt="")

@@ -10,8 +10,8 @@ md-card
         range-slider(
           min="0"
           max="1"
-          step="0.1"
-          value="video.opacity"
+          step="0.05"
+          v-model="opacity"
           @input="updateOpacity"
         )
         md-button(@click.native="removeDisplayingVideo") Remove
@@ -22,6 +22,11 @@ import RangeSlider from 'vue-range-slider'
 
 export default {
   props: ['video'],
+  data () {
+    return {
+      opacity: this.video.opacity
+    }
+  },
   components: {
     RangeSlider
   },

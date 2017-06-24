@@ -43,6 +43,13 @@ export default {
     updateDisplayingVideos ({ commit, state }, displayingVideos) {
       commit('UPDATE_DISPLAYING_VIDEOS', displayingVideos)
     },
+    changeDisplayingVideos ({ commit, dispatch }, { added, moved }) {
+      if (added) {
+        dispatch('addDisplayingVideo', added.element)
+      } else if (moved) {
+        dispatch('updateDisplayingVideosOrder')
+      }
+    },
     addDisplayingVideo ({ commit, dispatch }, video) {
       const id = uniqueId()
       const copyVideo = Object.assign({ id }, video)
