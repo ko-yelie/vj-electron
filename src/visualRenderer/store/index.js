@@ -4,9 +4,6 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  state: {
-    displayingVideos: []
-  },
   mutations: {
     ADD_DISPLAYING_VIDEO () {},
     UPDATE_DISPLAYING_VIDEOS_ORDER () {},
@@ -23,8 +20,8 @@ export default new Vuex.Store({
     updateOpacity ({ commit }, video) {
       commit('UPDATE_OPACITY', video)
     },
-    removeDisplayingVideo ({ commit }, video) {
-      commit('REMOVE_DISPLAYING_VIDEO', video)
+    removeDisplayingVideo ({ commit }, removedVideo) {
+      commit('REMOVE_DISPLAYING_VIDEO', removedVideo)
     }
   },
   strict: process.env.NODE_ENV !== 'production'

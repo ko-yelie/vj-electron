@@ -3,13 +3,13 @@ iframe.visual(
   :src="'https://www.youtube.com/embed/' + video.videoId + '?showinfo=0&rel=0&controls=0&fs=0&iv_load_policy=3&loop=1&autoplay=1'",
   frameborder="0",
   allowfullscreen=""
-  :style="{ 'z-index': video.order, opacity: video.opacity }"
+  :style="{ 'z-index': order, opacity: video.opacity }"
 )
 </template>
 
 <script>
 export default {
-  props: ['video']
+  props: ['video', 'order']
 }
 </script>
 

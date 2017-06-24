@@ -37,11 +37,6 @@ export default {
     ADD_DISPLAYING_VIDEO (state, { video, copyVideo }) {
       state.displayingVideos.splice(state.displayingVideos.indexOf(video), 1, copyVideo)
     },
-    UPDATE_DISPLAYING_VIDEOS_ORDER (state) {
-      state.displayingVideos.map((video, index) => {
-        video.order = index
-      })
-    },
     UPDATE_OPACITY (state, { video, opacity }) {
       video.opacity = opacity
     },
@@ -60,14 +55,11 @@ export default {
       const id = uniqueId()
       const copyVideo = Object.assign({ id }, video)
       commit('ADD_DISPLAYING_VIDEO', { video, copyVideo })
-      commit('UPDATE_DISPLAYING_VIDEOS_ORDER')
 
       dispatchToVisual('addDisplayingVideo', copyVideo)
       dispatchToVisual('updateDisplayingVideosOrder', state.displayingVideos)
     },
     updateDisplayingVideosOrder ({ commit, state }) {
-      commit('UPDATE_DISPLAYING_VIDEOS_ORDER')
-
       dispatchToVisual('updateDisplayingVideosOrder', state.displayingVideos)
     },
     updateOpacity ({ commit }, payload) {

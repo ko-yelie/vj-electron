@@ -29,7 +29,7 @@ export default {
         case 'UPDATE_DISPLAYING_VIDEOS_ORDER':
           const displayingVideos = mutation.payload
           displayingVideos.forEach((video, index) => {
-            this.components[video.id].video.order = video.order
+            this.components[video.id].order = index
           })
           break
         case 'UPDATE_OPACITY':
