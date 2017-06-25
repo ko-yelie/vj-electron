@@ -9,3 +9,6 @@ npm-debug.log
 npm-debug.log.*
 thumbs.db
 !.gitkeep
+
+src/renderer/assets/thumbnail/
+src/renderer/assets/video/

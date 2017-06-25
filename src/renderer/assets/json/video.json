@@ -1,6 +1,20 @@
 [
   {
-    "url": "http://www9.nhk.or.jp/das/movie/D0002100/D0002100090_00000_V_000.mp4",
+    "url": "/src/renderer/assets/video/D0002100090_00000_V_000.mp4",
     "title": "オーロラ（１）"
+  },
+  {
+    "url": "/src/renderer/assets/video/D0002040236_00000_V_000.mp4",
+    "title": "どーもくん　ギターを弾きまくる"
+  },
+  {
+    "url": "/src/renderer/assets/video/fleer.ultra.mp4",
+    "title": "fleer.ultra",
+    "thumbnail": "/src/renderer/assets/thumbnail/198517977.webp"
+  },
+  {
+    "url": "/src/renderer/assets/video/Sunbeamsleaves02_720.mp4",
+    "title": "木漏れ日",
+    "thumbnail": "/src/renderer/assets/thumbnail/Sunbeamsleaves02.gif"
   }
 ]
