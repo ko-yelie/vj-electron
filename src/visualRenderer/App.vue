@@ -2,9 +2,9 @@
 import { ipcRenderer } from 'electron'
 import Vue from 'vue'
 
-import VjVideoOpsions from './components/VjVideo'
+import VjVisualComponent from './components/VjVisual'
 
-const VjVideo = Vue.extend(VjVideoOpsions)
+const VjVisual = Vue.extend(VjVisualComponent)
 
 export default {
   name: 'visual-page',
@@ -15,25 +15,25 @@ export default {
   },
   mounted () {
     const actions = {
-      addDisplayingVideo: (video) => {
-        const addedComponent = new VjVideo({
-          propsData: { video }
+      addDisplayingVideo: (visual) => {
+        const addedComponent = new VjVisual({
+          propsData: { visual }
         }).$mount()
         this.$el.appendChild(addedComponent.$el)
 
-        this.components[video.id] = addedComponent
+        this.components[visual.id] = addedComponent
       },
       updateDisplayingVideosOrder: (displayingVideos) => {
-        displayingVideos.forEach((video, index) => {
-          this.components[video.id].order = index
+        displayingVideos.forEach((visual, index) => {
+          this.components[visual.id].order = index
         })
       },
-      updateOpacity: (video) => {
-        this.components[video.id].video.opacity = video.opacity
+      updateOpacity: (visual) => {
+        this.components[visual.id].visual.opacity = visual.opacity
       },
-      removeDisplayingVideo: (video) => {
-        this.$el.removeChild(this.components[video.id].$el)
-        delete this.components[video.id]
+      removeDisplayingVideo: (visual) => {
+        this.$el.removeChild(this.components[visual.id].$el)
+        delete this.components[visual.id]
       }
     }
 
@@ -51,12 +51,13 @@ export default {
 <style lang="scss">
 body {
   margin: 0;
-  background: #000;
 }
 
 .view {
+  overflow: hidden;
   position: relative;
   width: 100vw;
   height: 100vh;
+  background: #000;
 }
 </style>

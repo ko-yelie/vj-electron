@@ -45,4 +45,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.md-card-media {
+  background: #000;
+}
 </style>

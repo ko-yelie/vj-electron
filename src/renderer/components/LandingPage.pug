@@ -28,8 +28,8 @@ div
           transition-group
             md-list-item(
               v-for="video in videos"
-              :key='video.videoId'
+              :key='video.url'
             )
-              md-avatar.md-large
+              md-avatar.md-large(v-if="video.thumbnail")
                 img(:src="video.thumbnail", alt="")
               span {{ video.title }}

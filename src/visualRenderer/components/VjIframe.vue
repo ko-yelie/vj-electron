@@ -1,8 +1,8 @@
 <template lang="pug">
-video.visual(
-  :src="visual.url"
-  autoplay=""
-  loop=""
+iframe.visual(
+  :src="visual.url",
+  frameborder="0",
+  allowfullscreen=""
   :style="{ 'z-index': order, opacity: visual.opacity }"
 )
 </template>
@@ -14,4 +14,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.visual {
+  left: 50%;
+  width: calc(100vh * #{(640 / 360)});
+  transform: translateX(-50%);
+}
 </style>

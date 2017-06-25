@@ -1,14 +1,22 @@
 import { ipcRenderer } from 'electron'
 import { uniqueId } from 'lodash'
 
-import videoData from '../../assets/videos.json'
+import iframeData from '../../assets/json/iframe.json'
+import videoData from '../../assets/json/video.json'
 
-const videos = videoData.map(({ videoId, title }) => ({
-  videoId,
+const videos = iframeData.map(({ url, title, thumbnail }) => ({
+  url,
   title,
-  thumbnail: `./src/renderer/assets/${videoId}.jpg`,
+  thumbnail,
+  type: 'iframe',
   opacity: 1
-}))
+})).concat(videoData.map(({ url, title, thumbnail }) => ({
+  url,
+  title,
+  thumbnail,
+  type: 'videoTag',
+  opacity: 1
+})))
 
 function dispatchToVisual (typeName, ...payload) {
   ipcRenderer.send('dispatch-connect', typeName, ...payload)
