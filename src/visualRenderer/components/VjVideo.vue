@@ -3,6 +3,7 @@ video.visual(
   :src="visual.url"
   autoplay=""
   loop=""
+  muted=""
   :style="{ 'z-index': order, opacity: visual.opacity }"
 )
 </template>
