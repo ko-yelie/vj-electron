@@ -1,5 +1,5 @@
 <template lang="pug">
-component(
+component.visual(
   :is="visual.type"
   :visual="visual"
   :order="order"
@@ -9,12 +9,14 @@ component(
 <script>
 import VjIframe from './VjIframe'
 import VjVideo from './VjVideo'
+import VjParticlesJs from './VjParticlesJs'
 
 export default {
   props: ['visual', 'order'],
   components: {
     iframe: VjIframe,
-    videoTag: VjVideo
+    videoTag: VjVideo,
+    particlesJs: VjParticlesJs
   }
 }
 </script>

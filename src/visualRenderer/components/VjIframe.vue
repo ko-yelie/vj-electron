@@ -1,5 +1,5 @@
 <template lang="pug">
-iframe.visual(
+iframe(
   :src="visual.url",
   frameborder="0",
   allowfullscreen=""

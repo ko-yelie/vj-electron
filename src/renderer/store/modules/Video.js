@@ -1,8 +1,9 @@
 import { ipcRenderer } from 'electron'
 import { uniqueId } from 'lodash'
 
-import iframeData from '../../assets/json/iframe.json'
-import videoData from '../../assets/json/video.json'
+import iframeData from '../../assets/json/visual/iframe.json'
+import videoData from '../../assets/json/visual/video.json'
+import jsData from '../../assets/json/visual/js.json'
 
 const videos = iframeData.map(({ url, title, thumbnail }) => ({
   url,
@@ -15,6 +16,12 @@ const videos = iframeData.map(({ url, title, thumbnail }) => ({
   title,
   thumbnail,
   type: 'videoTag',
+  opacity: 1
+}))).concat(jsData.map(({ url, title, thumbnail, type }) => ({
+  url,
+  title,
+  thumbnail,
+  type,
   opacity: 1
 })))
 

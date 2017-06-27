@@ -1,0 +1,12 @@
+[
+  {
+    "url": "/src/renderer/assets/canvas/particles.js/demo/",
+    "title": "particles.js",
+    "type": "particlesJs"
+  },
+  {
+    "url": "/src/renderer/assets/canvas/InfiniteTubes/",
+    "title": "Infinite Tubes",
+    "type": "iframe"
+  }
+]

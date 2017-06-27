@@ -1,5 +1,5 @@
 <template lang="pug">
-video.visual(
+video(
   :src="visual.url"
   autoplay=""
   loop=""
@@ -13,6 +13,3 @@ export default {
   props: ['visual', 'order']
 }
 </script>
-
-<style scoped lang="scss">
-</style>
