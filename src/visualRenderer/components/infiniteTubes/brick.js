@@ -212,10 +212,10 @@ export default function (canvas) {
   // All needed textures
   var textures = {
     "stone": {
-      url: "/src/renderer/assets/img/infiniteTubes/demo1/stonePattern.jpg"
+      url: "/src/visualRenderer/assets/img/infiniteTubes/brick/stonePattern.jpg"
     },
     "stoneBump": {
-      url: "/src/renderer/assets/img/infiniteTubes/demo1/stonePatternBump.jpg"
+      url: "/src/visualRenderer/assets/img/infiniteTubes/brick/stonePatternBump.jpg"
     }
   };
   // Create a new loader
