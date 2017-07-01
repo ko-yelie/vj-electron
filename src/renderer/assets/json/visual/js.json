@@ -14,5 +14,10 @@
     "title": "Infinite Tubes - Particles",
     "type": "infiniteTubes",
     "demo": "particles"
+  },
+  {
+    "title": "Infinite Tubes - Star Wars",
+    "type": "infiniteTubes",
+    "demo": "starWars"
   }
 ]

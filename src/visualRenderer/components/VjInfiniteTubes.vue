@@ -5,10 +5,12 @@ canvas
 <script>
 import brick from './infiniteTubes/brick'
 import particles from './infiniteTubes/particles'
+import starWars from './infiniteTubes/starWars'
 
 const demos = {
   brick,
-  particles
+  particles,
+  starWars
 }
 
 function mounted () {
