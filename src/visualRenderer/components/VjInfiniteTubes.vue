@@ -4,9 +4,11 @@ canvas
 
 <script>
 import brick from './infiniteTubes/brick'
+import particles from './infiniteTubes/particles'
 
 const demos = {
-  brick
+  brick,
+  particles
 }
 
 function mounted () {

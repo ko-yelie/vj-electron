@@ -9,5 +9,10 @@
     "title": "Infinite Tubes - Brick Tunnel",
     "type": "infiniteTubes",
     "demo": "brick"
+  },
+  {
+    "title": "Infinite Tubes - Particles",
+    "type": "infiniteTubes",
+    "demo": "particles"
   }
 ]
