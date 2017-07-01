@@ -27,8 +27,8 @@ div
         )
           transition-group
             md-list-item(
-              v-for="video in videos"
-              :key='video.url'
+              v-for="(video, index) in videos"
+              :key='index'
             )
               md-avatar.md-large(v-if="video.thumbnail")
                 img(:src="video.thumbnail", alt="")

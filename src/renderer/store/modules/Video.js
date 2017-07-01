@@ -5,25 +5,13 @@ import iframeData from '../../assets/json/visual/iframe.json'
 import videoData from '../../assets/json/visual/video.json'
 import jsData from '../../assets/json/visual/js.json'
 
-const videos = iframeData.map(({ url, title, thumbnail }) => ({
-  url,
-  title,
-  thumbnail,
+const videos = iframeData.map(visualData => Object.assign(visualData, {
   type: 'iframe',
   opacity: 1
-})).concat(videoData.map(({ url, title, thumbnail }) => ({
-  url,
-  title,
-  thumbnail,
+})).concat(videoData.map(visualData => Object.assign(visualData, {
   type: 'videoTag',
   opacity: 1
-}))).concat(jsData.map(({ url, title, thumbnail, type, gui, config }) => ({
-  url,
-  title,
-  thumbnail,
-  type,
-  gui,
-  config,
+}))).concat(jsData.map(visualData => Object.assign(visualData, {
   opacity: 1
 })))
 

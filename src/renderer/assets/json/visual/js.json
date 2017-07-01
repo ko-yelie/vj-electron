@@ -1,14 +1,13 @@
 [
   {
-    "url": "/src/renderer/assets/canvas/particles.js/demo/",
     "title": "particles.js",
     "type": "particlesJs",
     "gui": "particlesJsGui",
     "config": "default"
   },
   {
-    "url": "/src/renderer/assets/canvas/InfiniteTubes/",
-    "title": "Infinite Tubes",
-    "type": "infiniteTubes"
+    "title": "Infinite Tubes - Brick Tunnel",
+    "type": "infiniteTubes",
+    "demo": "brick"
   }
 ]
