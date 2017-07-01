@@ -10,13 +10,15 @@ component.visual(
 import VjIframe from './VjIframe'
 import VjVideo from './VjVideo'
 import VjParticlesJs from './VjParticlesJs'
+import VjInfiniteTubes from './VjInfiniteTubes'
 
 export default {
   props: ['visual', 'order'],
   components: {
     iframe: VjIframe,
     videoTag: VjVideo,
-    particlesJs: VjParticlesJs
+    particlesJs: VjParticlesJs,
+    infiniteTubes: VjInfiniteTubes
   }
 }
 </script>
