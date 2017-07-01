@@ -17,11 +17,13 @@ const videos = iframeData.map(({ url, title, thumbnail }) => ({
   thumbnail,
   type: 'videoTag',
   opacity: 1
-}))).concat(jsData.map(({ url, title, thumbnail, type }) => ({
+}))).concat(jsData.map(({ url, title, thumbnail, type, gui, config }) => ({
   url,
   title,
   thumbnail,
   type,
+  gui,
+  config,
   opacity: 1
 })))
 

@@ -5,17 +5,33 @@
 </template>
 
 <script>
+import { ipcRenderer } from 'electron'
 import '../../../node_modules/particles.js/particles.js'
-import loadGUI from './particlesJsGui.js'
 
 export default {
   props: ['visual', 'order'],
   mounted () {
-    window.particlesJS.load(
-      'particles-js',
-      '/src/renderer/assets/json/js/particlesjs-config.json',
-      loadGUI
-    )
+    let pJS
+
+    const actions = {
+      initParticlesJs: (configJson) => {
+        window.particlesJS(
+          'particles-js',
+          configJson
+        )
+        pJS = window.pJSDom[0].pJS
+
+        ipcRenderer.send('receive-particles-js', pJS)
+      },
+      updateParticlesJs: (pJSGui) => {
+        Object.assign(pJS, pJSGui)
+        pJS.fn.particlesRefresh()
+      }
+    }
+
+    ipcRenderer.on('dispatch-particles-js', (event, typeName, ...payload) => {
+      actions[typeName](...payload)
+    })
   }
 }
 </script>

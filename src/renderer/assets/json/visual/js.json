@@ -2,7 +2,9 @@
   {
     "url": "/src/renderer/assets/canvas/particles.js/demo/",
     "title": "particles.js",
-    "type": "particlesJs"
+    "type": "particlesJs",
+    "gui": "particlesJsGui",
+    "config": "default"
   },
   {
     "url": "/src/renderer/assets/canvas/InfiniteTubes/",

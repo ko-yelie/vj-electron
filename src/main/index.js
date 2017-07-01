@@ -40,6 +40,10 @@ function createWindow () {
     visualWindow = null
   })
 
+  ipcMain.on('receive-particles-js', (event, payload) => {
+    mainWindow.webContents.send('receive-particles-js', payload)
+  })
+
   createVisualWindow(mainWindow)
 }
 
@@ -58,6 +62,9 @@ function createVisualWindow (mainWindow) {
 
   ipcMain.on('dispatch-connect', (event, typeName, ...payload) => {
     visualWindow.webContents.send('dispatch-connect', typeName, ...payload)
+  })
+  ipcMain.on('dispatch-particles-js', (event, typeName, ...payload) => {
+    visualWindow.webContents.send('dispatch-particles-js', typeName, ...payload)
   })
 }
 

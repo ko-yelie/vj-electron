@@ -1,7 +1,7 @@
 <script>
 import draggable from 'vuedraggable'
 
-import VjVideo from './LandingPage/VjVideo'
+import VjVisual from './LandingPage/VjVisual'
 
 let displayingVideosCache = []
 
@@ -9,7 +9,7 @@ export default {
   name: 'landing-page',
   components: {
     draggable,
-    VjVideo
+    VjVisual
   },
   computed: {
     videos: {

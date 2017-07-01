@@ -20,6 +20,12 @@ md-card
 <script>
 import RangeSlider from 'vue-range-slider'
 
+import particlesJsGui from '../gui/particlesJsGui.js'
+
+const loadGUI = {
+  particlesJsGui
+}
+
 export default {
   props: ['video'],
   data () {
@@ -40,11 +46,18 @@ export default {
     removeDisplayingVideo () {
       this.$store.dispatch('removeDisplayingVideo', this.video)
     }
+  },
+  mounted () {
+    this.video.gui && loadGUI[this.video.gui](this.video.config)
   }
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
+$rail-fill-color: #3f51b5;
+
+@import '~vue-range-slider/dist/vue-range-slider.scss';
+
 .md-card {
   width: 300px;
 
