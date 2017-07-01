@@ -19,5 +19,10 @@
     "title": "Infinite Tubes - Star Wars",
     "type": "infiniteTubes",
     "demo": "starWars"
+  },
+  {
+    "title": "Infinite Tubes - Triangle",
+    "type": "infiniteTubes",
+    "demo": "triangle"
   }
 ]
