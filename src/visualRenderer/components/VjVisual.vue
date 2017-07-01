@@ -2,7 +2,7 @@
 component.visual(
   :is="visual.type"
   :visual="visual"
-  :order="order"
+  :style="{ 'z-index': order, opacity: visual.opacity }"
 )
 </template>
 

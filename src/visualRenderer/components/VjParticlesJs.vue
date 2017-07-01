@@ -1,7 +1,5 @@
 <template lang="pug">
-#particles-js(
-  :style="{ 'z-index': order, opacity: visual.opacity }"
-)
+#particles-js
 </template>
 
 <script>
@@ -9,7 +7,6 @@ import { ipcRenderer } from 'electron'
 import '../../../node_modules/particles.js/particles.js'
 
 export default {
-  props: ['visual', 'order'],
   mounted () {
     let pJS
 

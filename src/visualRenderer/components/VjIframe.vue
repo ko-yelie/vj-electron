@@ -3,13 +3,12 @@ iframe(
   :src="visual.url",
   frameborder="0",
   allowfullscreen=""
-  :style="{ 'z-index': order, opacity: visual.opacity }"
 )
 </template>
 
 <script>
 export default {
-  props: ['visual', 'order']
+  props: ['visual']
 }
 </script>
 
