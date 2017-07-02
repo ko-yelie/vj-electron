@@ -48,7 +48,7 @@ body {
     flex-wrap: wrap;
     width: 100%;
     padding: 8px;
-    padding-bottom: 40px + 8px;
+    padding-bottom: calc(24% + 8px);
   }
 
   &-item {
