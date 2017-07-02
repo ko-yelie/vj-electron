@@ -3,6 +3,23 @@
 
 <script>
 function mounted () {
+  const colorList = [
+    '#ff8e8e',
+    '#ff8ec6',
+    '#ff8eff',
+    '#c68eff',
+    '#8e8eff',
+    '#8ec6ff',
+    '#8effff',
+    '#8effc6',
+    '#8eff8e',
+    '#c6ff8e',
+    '#ffff8e',
+    '#ffc68e',
+    '#fff'
+  ]
+  const colorListLength = colorList.length
+
   /* eslint-disable */
   var two = new Two({
     type: Two.Types['canvas'],
@@ -57,7 +74,7 @@ function mounted () {
 
     var text = two.makeText(msg, x, y, styles);
     text.size *= 2;
-    text.fill = '#333';
+    text.fill = colorList[Math.floor(Math.random() * colorListLength)];
 
     text.velocity = new Two.Vector();
     text.velocity.x = 10 * (Math.random() - 0.5);
