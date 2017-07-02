@@ -1,6 +1,6 @@
 <template lang="pug">
 md-card
-  md-card-media-cover(md-text-scrim='')
+  md-card-media-cover(md-solid='')
     md-card-media(md-ratio='16:9')
       img(:src="video.thumbnail", alt="")
     md-card-area
@@ -59,10 +59,29 @@ $rail-fill-color: #3f51b5;
 @import '~vue-range-slider/dist/vue-range-slider.scss';
 
 .md-card {
-  width: 300px;
+  width: 100%;
+  cursor: -webkit-grab;
+
+  &.sortable-chosen {
+    cursor: -webkit-grabbing;
+  }
 
   &-media {
     background: #000;
+
+    .md-card &.md-16-9:before {
+      padding-top: 24%;
+    }
+  }
+
+  .md-card-header {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .md-title {
+    font-size: 14px;
+    line-height: 1.33
   }
 }
 </style>

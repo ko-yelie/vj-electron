@@ -1,9 +1,9 @@
-div
+.container
   md-toolbar
     h1.md-title コントロール画面
 
-  md-layout
-    md-layout(md-column='')
+  md-layout.layout
+    md-layout(md-column='').column.displaying-videos
       //- 表示中ビデオ
       div
         draggable(
@@ -11,7 +11,7 @@ div
           :options="{ group: 'video' }"
           @change="changeDisplayingVideos"
         )
-          transition-group.displaying-videos(name="flip-list")
+          transition-group.displaying-videos-list(name="flip-list")
             vj-visual.displaying-videos-item(
               v-for="video in displayingVideos"
               :key='video.id'
@@ -19,9 +19,9 @@ div
             )
 
     //- ビデオリスト
-    md-layout(md-column='', md-flex='33')
-      md-list
-        draggable.videos(
+    md-layout(md-column='', md-flex='33').column
+      md-list.md-dense
+        draggable.video-stock(
           v-model='videos'
           :options="{ group: { name: 'video', pull: 'clone', put: false }, sort: false }"
         )
