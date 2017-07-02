@@ -11,4 +11,4 @@ thumbs.db
 !.gitkeep
 
 src/renderer/assets/thumbnail/
-src/renderer/assets/video/
+src/visualRenderer/assets/video/

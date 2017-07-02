@@ -1,75 +1,125 @@
 [
   {
-    "url": "/src/renderer/assets/video/D0002050643_00000_V_000.mp4",
-    "title": "ウユニの天空の鏡に映る時の流れ　こま撮り（ボリビア）"
+    "url": "/src/visualRenderer/assets/video/D0002050643_00000_V_000.mp4",
+    "title": "ウユニの天空の鏡に映る時の流れ　こま撮り（ボリビア）",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002050643_00000_S_005.jpg",
+    "copyright": true
   },
   {
-    "url": "/src/renderer/assets/video/D0002100090_00000_V_000.mp4",
-    "title": "オーロラ（１）"
+    "url": "/src/visualRenderer/assets/video/D0002100090_00000_V_000.mp4",
+    "title": "オーロラ（１）",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002100090_00000_S_005.jpg",
+    "copyright": true
   },
   {
-    "url": "/src/renderer/assets/video/D0002040040_00000_V_000.mp4",
-    "title": "ＣＧ　未来の火星想像図（７）未来都市"
+    "url": "/src/visualRenderer/assets/video/D0002040040_00000_V_000.mp4",
+    "title": "ＣＧ　未来の火星想像図（７）未来都市",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002040040_00000_S_005.jpg",
+    "copyright": true
   },
   {
-    "url": "/src/renderer/assets/video/D0002040088_00000_V_000.mp4",
-    "title": "ＣＧ　スペースコロニー（１）"
+    "url": "/src/visualRenderer/assets/video/D0002040088_00000_V_000.mp4",
+    "title": "ＣＧ　スペースコロニー（１）",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002040088_00000_S_005.jpg",
+    "copyright": true
   },
   {
-    "url": "/src/renderer/assets/video/D0002040091_00000_V_000.mp4",
-    "title": "ＣＧ　スペースコロニー（３）"
+    "url": "/src/visualRenderer/assets/video/D0002040091_00000_V_000.mp4",
+    "title": "ＣＧ　スペースコロニー（３）",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002040091_00000_S_005.jpg",
+    "copyright": true
   },
   {
-    "url": "/src/renderer/assets/video/D0002040050_00000_V_000.mp4",
-    "title": "ＣＧ　太陽系の誕生"
+    "url": "/src/visualRenderer/assets/video/D0002040050_00000_V_000.mp4",
+    "title": "ＣＧ　太陽系の誕生",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002040050_00000_S_005.jpg",
+    "copyright": true
   },
   {
-    "url": "/src/renderer/assets/video/D0002040077_00000_V_000.mp4",
-    "title": "ＣＧ　ワームホールを通過するイメージ"
+    "url": "/src/visualRenderer/assets/video/D0002040077_00000_V_000.mp4",
+    "title": "ＣＧ　ワームホールを通過するイメージ",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002040077_00000_S_005.jpg",
+    "copyright": true
   },
   {
-    "url": "/src/renderer/assets/video/D0002040053_00000_V_000.mp4",
-    "title": "ＣＧ　超新星爆発"
+    "url": "/src/visualRenderer/assets/video/D0002040053_00000_V_000.mp4",
+    "title": "ＣＧ　超新星爆発",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002040053_00000_S_005.jpg",
+    "copyright": true
   },
   {
-    "url": "/src/renderer/assets/video/D0002060158_00000_V_000.mp4",
-    "title": "ネコ　台の上へジャンプ"
+    "url": "/src/visualRenderer/assets/video/D0002100043_00000_V_000.mp4",
+    "title": "夜の高速道路を運転",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002100043_00000_S_005.jpg",
+    "copyright": true
   },
   {
-    "url": "/src/renderer/assets/video/D0002060159_00000_V_000.mp4",
-    "title": "ネコ　着地成功のポイント"
+    "url": "/src/visualRenderer/assets/video/D0002100042_00000_V_000.mp4",
+    "title": "夜の高速道路　トンネル",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002100042_00000_S_005.jpg",
+    "copyright": true
   },
   {
-    "url": "/src/renderer/assets/video/D0002060156_00000_V_000.mp4",
-    "title": "走るネコの姿"
+    "url": "/src/visualRenderer/assets/video/D0002060158_00000_V_000.mp4",
+    "title": "ネコ　台の上へジャンプ",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002060158_00000_S_005.jpg",
+    "copyright": true
   },
   {
-    "url": "/src/renderer/assets/video/D0002040236_00000_V_000.mp4",
-    "title": "どーもくん　ギターを弾きまくる"
+    "url": "/src/visualRenderer/assets/video/D0002060159_00000_V_000.mp4",
+    "title": "ネコ　着地成功のポイント",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002060159_00000_S_005.jpg",
+    "copyright": true
   },
   {
-    "url": "/src/renderer/assets/video/D0002100089_00000_V_000.mp4",
-    "title": "どーもくん　走り抜ける"
+    "url": "/src/visualRenderer/assets/video/D0002060156_00000_V_000.mp4",
+    "title": "走るネコの姿",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002060156_00000_S_005.jpg",
+    "copyright": true
   },
   {
-    "url": "/src/renderer/assets/video/D0002040247_00000_V_000.mp4",
-    "title": "どーもくん　走り正面"
+    "url": "/src/visualRenderer/assets/video/D0002040236_00000_V_000.mp4",
+    "title": "どーもくん　ギターを弾きまくる",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002040236_00000_S_005.jpg",
+    "copyright": true
   },
   {
-    "url": "/src/renderer/assets/video/D0002040246_00000_V_000.mp4",
-    "title": "どーもくん　走り横"
+    "url": "/src/visualRenderer/assets/video/D0002100089_00000_V_000.mp4",
+    "title": "どーもくん　走り抜ける",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002100089_00000_S_005.jpg",
+    "copyright": true
   },
   {
-    "url": "/src/renderer/assets/video/D0002040245_00000_V_000.mp4",
-    "title": "どーもくん　走り斜め"
+    "url": "/src/visualRenderer/assets/video/D0002040247_00000_V_000.mp4",
+    "title": "どーもくん　走り正面",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002040247_00000_S_005.jpg",
+    "copyright": true
   },
   {
-    "url": "/src/renderer/assets/video/fleer.ultra.mp4",
+    "url": "/src/visualRenderer/assets/video/D0002040246_00000_V_000.mp4",
+    "title": "どーもくん　走り横",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002040246_00000_S_005.jpg",
+    "copyright": true
+  },
+  {
+    "url": "/src/visualRenderer/assets/video/D0002040245_00000_V_000.mp4",
+    "title": "どーもくん　走り斜め",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002040245_00000_S_005.jpg",
+    "copyright": true
+  },
+  {
+    "url": "/src/visualRenderer/assets/video/D0002040250_00000_V_000.mp4",
+    "title": "どーもくん、うさじい、たーちゃん　３人でバイバイ",
+    "thumbnail": "/src/renderer/assets/thumbnail/D0002040250_00000_S_005.jpg",
+    "copyright": true
+  },
+  {
+    "url": "/src/visualRenderer/assets/video/fleer.ultra.mp4",
     "title": "fleer.ultra",
     "thumbnail": "/src/renderer/assets/thumbnail/198517977.webp"
   },
   {
-    "url": "/src/renderer/assets/video/Sunbeamsleaves02_720.mp4",
+    "url": "/src/visualRenderer/assets/video/Sunbeamsleaves02_720.mp4",
     "title": "木漏れ日",
     "thumbnail": "/src/renderer/assets/thumbnail/Sunbeamsleaves02.gif"
   }

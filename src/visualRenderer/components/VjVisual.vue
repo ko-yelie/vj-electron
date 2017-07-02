@@ -2,6 +2,7 @@
 component.visual(
   :is="visual.type"
   :visual="visual"
+  :class="{ 'visual-copyright': visual.copyright }"
   :style="{ 'z-index': order, opacity: visual.opacity }"
 )
 </template>
@@ -33,5 +34,10 @@ export default {
   width: 100%;
   height: 100%;
   object-fit: cover;
+
+  &-copyright {
+    object-fit: contain;
+    transform: scale(1.08);
+  }
 }
 </style>

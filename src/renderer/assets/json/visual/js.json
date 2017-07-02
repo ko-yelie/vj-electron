@@ -3,30 +3,36 @@
     "title": "particles.js",
     "type": "particlesJs",
     "gui": "particlesJsGui",
-    "config": "default"
+    "config": "default",
+    "thumbnail": "/src/renderer/assets/thumbnail/687474703a2f2f76696e63656e74676172726561752e636f6d2f7061727469636c65732e6a732f6173736574732f696d672f6769746875622d73637265656e2e6a7067.jpeg"
   },
   {
     "title": "Infinite Tubes - Brick Tunnel",
     "type": "infiniteTubes",
-    "demo": "brick"
+    "demo": "brick",
+    "thumbnail": "/src/renderer/assets/thumbnail/InfiniteTubes_01.jpg"
   },
   {
     "title": "Infinite Tubes - Particles",
     "type": "infiniteTubes",
-    "demo": "particles"
+    "demo": "particles",
+    "thumbnail": "/src/renderer/assets/thumbnail/infiniteTube2.png"
   },
   {
     "title": "Infinite Tubes - Star Wars",
     "type": "infiniteTubes",
-    "demo": "starWars"
+    "demo": "starWars",
+    "thumbnail": "/src/renderer/assets/thumbnail/infiniteTube3.jpg"
   },
   {
     "title": "Infinite Tubes - Triangle",
     "type": "infiniteTubes",
-    "demo": "triangle"
+    "demo": "triangle",
+    "thumbnail": "/src/renderer/assets/thumbnail/infiniteTube5.jpg"
   },
   {
     "title": "Two.js: Dynamic Text",
-    "type": "dynamicText"
+    "type": "dynamicText",
+    "thumbnail": "/src/renderer/assets/thumbnail/text.gif"
   }
 ]

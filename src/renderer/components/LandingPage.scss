@@ -13,11 +13,20 @@ body {
   overflow: auto;
 }
 
+// Vue Material
+.md-avatar img {
+  object-fit: cover;
+}
+
 // video stock
 .video-stock {
   &.md-list.md-dense .md-list-item.md-inset {
     .md-list-item-container {
-      padding-left: 36px;
+      padding-left: 32px;
+
+      .md-avatar:first-child {
+        margin-right: 16px;
+      }
     }
 
     span {
