@@ -24,5 +24,9 @@
     "title": "Infinite Tubes - Triangle",
     "type": "infiniteTubes",
     "demo": "triangle"
+  },
+  {
+    "title": "Two.js: Dynamic Text",
+    "type": "dynamicText"
   }
 ]

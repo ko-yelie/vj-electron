@@ -11,6 +11,7 @@ import VjIframe from './VjIframe'
 import VjVideo from './VjVideo'
 import VjParticlesJs from './VjParticlesJs'
 import VjInfiniteTubes from './VjInfiniteTubes'
+import VjDynamicText from './VjDynamicText'
 
 export default {
   props: ['visual', 'order'],
@@ -18,7 +19,8 @@ export default {
     iframe: VjIframe,
     videoTag: VjVideo,
     particlesJs: VjParticlesJs,
-    infiniteTubes: VjInfiniteTubes
+    infiniteTubes: VjInfiniteTubes,
+    dynamicText: VjDynamicText
   }
 }
 </script>
