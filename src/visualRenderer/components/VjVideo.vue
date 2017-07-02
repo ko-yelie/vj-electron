@@ -9,6 +9,11 @@ video(
 
 <script>
 export default {
-  props: ['visual']
+  props: ['visual'],
+  mounted () {
+    if (this.visual.playbackRate) {
+      this.$el.playbackRate = this.visual.playbackRate
+    }
+  }
 }
 </script>
