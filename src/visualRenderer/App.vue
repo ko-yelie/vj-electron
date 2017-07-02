@@ -58,7 +58,6 @@ body {
   position: relative;
   width: 100vw;
   height: 100vh;
-  background: #000;
   cursor: none;
 }
 </style>

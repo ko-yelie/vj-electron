@@ -17,3 +17,9 @@ export default {
   }
 }
 </script>
+
+<style scoped lang="scss">
+.visual {
+  background: #000;
+}
+</style>

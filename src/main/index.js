@@ -50,7 +50,8 @@ function createWindow () {
 function createVisualWindow (mainWindow) {
   visualWindow = new BrowserWindow({
     width: 1024,
-    height: 768
+    height: 768,
+    backgroundColor: '#000'
   })
 
   visualWindow.loadURL(winVisualURL)
