@@ -1,19 +1,23 @@
 import { ipcRenderer } from 'electron'
 import { uniqueId } from 'lodash'
 
-import iframeData from '../../assets/json/visual/iframe.json'
 import videoData from '../../assets/json/visual/video.json'
 import jsData from '../../assets/json/visual/js.json'
+import iframeData from '../../assets/json/visual/iframe.json'
 
-const videos = iframeData.map(visualData => Object.assign(visualData, {
-  type: 'iframe',
-  opacity: 1
-})).concat(videoData.map(visualData => Object.assign(visualData, {
-  type: 'videoTag',
-  opacity: 1
-}))).concat(jsData.map(visualData => Object.assign(visualData, {
-  opacity: 1
-})))
+const visualStock = {
+  video: videoData.map(visualData => Object.assign(visualData, {
+    type: 'videoTag',
+    opacity: 1
+  })),
+  js: jsData.map(visualData => Object.assign(visualData, {
+    opacity: 1
+  })),
+  iframe: iframeData.map(visualData => Object.assign(visualData, {
+    type: 'iframe',
+    opacity: 1
+  }))
+}
 
 function dispatchToVisual (typeName, ...payload) {
   ipcRenderer.send('dispatch-connect', typeName, ...payload)
@@ -21,12 +25,12 @@ function dispatchToVisual (typeName, ...payload) {
 
 export default {
   state: {
-    videos,
+    visualStock,
     displayingVideos: []
   },
   mutations: {
-    UPDATE_VIDEOS (state, videos) {
-      state.videos = videos
+    UPDATE_VIDEOS (state, visualStock) {
+      state.visualStock = visualStock
     },
     UPDATE_DISPLAYING_VIDEOS (state, displayingVideos) {
       state.displayingVideos = displayingVideos

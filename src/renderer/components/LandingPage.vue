@@ -12,12 +12,12 @@ export default {
     VjVisual
   },
   computed: {
-    videos: {
+    visualStock: {
       get () {
-        return this.$store.state.Video.videos
+        return this.$store.state.Video.visualStock
       },
-      set (videos) {
-        this.$store.dispatch('updateVideos', videos)
+      set (visualStock) {
+        this.$store.dispatch('updateVideos', visualStock)
       }
     },
     displayingVideos: {

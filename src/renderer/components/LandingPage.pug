@@ -3,9 +3,9 @@
     h1.md-title コントロール画面
 
   md-layout.layout
+    //- 表示中ビデオ
     md-layout(md-column='').column.displaying-videos
-      //- 表示中ビデオ
-      div
+      .column-inner
         draggable(
           v-model='displayingVideos'
           :options="{ group: 'video' }"
@@ -20,16 +20,24 @@
 
     //- ビデオリスト
     md-layout(md-column='', md-flex='33').column
-      md-list.md-dense
-        draggable.video-stock(
-          v-model='videos'
-          :options="{ group: { name: 'video', pull: 'clone', put: false }, sort: false }"
-        )
-          transition-group
-            md-list-item(
-              v-for="(video, index) in videos"
-              :key='index'
-            )
-              md-avatar.md-large(v-if="video.thumbnail")
-                img(:src="video.thumbnail", alt="")
-              span {{ video.title }}
+      .column-inner
+        md-list.md-dense.video-stock
+          md-list-item(
+            v-for="(visuals, index) in visualStock"
+            :key='index'
+          )
+            span {{ index }}
+            md-list-expand
+              md-list
+                draggable(
+                  :list='visuals'
+                  :options="{ group: { name: 'video', pull: 'clone', put: false }, sort: false }"
+                )
+                  md-list-item.md-inset(
+                    v-for="(visual, index) in visuals"
+                    :key='index'
+                    md-expand-multiple=""
+                  )
+                    md-avatar.md-large(v-if="visual.thumbnail")
+                      img(:src="visual.thumbnail", alt="")
+                    span {{ visual.title }}
