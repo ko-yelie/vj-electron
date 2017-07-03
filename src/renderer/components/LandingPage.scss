@@ -13,6 +13,13 @@ body {
   overflow: auto;
 }
 
+// header
+.md-toolbar {
+  .md-title {
+    flex: 1;
+  }
+}
+
 // Vue Material
 .md-avatar img {
   object-fit: cover;

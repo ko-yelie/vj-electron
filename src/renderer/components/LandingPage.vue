@@ -1,5 +1,6 @@
 <script>
 import draggable from 'vuedraggable'
+import { mapActions } from 'vuex'
 
 import VjVisual from './LandingPage/VjVisual'
 
@@ -33,7 +34,10 @@ export default {
     changeDisplayingVideos (evt) {
       this.$store.dispatch('updateDisplayingVideos', displayingVideosCache)
       this.$store.dispatch('changeDisplayingVideos', evt)
-    }
+    },
+    ...mapActions([
+      'refresh'
+    ])
   }
 }
 </script>

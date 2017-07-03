@@ -79,6 +79,10 @@ export default {
       commit('REMOVE_DISPLAYING_VIDEO', video)
 
       dispatchToVisual('removeDisplayingVideo', video)
+    },
+    refresh () {
+      dispatchToVisual('refresh')
+      location.reload()
     }
   }
 }

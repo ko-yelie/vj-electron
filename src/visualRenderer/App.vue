@@ -34,6 +34,9 @@ export default {
       removeDisplayingVideo: (visual) => {
         this.$el.removeChild(this.components[visual.id].$el)
         delete this.components[visual.id]
+      },
+      refresh () {
+        location.reload()
       }
     }
 
