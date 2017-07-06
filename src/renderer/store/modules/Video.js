@@ -8,14 +8,14 @@ import iframeData from '../../assets/json/visual/iframe.json'
 const visualStock = {
   video: videoData.map(visualData => Object.assign(visualData, {
     type: 'videoTag',
-    opacity: 1
+    opacity: visualData.opacity || 1
   })),
   js: jsData.map(visualData => Object.assign(visualData, {
-    opacity: 1
+    opacity: visualData.opacity || 1
   })),
   iframe: iframeData.map(visualData => Object.assign(visualData, {
     type: 'iframe',
-    opacity: 1
+    opacity: visualData.opacity || 1
   }))
 }
 

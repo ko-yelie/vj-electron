@@ -13,6 +13,7 @@ import VjVideo from './VjVideo'
 import VjParticlesJs from './VjParticlesJs'
 import VjInfiniteTubes from './VjInfiniteTubes'
 import VjDynamicText from './VjDynamicText'
+import VjQuietflow from './VjQuietflow'
 
 export default {
   props: ['visual', 'order'],
@@ -21,7 +22,8 @@ export default {
     videoTag: VjVideo,
     particlesJs: VjParticlesJs,
     infiniteTubes: VjInfiniteTubes,
-    dynamicText: VjDynamicText
+    dynamicText: VjDynamicText,
+    quietflow: VjQuietflow
   }
 }
 </script>
