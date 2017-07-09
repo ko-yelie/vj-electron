@@ -14,6 +14,7 @@ import VjParticlesJs from './VjParticlesJs'
 import VjInfiniteTubes from './VjInfiniteTubes'
 import VjDynamicText from './VjDynamicText'
 import VjQuietflow from './VjQuietflow'
+import VjParticleSandbox from './VjParticleSandbox'
 
 export default {
   props: ['visual', 'order'],
@@ -23,7 +24,8 @@ export default {
     particlesJs: VjParticlesJs,
     infiniteTubes: VjInfiniteTubes,
     dynamicText: VjDynamicText,
-    quietflow: VjQuietflow
+    quietflow: VjQuietflow,
+    particleSandbox: VjParticleSandbox
   }
 }
 </script>
@@ -38,7 +40,7 @@ export default {
   object-fit: cover;
 
   &-copyright {
-    object-fit: contain;
+    object-fit: cover;
     transform: scale(1.08);
   }
 }

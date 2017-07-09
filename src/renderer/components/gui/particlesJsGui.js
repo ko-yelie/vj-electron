@@ -3,9 +3,11 @@ import { pick } from 'lodash'
 import dat from 'dat.gui/build/dat.gui.js'
 
 import defaultConfig from '../../assets/json/js/particlesjs-config.json'
+import topConfig from '../../assets/json/js/particlesjs-config-top.json'
 
 const configs = {
-  default: defaultConfig
+  default: defaultConfig,
+  top: topConfig
 }
 
 /* eslint-disable */

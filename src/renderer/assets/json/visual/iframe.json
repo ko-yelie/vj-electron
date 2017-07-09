@@ -35,18 +35,17 @@
     "thumbnail": "/src/renderer/assets/thumbnail/particle-galaxy.png"
   },
   {
+    "url": "/src/visualRenderer/assets/iframe/particle-sandbox/?type=svg&shapes=circle,square,pentagon,star&operations=vertices,translation,scale&count=60",
+    "title": "Particle Sandbox"
+  },
+  {
+    "url": "/src/visualRenderer/assets/iframe/blank/",
+    "title": "blank",
+    "opacity": 1
+  },
+  {
     "url": "/src/visualRenderer/assets/iframe/shattering-images/",
     "title": "Shattering Images",
     "thumbnail": "/src/renderer/assets/thumbnail/shattering-images.png"
-  },
-  {
-    "url": "https://www.youtube.com/embed/AovB1kid35o?showinfo=0&rel=0&controls=0&fs=0&iv_load_policy=3&loop=1&autoplay=1",
-    "title": "AOKI takamasa // rhythm variation 06",
-    "thumbnail": "/src/renderer/assets/thumbnail/AovB1kid35o.jpg"
-  },
-  {
-    "url": "https://www.youtube.com/embed/ZQ1zjPqJBPQ?showinfo=0&rel=0&controls=0&fs=0&iv_load_policy=3&loop=1&autoplay=1",
-    "title": "Alva Noto + Opiate - Opto File 2 - 2001",
-    "thumbnail": "/src/renderer/assets/thumbnail/ZQ1zjPqJBPQ.jpg"
   }
 ]
