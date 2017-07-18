@@ -10,7 +10,7 @@ const visualStock = {
     type: 'videoTag',
     opacity: visualData.opacity || 1
   })),
-  js: jsData.map(visualData => Object.assign(visualData, {
+  canvas: jsData.map(visualData => Object.assign(visualData, {
     opacity: visualData.opacity || 1
   })),
   iframe: iframeData.map(visualData => Object.assign(visualData, {
