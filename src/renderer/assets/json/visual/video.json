@@ -132,5 +132,15 @@
     "url": "/src/visualRenderer/assets/video/Sunbeamsleaves02_720.mp4",
     "title": "木漏れ日",
     "thumbnail": "/src/renderer/assets/thumbnail/Sunbeamsleaves02.gif"
+  },
+  {
+    "url": "/src/visualRenderer/assets/video/comp_1.mov",
+    "title": "Comp 1",
+    "thumbnail": "/src/renderer/assets/thumbnail/comp_1.webp"
+  },
+  {
+    "url": "/src/visualRenderer/assets/video/test.mp4",
+    "title": "test",
+    "thumbnail": "/src/renderer/assets/thumbnail/test.webp"
   }
 ]
