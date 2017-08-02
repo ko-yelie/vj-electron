@@ -1,6 +1,6 @@
-# electron-vue
+# vj-electron
 
-> An electron-vue project
+> An electron-vue project for VJ
 
 #### Build Setup
 
