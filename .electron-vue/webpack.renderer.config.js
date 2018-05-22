@@ -75,6 +75,8 @@ let rendererConfig = {
           }
         }
       },
+      { test: /\.(glsl|frag|vert)$/, use: 'raw-loader', exclude: /node_modules/ },
+      { test: /\.(glsl|frag|vert)$/, use: 'glslify-loader', exclude: /node_modules/ },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
         use: {

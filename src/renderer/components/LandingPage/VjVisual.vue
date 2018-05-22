@@ -20,9 +20,11 @@ md-card
 <script>
 import RangeSlider from 'vue-range-slider'
 
+import webcamParticle from '../gui/webcamParticle.js'
 import particlesJsGui from '../gui/particlesJsGui.js'
 
 const loadGUI = {
+  webcamParticle,
   particlesJsGui
 }
 

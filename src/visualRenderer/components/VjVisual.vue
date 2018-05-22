@@ -10,6 +10,7 @@ component.visual(
 <script>
 import VjIframe from './VjIframe'
 import VjVideo from './VjVideo'
+import WebcamParticle from './WebcamParticle'
 import VjParticlesJs from './VjParticlesJs'
 import VjInfiniteTubes from './VjInfiniteTubes'
 import VjDynamicText from './VjDynamicText'
@@ -21,6 +22,7 @@ export default {
   components: {
     iframe: VjIframe,
     videoTag: VjVideo,
+    webcamParticle: WebcamParticle,
     particlesJs: VjParticlesJs,
     infiniteTubes: VjInfiniteTubes,
     dynamicText: VjDynamicText,
