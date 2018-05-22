@@ -2,7 +2,7 @@ import { ipcRenderer } from 'electron'
 import { uniqueId } from 'lodash'
 
 import videoData from '../../assets/json/visual/video.json'
-import jsData from '../../assets/json/visual/js.json'
+import canvasData from '../../assets/json/visual/canvas.json'
 import iframeData from '../../assets/json/visual/iframe.json'
 
 const visualStock = {
@@ -10,7 +10,7 @@ const visualStock = {
     type: 'videoTag',
     opacity: visualData.opacity || 1
   })),
-  canvas: jsData.map(visualData => Object.assign(visualData, {
+  canvas: canvasData.map(visualData => Object.assign(visualData, {
     opacity: visualData.opacity || 1
   })),
   iframe: iframeData.map(visualData => Object.assign(visualData, {
