@@ -2,7 +2,7 @@
 import draggable from 'vuedraggable'
 import { mapActions } from 'vuex'
 
-import VjVisual from './LandingPage/VjVisual'
+import VjDisplayingVideo from './LandingPage/VjDisplayingVideo'
 
 let displayingVideosCache = []
 
@@ -10,7 +10,7 @@ export default {
   name: 'landing-page',
   components: {
     draggable,
-    VjVisual
+    VjDisplayingVideo
   },
   computed: {
     visualStock: {

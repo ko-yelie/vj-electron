@@ -14,7 +14,7 @@
           @change="changeDisplayingVideos"
         )
           transition-group.displaying-videos-list(name="flip-list")
-            vj-visual.displaying-videos-item(
+            vj-displaying-video.displaying-videos-item(
               v-for="video in displayingVideos"
               :key='video.id'
               :video="video"
