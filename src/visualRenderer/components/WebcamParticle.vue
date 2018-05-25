@@ -8,26 +8,25 @@ div
 
 <script>
 import { ipcRenderer } from 'electron'
-import webcamParticle from '../webcamParticle/script/index.js'
+import { run, update } from '../webcamParticle/script/script.js'
 
 export default {
   mounted () {
-    webcamParticle({
-      el: this.$el,
-      canvas: this.$refs.canvas,
-      videoWrapper: this.$refs.videoWrapper
-    })
-
     const actions = {
-      initParticlesJs: (configJson) => {
-        // ipcRenderer.send('receive-particles-js', pJS)
+      init: (settings) => {
+        run({
+          el: this.$el,
+          canvas: this.$refs.canvas,
+          videoWrapper: this.$refs.videoWrapper,
+          settings
+        })
       },
-      updateParticlesJs: (data) => {
-        console.log(data)
+      update: (settings, property) => {
+        update(settings, property)
       }
     }
 
-    ipcRenderer.on('dispatch-particles-js', (event, typeName, ...payload) => {
+    ipcRenderer.on('dispatch-webcam-particle', (event, typeName, ...payload) => {
       actions[typeName](...payload)
     })
   }

@@ -1,3 +1,4 @@
+import { ipcRenderer } from 'electron'
 import MatIV from './minMatrix.js'
 import {
   initWebGL,
@@ -14,11 +15,13 @@ import {
   getPointVbo
 } from './gl-utils.js'
 import { setGl, createFramebuffer, createFramebufferFloat, getWebGLExtensions } from './doxas-utils.js'
-import { getFirstValue, clamp } from './utils.js'
+// import { getFirstValue, clamp } from './utils.js'
+import { clamp } from './utils.js'
+import Tween from './tween.js'
 import Media from './media.js'
 import { Webcam } from './webcam.js'
 import Detector from './detector.js'
-import DetectorMessage from './vue/DetectorMessage.vue'
+// import DetectorMessage from './vue/DetectorMessage'
 
 const POINT_RESOLUTION = window.innerWidth < 1000 ? 64 : 128
 const POP_RESOLUTION = 16
@@ -31,9 +34,10 @@ const MAX_ZOOM = 10
 const GPGPU_FRAMEBUFFERS_COUNT = 2
 const CAPTURE_FRAMEBUFFERS_COUNT = 3
 
-const ANIMATION_NORMAL = 0
+// const ANIMATION_NORMAL = 0
 const ANIMATION_WARP = 1
 
+let options
 let canvas
 let canvasWidth
 let canvasHeight
@@ -87,10 +91,10 @@ let postDotScreenPrg
 let render
 let media
 let webcam
-let data = {}
+let settings = {}
 let video
 let detector
-let detectorMessage
+// let detectorMessage
 let vbo
 let arrayLength
 let popArrayLength
@@ -113,15 +117,20 @@ let isCapture = false
 let isAudio = 0
 let volume = 1
 let defaultFocus = [0, 0, 1, 1]
+let deformationProgressTl
+let stopMotionTimer
+let isDoneInit = false
 
-export default function run() {
+export function run (argOptions) {
+  options = argOptions
+  settings = options.settings
   // canvas element を取得しサイズをウィンドウサイズに設定
-  const obj = initWebGL(document.getElementById('canvas'))
+  const obj = initWebGL(options.canvas)
   canvas = obj.canvas
   gl = obj.gl
 
   initSize({
-    onResize() {
+    onResize () {
       canvasWidth = canvas.width
       canvasHeight = canvas.height
 
@@ -156,7 +165,7 @@ export default function run() {
 
   let timer
   canvas.addEventListener('pointermove', e => {
-    if (!data.pointer) return
+    if (!settings.pointer) return
 
     let x = e.clientX / canvasWidth * 2.0 - 1.0
     let y = e.clientY / canvasHeight * 2.0 - 1.0
@@ -173,26 +182,32 @@ export default function run() {
   })
 
   canvas.addEventListener('pointerdown', e => {
-    data.rotation = 1
+    settings.rotation = 1
   })
 
   canvas.addEventListener('pointerup', e => {
-    data.rotation = 0
+    settings.rotation = 0
   })
 
   canvas.addEventListener('wheel', e => {
-    data.zPosition += e.deltaY * 0.05
-    data.zPosition = clamp(data.zPosition, MIN_ZOOM, MAX_ZOOM)
+    settings.zPosition += e.deltaY * 0.05
+    settings.zPosition = clamp(settings.zPosition, MIN_ZOOM, MAX_ZOOM)
   })
 
   canvas.addEventListener('click', e => {
-    if (data.capture) {
+    if (settings.capture) {
       isCapture = true
     }
 
-    if (data.detector && detector) {
+    if (settings.detector && detector) {
       detector.detect()
     }
+  })
+
+  deformationProgressTl = new Tween(settings, {
+    property: 'deformationProgress',
+    duration: 700,
+    easing: 'easeOutExpo'
   })
 
   // 外部ファイルのシェーダのソースを取得しプログラムオブジェクトを生成
@@ -281,7 +296,7 @@ export default function run() {
   initGlsl()
 }
 
-function initGlsl() {
+function initGlsl () {
   const interval = BASE_RESOLUTION / POINT_RESOLUTION / BASE_RESOLUTION
 
   pointVBO = getPointVbo(interval)
@@ -555,7 +570,7 @@ function initGlsl() {
     }
   })
 
-  function setPostVariables(prg) {
+  function setPostVariables (prg) {
     prg.createAttribute(planeAttribute)
     prg.createUniform({
       resolution: {
@@ -627,332 +642,59 @@ function initGlsl() {
   initMedia()
 }
 
-function initMedia() {
-  media = new Media(VIDEO_RESOLUTION, POINT_RESOLUTION)
-  media.enumerateDevices().then(initControl)
+function initMedia () {
+  media = new Media(VIDEO_RESOLUTION, POINT_RESOLUTION, options.videoWrapper)
+  media.enumerateDevices().then(initVideo)
 
-  detectorMessage = new Vue({
-    el: '#detector',
-    data: {
-      isShow: false,
-      isReady: false
-    },
-    components: {
-      [DetectorMessage.name]: DetectorMessage
-    }
-  })
+  // detectorMessage = new Vue({
+  //   el: '#detector',
+  //   data: {
+  //     isShow: false,
+  //     isReady: false
+  //   },
+  //   components: {
+  //     [DetectorMessage.name]: DetectorMessage
+  //   }
+  // })
 }
 
-async function initControl() {
-  const json = require('./gui/scene.json')
-  const preset = location.search.substring(1) || json.preset
-  const gui = new dat.GUI({
-    load: json,
-    preset: preset
+async function initVideo () {
+  video = await media.getUserMedia({
+    video: settings.video,
+    audio: settings.audio
   })
-  let particleFolder
-  let postFolder
-  let thumbController
-  let videoController
-  let changeDetector
 
-  data = json.remembered[preset][0]
-  gui.remember(data)
+  webcam = new Webcam(video)
+  // await webcam.setup()
+  webcam.adjustVideoSize(video.videoWidth || video.naturalWidth, video.videoHeight || video.naturalHeight)
 
-  // scene
-  const sceneMap = ['Particle', 'Pop', 'Post Effect']
-  const changeScene = () => {
-    particleFolder.close()
-    postFolder.close()
-
-    switch (data.scene) {
-      case 'Pop':
-        particleFolder.open()
-        break
-      case 'Post Effect':
-        postFolder.open()
-        break
-      case 'Particle':
-      default:
-        particleFolder.open()
-    }
-  }
-  gui.add(data, 'scene', sceneMap).onChange(changeScene)
-
-  // Particle folder
-  {
-    let pointFolder
-    let lineFolder
-
-    particleFolder = gui.addFolder('Particle')
-
-    // animation
-    const animationMap = { normal: ANIMATION_NORMAL, warp: ANIMATION_WARP }
-    particleFolder.add(data, 'animation', animationMap)
-
-    // mode
-    const modeMap = {
-      'gl.POINTS': gl.POINTS,
-      'gl.LINE_STRIP': gl.LINE_STRIP,
-      'gl.TRIANGLES': gl.TRIANGLES
-    }
-    const changeMode = () => {
-      pointFolder.close()
-      lineFolder.close()
-
-      switch (Number(data.mode)) {
-        case gl.LINE_STRIP:
-        case gl.TRIANGLES:
-          lineFolder.open()
-          break
-        case gl.POINTS:
-        default:
-          pointFolder.open()
-      }
-    }
-    particleFolder.add(data, 'mode', modeMap).onChange(changeMode)
-
-    // point folder
-    pointFolder = particleFolder.addFolder('gl.POINTS')
-
-    // pointShape
-    const pointShapeMap = { square: 0, circle: 1, star: 2, video: 3 }
-    pointFolder.add(data, 'pointShape', pointShapeMap)
-
-    // pointSize
-    const pointSizeMap = [0.1, 30]
-    pointFolder.add(data, 'pointSize', ...pointSizeMap)
-
-    // line folder
-    lineFolder = particleFolder.addFolder('gl.LINE_STRIP')
-
-    // lineShape
-    const lineShapeMap = ['line', 'mesh']
-    const changeLineShape = () => {
-      switch (data.lineShape) {
-        case 'mesh':
-          vbo = meshPointVBO
-          arrayLength = (4 * (POINT_RESOLUTION - 1) + 2) * (POINT_RESOLUTION - 1)
-          break
-        case 'line':
-        default:
-          vbo = pointVBO
-          arrayLength = POINT_RESOLUTION * POINT_RESOLUTION
-      }
-    }
-    lineFolder.add(data, 'lineShape', lineShapeMap).onChange(changeLineShape)
-
-    // deformation
-    const tl = new TimelineMax({
-      paused: true
-    }).fromTo(
-      data,
-      0.7,
-      {
-        deformationProgress: 0
-      },
-      {
-        deformationProgress: 1,
-        ease: 'Power2.easeOut'
-      }
-    )
-    const changeDeformation = () => {
-      data.deformation ? tl.play() : tl.reverse()
-    }
-    particleFolder.add(data, 'deformation').onChange(changeDeformation)
-
-    // canvas folder
-    const canvasFolder = particleFolder.addFolder('canvas')
-
-    // bgColor
-    const bgColorMap = { black: 0, white: 1 }
-    const changeBgColor = () => {
-      let rgbInt = data.bgColor * 255
-      canvas.style.backgroundColor = `rgb(${rgbInt}, ${rgbInt}, ${rgbInt})`
-    }
-    canvasFolder.add(data, 'bgColor', bgColorMap).onChange(changeBgColor)
-
-    // z position
-    const zPositionMap = [MIN_ZOOM, MAX_ZOOM]
-    canvasFolder.add(data, 'zPosition', ...zPositionMap).listen()
-
-    // pointer
-    const changeMouse = () => {
-      if (!data.pointer) {
-        pointer = {
-          x: 0,
-          y: 0
-        }
-      }
-    }
-    canvasFolder.add(data, 'pointer').onChange(changeMouse)
-
-    // accel
-    canvasFolder.add(data, 'accel')
-
-    // rotation
-    canvasFolder.add(data, 'rotation').listen()
-
-    // video folder
-    const videoFolder = particleFolder.addFolder('video')
-
-    // capture
-    const changeCapture = () => {
-      isStop = data.capture ? 1 : 0
-      isCapture = data.capture
-    }
-    videoFolder.add(data, 'capture').onChange(changeCapture)
-
-    // stopMotion
-    let timer
-    const changeStopMotion = () => {
-      isStop = data.stopMotion ? 1 : 0
-      if (data.stopMotion) {
-        timer = setInterval(() => {
-          isCapture = true
-        }, 1000 / 3)
-      } else {
-        clearTimeout(timer)
-      }
-    }
-    videoFolder.add(data, 'stopMotion').onChange(changeStopMotion)
-
-    changeMode()
-    changeLineShape()
-    changeDeformation()
-    changeBgColor()
-    changeMouse()
-    changeCapture()
-    changeStopMotion()
+  if (detector) {
+    resetDetector()
+    runDetector()
   }
 
-  // Post Effect folder
-  {
-    postFolder = gui.addFolder('Post Effect')
-
-    // detector
-    changeDetector = () => {
-      if (data.detector) {
-        thumbController.setValue(true)
-        detectorMessage.isShow = true
-        runDetector()
-      } else {
-        if (!detector) return
-
-        thumbController.setValue(false)
-        detectorMessage.isShow = false
-        resetDetector()
-        detector = null
-      }
-    }
-    postFolder.add(data, 'detector').onChange(changeDetector)
-
-    // effect
-    const effectMap = ['none', 'glitch', 'ykob glitch', 'dot', 'dot screen']
-    const changeEffect = () => {
-      switch (data.effect) {
-        case 'glitch':
-          currentPostPrg = postGlitchPrg
-          break
-        case 'ykob glitch':
-          currentPostPrg = postYkobGlitchPrg
-          break
-        case 'dot':
-          currentPostPrg = postDotPrg
-          break
-        case 'dot screen':
-          currentPostPrg = postDotScreenPrg
-          break
-        case 'none':
-        default:
-          currentPostPrg = postNonePrg
-      }
-    }
-    postFolder.add(data, 'effect', effectMap).onChange(changeEffect)
-
-    changeEffect()
-  }
-
-  // video folder
-  const videoFolder = gui.addFolder('video')
-  videoFolder.open()
-
-  // video
-  const changeVideo = async () => {
-    video = await media.getUserMedia({ video: data.video })
-    if (!Object.keys(media.videoDevices).some(key => data.video === media.videoDevices[key])) {
-      videoController.setValue(getFirstValue(media.videoDevices))
-    }
-
-    webcam = new Webcam(video)
-    // await webcam.setup()
-    webcam.adjustVideoSize(video.videoWidth || video.naturalWidth, video.videoHeight || video.naturalHeight)
-
-    if (detector) {
-      resetDetector()
-      runDetector()
-    }
-  }
-  videoController = videoFolder.add(data, 'video', media.videoDevices).onChange(changeVideo)
-
-  // videoZoom
-  const videoZoomMap = [1, 3]
-  videoFolder.add(data, 'videoZoom', ...videoZoomMap)
-
-  // thumb
-  const changeThumb = () => {
-    media.toggleThumb(data.thumb)
-  }
-  thumbController = videoFolder.add(data, 'thumb').onChange(changeThumb)
-
-  // audio folder
-  const audioFolder = gui.addFolder('audio')
-  audioFolder.open()
-
-  // inputAudio
-  const changeInputAudio = () => {
-    isAudio = data.inputAudio ? 1 : 0
-  }
-  audioFolder.add(data, 'inputAudio').onChange(changeInputAudio)
-
-  // audio
-  const changeAudio = async () => {
-    await media.getUserMedia({ audio: data.audio })
-    if (!Object.keys(media.audioDevices).some(key => data.audio === media.audioDevices[key])) {
-      audioController.setValue(getFirstValue(media.audioDevices))
-    }
-  }
-  const audioController = audioFolder.add(data, 'audio', media.audioDevices).onChange(changeAudio)
-
-  changeScene()
-  changeThumb()
-  changeInputAudio()
-  changeAudio()
-  await changeVideo()
-  changeDetector()
-
-  cameraPosition.z = data.zPosition
+  ipcRenderer.send('receive-webcam-particle', media)
 
   init()
 }
 
-async function runDetector() {
+async function runDetector () {
   detector = new Detector(webcam, media.wrapper)
   await detector.promise
   detector.detect()
-  detectorMessage.isReady = true
+  // detectorMessage.isReady = true
 }
 
-function resetDetector() {
+function resetDetector () {
   detector.reset()
-  detectorMessage.isReady = false
+  // detectorMessage.isReady = false
 }
 
-function updateCamera() {
-  const cameraPositionRate = data.animation === ANIMATION_WARP ? 1.5 : 0.3
+function updateCamera () {
+  const cameraPositionRate = settings.animation === ANIMATION_WARP ? 1.5 : 0.3
   cameraPosition.x += (pointer.x * cameraPositionRate - cameraPosition.x) * 0.1
   cameraPosition.y += (pointer.y * cameraPositionRate - cameraPosition.y) * 0.1
-  cameraPosition.z += (data.zPosition - cameraPosition.z) * 0.1
+  cameraPosition.z += (settings.zPosition - cameraPosition.z) * 0.1
 
   mat.identity(mMatrix)
   mat.lookAt(
@@ -969,7 +711,7 @@ function updateCamera() {
   mat.multiply(vpMatrix, mMatrix, mvpMatrix)
 }
 
-function init() {
+function init () {
   // textures
   createTexture(video)
 
@@ -1005,7 +747,7 @@ function init() {
   videoPrg.setUniform('resolution', [VIDEO_RESOLUTION, VIDEO_RESOLUTION])
   videoPrg.setUniform('videoResolution', [media.currentVideo.videoWidth, media.currentVideo.videoHeight])
   videoPrg.setUniform('videoTexture', 0)
-  videoPrg.setUniform('zoom', data.videoZoom)
+  videoPrg.setUniform('zoom', settings.videoZoom)
   gl.viewport(0, 0, VIDEO_RESOLUTION, VIDEO_RESOLUTION)
   for (let targetBufferIndex = 0; targetBufferIndex < CAPTURE_FRAMEBUFFERS_COUNT; ++targetBufferIndex) {
     // video buffer
@@ -1080,6 +822,9 @@ function init() {
   let loopCount = 0
   isRun = true
 
+  vbo = pointVBO
+  arrayLength = POINT_RESOLUTION * POINT_RESOLUTION
+
   render = () => {
     const targetBufferIndex = loopCount % 2
     const prevBufferIndex = 1 - targetBufferIndex
@@ -1104,7 +849,7 @@ function init() {
     videoPrg.setUniform('resolution', [VIDEO_RESOLUTION, VIDEO_RESOLUTION])
     videoPrg.setUniform('videoResolution', [media.currentVideo.videoWidth, media.currentVideo.videoHeight])
     videoPrg.setUniform('videoTexture', 0)
-    videoPrg.setUniform('zoom', data.videoZoom)
+    videoPrg.setUniform('zoom', settings.videoZoom)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
     gl.viewport(0, 0, POINT_RESOLUTION, POINT_RESOLUTION)
@@ -1120,7 +865,7 @@ function init() {
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
     // render to canvas -------------------------------------------
-    if (data.scene === 'Particle') {
+    if (settings.scene === 'Particle') {
       // Particle
 
       // velocity update
@@ -1130,9 +875,9 @@ function init() {
       velocityPrg.setUniform('resolution', [POINT_RESOLUTION, POINT_RESOLUTION])
       velocityPrg.setUniform('prevVelocityTexture', velocityBufferIndex + prevBufferIndex)
       velocityPrg.setUniform('pictureTexture', pictureBufferIndex + targetBufferIndex)
-      velocityPrg.setUniform('animation', data.animation)
-      velocityPrg.setUniform('isAccel', data.accel)
-      velocityPrg.setUniform('isRotation', data.rotation)
+      velocityPrg.setUniform('animation', settings.animation)
+      velocityPrg.setUniform('isAccel', settings.accel)
+      velocityPrg.setUniform('isRotation', settings.rotation)
       gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
       // position update
@@ -1143,7 +888,7 @@ function init() {
       positionPrg.setUniform('prevPositionTexture', positionBufferIndex + prevBufferIndex)
       positionPrg.setUniform('velocityTexture', velocityBufferIndex + targetBufferIndex)
       positionPrg.setUniform('pictureTexture', pictureBufferIndex + targetBufferIndex)
-      positionPrg.setUniform('animation', data.animation)
+      positionPrg.setUniform('animation', settings.animation)
       gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
       if (isCapture) {
@@ -1154,7 +899,7 @@ function init() {
         videoPrg.setUniform('resolution', [VIDEO_RESOLUTION, VIDEO_RESOLUTION])
         videoPrg.setUniform('videoResolution', [media.currentVideo.videoWidth, media.currentVideo.videoHeight])
         videoPrg.setUniform('videoTexture', 0)
-        videoPrg.setUniform('zoom', data.videoZoom)
+        videoPrg.setUniform('zoom', settings.videoZoom)
         gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
         gl.viewport(0, 0, POINT_RESOLUTION, POINT_RESOLUTION)
@@ -1166,7 +911,7 @@ function init() {
         positionPrg.setUniform('prevPositionTexture', positionBufferIndex + prevBufferIndex)
         positionPrg.setUniform('velocityTexture', velocityBufferIndex + targetBufferIndex)
         positionPrg.setUniform('pictureTexture', pictureBufferIndex + targetBufferIndex)
-        positionPrg.setUniform('animation', data.animation)
+        positionPrg.setUniform('animation', settings.animation)
         gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
         isCapture = false
@@ -1187,21 +932,21 @@ function init() {
 
       scenePrg.setAttribute('data', vbo)
       scenePrg.setUniform('mvpMatrix', mvpMatrix)
-      scenePrg.setUniform('pointSize', data.pointSize * canvasHeight / 930)
+      scenePrg.setUniform('pointSize', settings.pointSize * canvasHeight / 930)
       scenePrg.setUniform('videoTexture', videoBufferIndex + targetBufferIndex)
       scenePrg.setUniform('positionTexture', positionBufferIndex + targetBufferIndex)
-      scenePrg.setUniform('bgColor', data.bgColor)
+      scenePrg.setUniform('bgColor', settings.bgColor)
       scenePrg.setUniform('volume', volume)
       scenePrg.setUniform('capturedVideoTexture', videoBufferIndex + 2)
       scenePrg.setUniform('capturedPositionTexture', positionBufferIndex + 2)
       scenePrg.setUniform('isStop', isStop)
       scenePrg.setUniform('isAudio', isAudio)
-      scenePrg.setUniform('mode', data.mode)
-      scenePrg.setUniform('pointShape', data.pointShape)
-      scenePrg.setUniform('deformationProgress', data.deformationProgress)
+      scenePrg.setUniform('mode', settings.mode)
+      scenePrg.setUniform('pointShape', settings.pointShape)
+      scenePrg.setUniform('deformationProgress', settings.deformationProgress)
       scenePrg.setUniform('loopCount', loopCount)
-      gl.drawArrays(data.mode, 0, arrayLength)
-    } else if (data.scene === 'Pop') {
+      gl.drawArrays(settings.mode, 0, arrayLength)
+    } else if (settings.scene === 'Pop') {
       // Pop
 
       gl.viewport(0, 0, POP_RESOLUTION, POP_RESOLUTION)
@@ -1241,17 +986,17 @@ function init() {
       popScenePrg.setAttribute('data')
       popScenePrg.setUniform('mvpMatrix', mvpMatrix)
       popScenePrg.setUniform('resolution', [canvasWidth, canvasHeight])
-      popScenePrg.setUniform('pointSize', data.pointSize * canvasHeight / 930)
+      popScenePrg.setUniform('pointSize', settings.pointSize * canvasHeight / 930)
       popScenePrg.setUniform('videoTexture', videoBufferIndex + targetBufferIndex)
       popScenePrg.setUniform('positionTexture', popPositionBufferIndex + targetBufferIndex)
       popScenePrg.setUniform('velocityTexture', popVelocityBufferIndex + targetBufferIndex)
-      popScenePrg.setUniform('bgColor', data.bgColor)
+      popScenePrg.setUniform('bgColor', settings.bgColor)
       popScenePrg.setUniform('volume', volume)
       popScenePrg.setUniform('isAudio', isAudio)
-      popScenePrg.setUniform('deformationProgress', data.deformationProgress)
+      popScenePrg.setUniform('deformationProgress', settings.deformationProgress)
       popScenePrg.setUniform('time', time)
       gl.drawArrays(gl.POINTS, 0, popArrayLength)
-    } else if (data.scene === 'Post Effect') {
+    } else if (settings.scene === 'Post Effect') {
       // Post Effect
 
       // render to framebuffer
@@ -1264,7 +1009,7 @@ function init() {
       videoScenePrg.setUniform('resolution', [canvasWidth, canvasHeight])
       videoScenePrg.setUniform('videoResolution', [media.currentVideo.width, media.currentVideo.height])
       videoScenePrg.setUniform('videoTexture', 0)
-      videoScenePrg.setUniform('zoom', data.videoZoom)
+      videoScenePrg.setUniform('zoom', settings.videoZoom)
       videoScenePrg.setUniform('focusCount', focusCount)
       videoScenePrg.setUniform('focusPos1', posList[0] || defaultFocus)
       videoScenePrg.setUniform('focusPos2', posList[1] || defaultFocus)
@@ -1300,4 +1045,109 @@ function init() {
   }
 
   render()
+  isDoneInit = true
+}
+
+export function update (property, value) {
+  if (!isDoneInit) return
+
+  settings[property] = value
+
+  switch (property) {
+    case 'lineShape':
+      switch (settings.lineShape) {
+        case 'mesh':
+          vbo = meshPointVBO
+          arrayLength = (4 * (POINT_RESOLUTION - 1) + 2) * (POINT_RESOLUTION - 1)
+          break
+        case 'line':
+        default:
+          vbo = pointVBO
+          arrayLength = POINT_RESOLUTION * POINT_RESOLUTION
+      }
+      break
+    case 'deformation':
+      settings.deformation ? deformationProgressTl.play() : deformationProgressTl.reverse()
+      break
+    case 'bgColor':
+      let rgbInt = settings.bgColor * 255
+      document.body.style.backgroundColor = `rgb(${rgbInt}, ${rgbInt}, ${rgbInt})`
+      break
+    case 'pointer':
+      if (!settings.pointer) {
+        pointer = {
+          x: 0,
+          y: 0
+        }
+      }
+      break
+    case 'capture':
+      isStop = settings.capture ? 1 : 0
+      isCapture = settings.capture
+      break
+    case 'stopMotion':
+      isStop = settings.stopMotion ? 1 : 0
+      if (settings.stopMotion) {
+        stopMotionTimer = setInterval(() => {
+          isCapture = true
+        }, 1000 / 3)
+      } else {
+        clearTimeout(stopMotionTimer)
+      }
+      break
+    case 'detector':
+      if (settings.detector) {
+        // detectorMessage.isShow = true
+        // runDetector()
+      } else {
+        // if (!detector) return
+
+        // detectorMessage.isShow = false
+        // resetDetector()
+        // detector = null
+      }
+      break
+    case 'effect':
+      switch (settings.effect) {
+        case 'glitch':
+          currentPostPrg = postGlitchPrg
+          break
+        case 'ykob glitch':
+          currentPostPrg = postYkobGlitchPrg
+          break
+        case 'dot':
+          currentPostPrg = postDotPrg
+          break
+        case 'dot screen':
+          currentPostPrg = postDotScreenPrg
+          break
+        case 'none':
+        default:
+          currentPostPrg = postNonePrg
+      }
+      break
+    case 'video':
+      (async () => {
+        video = await media.getUserMedia({ video: settings.video })
+
+        webcam = new Webcam(video)
+        // await webcam.setup()
+        webcam.adjustVideoSize(video.videoWidth || video.naturalWidth, video.videoHeight || video.naturalHeight)
+
+        if (detector) {
+          resetDetector()
+          runDetector()
+        }
+      })()
+      break
+    case 'thumb':
+      media.toggleThumb(settings.thumb)
+      break
+    case 'inputAudio':
+      isAudio = settings.inputAudio ? 1 : 0
+      break
+    case 'audio':
+      media.getUserMedia({ audio: settings.audio })
+      break
+  }
 }

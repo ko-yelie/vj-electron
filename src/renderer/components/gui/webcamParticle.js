@@ -1,189 +1,105 @@
 import { ipcRenderer } from 'electron'
-// import dat from 'dat.gui/build/dat.gui.js'
+import dat from 'dat.gui/build/dat.gui.js'
 
-import configs from '../../assets/json/js/webcamParticle/scene.json'
+import json from '../../assets/json/js/webcamParticle/scene.json'
+import { getFirstValue } from '../../../visualRenderer/webcamParticle/script/utils.js'
 
-export default function () {
-  const json = require('./gui/scene.json')
-  const preset = location.search.substring(1) || json.preset
+const MIN_ZOOM = 2
+const MAX_ZOOM = 10
+
+const ANIMATION_NORMAL = 0
+const ANIMATION_WARP = 1
+
+const POINTS = 0
+const LINE_STRIP = 1
+const TRIANGLES = 3
+
+export default async function (argConfig) {
+  const config = argConfig || json
+  const preset = location.search.substring(1) || config.preset
   const gui = new dat.GUI({
-    load: json,
+    load: config,
     preset: preset
   })
   let particleFolder
+  let pointFolder
+  let lineFolder
   let postFolder
   let thumbController
-  let videoController
   let changeDetector
 
-  data = json.remembered[preset][0]
-  gui.remember(data)
+  const settings = config.remembered[preset][0]
+  gui.remember(settings)
 
   // scene
   const sceneMap = ['Particle', 'Pop', 'Post Effect']
-  const changeScene = () => {
-    particleFolder.close()
-    postFolder.close()
-
-    switch (data.scene) {
-      case 'Pop':
-        particleFolder.open()
-        break
-      case 'Post Effect':
-        postFolder.open()
-        break
-      case 'Particle':
-      default:
-        particleFolder.open()
-    }
-  }
-  gui.add(data, 'scene', sceneMap).onChange(changeScene)
+  gui.add(settings, 'scene', sceneMap).onChange(dispatchVisual)
 
   // Particle folder
   {
-    let pointFolder
-    let lineFolder
-
     particleFolder = gui.addFolder('Particle')
 
     // animation
     const animationMap = { normal: ANIMATION_NORMAL, warp: ANIMATION_WARP }
-    particleFolder.add(data, 'animation', animationMap)
+    particleFolder.add(settings, 'animation', animationMap).onChange(dispatchVisual)
 
     // mode
     const modeMap = {
-      'gl.POINTS': gl.POINTS,
-      'gl.LINE_STRIP': gl.LINE_STRIP,
-      'gl.TRIANGLES': gl.TRIANGLES
+      'gl.POINTS': POINTS,
+      'gl.LINE_STRIP': LINE_STRIP,
+      'gl.TRIANGLES': TRIANGLES
     }
-    const changeMode = () => {
-      pointFolder.close()
-      lineFolder.close()
-
-      switch (Number(data.mode)) {
-        case gl.LINE_STRIP:
-        case gl.TRIANGLES:
-          lineFolder.open()
-          break
-        case gl.POINTS:
-        default:
-          pointFolder.open()
-      }
-    }
-    particleFolder.add(data, 'mode', modeMap).onChange(changeMode)
+    particleFolder.add(settings, 'mode', modeMap).onChange(dispatchVisual)
 
     // point folder
     pointFolder = particleFolder.addFolder('gl.POINTS')
 
     // pointShape
     const pointShapeMap = { square: 0, circle: 1, star: 2, video: 3 }
-    pointFolder.add(data, 'pointShape', pointShapeMap)
+    pointFolder.add(settings, 'pointShape', pointShapeMap).onChange(dispatchVisual)
 
     // pointSize
     const pointSizeMap = [0.1, 30]
-    pointFolder.add(data, 'pointSize', ...pointSizeMap)
+    pointFolder.add(settings, 'pointSize', ...pointSizeMap).onChange(dispatchVisual)
 
     // line folder
     lineFolder = particleFolder.addFolder('gl.LINE_STRIP')
 
     // lineShape
     const lineShapeMap = ['line', 'mesh']
-    const changeLineShape = () => {
-      switch (data.lineShape) {
-        case 'mesh':
-          vbo = meshPointVBO
-          arrayLength = (4 * (POINT_RESOLUTION - 1) + 2) * (POINT_RESOLUTION - 1)
-          break
-        case 'line':
-        default:
-          vbo = pointVBO
-          arrayLength = POINT_RESOLUTION * POINT_RESOLUTION
-      }
-    }
-    lineFolder.add(data, 'lineShape', lineShapeMap).onChange(changeLineShape)
+    lineFolder.add(settings, 'lineShape', lineShapeMap).onChange(dispatchVisual)
 
     // deformation
-    const tl = new TimelineMax({
-      paused: true
-    }).fromTo(
-      data,
-      0.7,
-      {
-        deformationProgress: 0
-      },
-      {
-        deformationProgress: 1,
-        ease: 'Power2.easeOut'
-      }
-    )
-    const changeDeformation = () => {
-      data.deformation ? tl.play() : tl.reverse()
-    }
-    particleFolder.add(data, 'deformation').onChange(changeDeformation)
+    particleFolder.add(settings, 'deformation').onChange(dispatchVisual)
 
     // canvas folder
     const canvasFolder = particleFolder.addFolder('canvas')
 
     // bgColor
     const bgColorMap = { black: 0, white: 1 }
-    const changeBgColor = () => {
-      let rgbInt = data.bgColor * 255
-      canvas.style.backgroundColor = `rgb(${rgbInt}, ${rgbInt}, ${rgbInt})`
-    }
-    canvasFolder.add(data, 'bgColor', bgColorMap).onChange(changeBgColor)
+    canvasFolder.add(settings, 'bgColor', bgColorMap).onChange(dispatchVisual)
 
     // z position
     const zPositionMap = [MIN_ZOOM, MAX_ZOOM]
-    canvasFolder.add(data, 'zPosition', ...zPositionMap).listen()
+    canvasFolder.add(settings, 'zPosition', ...zPositionMap).listen().onChange(dispatchVisual)
 
     // pointer
-    const changeMouse = () => {
-      if (!data.pointer) {
-        pointer = {
-          x: 0,
-          y: 0
-        }
-      }
-    }
-    canvasFolder.add(data, 'pointer').onChange(changeMouse)
+    canvasFolder.add(settings, 'pointer').onChange(dispatchVisual)
 
     // accel
-    canvasFolder.add(data, 'accel')
+    canvasFolder.add(settings, 'accel').onChange(dispatchVisual)
 
     // rotation
-    canvasFolder.add(data, 'rotation').listen()
+    canvasFolder.add(settings, 'rotation').listen().onChange(dispatchVisual)
 
     // video folder
     const videoFolder = particleFolder.addFolder('video')
 
     // capture
-    const changeCapture = () => {
-      isStop = data.capture ? 1 : 0
-      isCapture = data.capture
-    }
-    videoFolder.add(data, 'capture').onChange(changeCapture)
+    videoFolder.add(settings, 'capture').onChange(dispatchVisual)
 
     // stopMotion
-    let timer
-    const changeStopMotion = () => {
-      isStop = data.stopMotion ? 1 : 0
-      if (data.stopMotion) {
-        timer = setInterval(() => {
-          isCapture = true
-        }, 1000 / 3)
-      } else {
-        clearTimeout(timer)
-      }
-    }
-    videoFolder.add(data, 'stopMotion').onChange(changeStopMotion)
-
-    changeMode()
-    changeLineShape()
-    changeDeformation()
-    changeBgColor()
-    changeMouse()
-    changeCapture()
-    changeStopMotion()
+    videoFolder.add(settings, 'stopMotion').onChange(dispatchVisual)
   }
 
   // Post Effect folder
@@ -191,119 +107,90 @@ export default function () {
     postFolder = gui.addFolder('Post Effect')
 
     // detector
-    changeDetector = () => {
-      if (data.detector) {
+    changeDetector = val => {
+      if (val) {
         thumbController.setValue(true)
-        detectorMessage.isShow = true
-        runDetector()
       } else {
-        if (!detector) return
-
         thumbController.setValue(false)
-        detectorMessage.isShow = false
-        resetDetector()
-        detector = null
       }
+
+      dispatchVisual(val, 'detector')
     }
-    postFolder.add(data, 'detector').onChange(changeDetector)
+    postFolder.add(settings, 'detector').onChange(changeDetector)
 
     // effect
     const effectMap = ['none', 'glitch', 'ykob glitch', 'dot', 'dot screen']
-    const changeEffect = () => {
-      switch (data.effect) {
-        case 'glitch':
-          currentPostPrg = postGlitchPrg
-          break
-        case 'ykob glitch':
-          currentPostPrg = postYkobGlitchPrg
-          break
-        case 'dot':
-          currentPostPrg = postDotPrg
-          break
-        case 'dot screen':
-          currentPostPrg = postDotScreenPrg
-          break
-        case 'none':
-        default:
-          currentPostPrg = postNonePrg
-      }
-    }
-    postFolder.add(data, 'effect', effectMap).onChange(changeEffect)
-
-    changeEffect()
+    postFolder.add(settings, 'effect', effectMap).onChange(dispatchVisual)
   }
 
-  // video folder
-  const videoFolder = gui.addFolder('video')
-  videoFolder.open()
+  ipcRenderer.on('receive-webcam-particle', (event, media) => {
+    // video folder
+    const videoFolder = gui.addFolder('video')
+    videoFolder.open()
 
-  // video
-  const changeVideo = async () => {
-    video = await media.getUserMedia({ video: data.video })
-    if (!Object.keys(media.videoDevices).some(key => data.video === media.videoDevices[key])) {
+    // video
+    const videoController = videoFolder.add(settings, 'video', media.videoDevices).onChange(dispatchVisual)
+    if (!Object.keys(media.videoDevices).some(key => settings.video === media.videoDevices[key])) {
       videoController.setValue(getFirstValue(media.videoDevices))
     }
 
-    webcam = new Webcam(video)
-    // await webcam.setup()
-    webcam.adjustVideoSize(video.videoWidth || video.naturalWidth, video.videoHeight || video.naturalHeight)
+    // videoZoom
+    const videoZoomMap = [1, 3]
+    videoFolder.add(settings, 'videoZoom', ...videoZoomMap).onChange(dispatchVisual)
 
-    if (detector) {
-      resetDetector()
-      runDetector()
-    }
-  }
-  videoController = videoFolder.add(data, 'video', media.videoDevices).onChange(changeVideo)
+    // thumb
+    thumbController = videoFolder.add(settings, 'thumb').onChange(dispatchVisual)
 
-  // videoZoom
-  const videoZoomMap = [1, 3]
-  videoFolder.add(data, 'videoZoom', ...videoZoomMap)
+    // audio folder
+    const audioFolder = gui.addFolder('audio')
+    audioFolder.open()
 
-  // thumb
-  const changeThumb = () => {
-    media.toggleThumb(data.thumb)
-  }
-  thumbController = videoFolder.add(data, 'thumb').onChange(changeThumb)
+    // inputAudio
+    audioFolder.add(settings, 'inputAudio').onChange(dispatchVisual)
 
-  // audio folder
-  const audioFolder = gui.addFolder('audio')
-  audioFolder.open()
-
-  // inputAudio
-  const changeInputAudio = () => {
-    isAudio = data.inputAudio ? 1 : 0
-  }
-  audioFolder.add(data, 'inputAudio').onChange(changeInputAudio)
-
-  // audio
-  const changeAudio = async () => {
-    await media.getUserMedia({ audio: data.audio })
-    if (!Object.keys(media.audioDevices).some(key => data.audio === media.audioDevices[key])) {
+    // audio
+    const audioController = audioFolder.add(settings, 'audio', media.audioDevices).onChange(dispatchVisual)
+    if (!Object.keys(media.audioDevices).some(key => settings.audio === media.audioDevices[key])) {
       audioController.setValue(getFirstValue(media.audioDevices))
     }
-  }
-  const audioController = audioFolder.add(data, 'audio', media.audioDevices).onChange(changeAudio)
-
-  changeScene()
-  changeThumb()
-  changeInputAudio()
-  changeAudio()
-  await changeVideo()
-  changeDetector()
-
-  cameraPosition.z = data.zPosition
-
-  ipcRenderer.send('dispatch-particles-js', 'initParticlesJs', configs)
-
-  ipcRenderer.once('receive-particles-js', (event, pJS) => {
-    // const gui = new dat.GUI({
-    //   autoPlace: true,
-    //   closed: true,
-    //   width: 340
-    // })
-
-    // p.update = function () {
-    //   // ipcRenderer.send('dispatch-particles-js', 'updateParticlesJs', pJS_GUI)
-    // }
   })
-};
+
+  function dispatchVisual (val) {
+    ipcRenderer.send('dispatch-webcam-particle', 'update', this.property, val)
+
+    switch (this.property) {
+      case 'scene':
+        particleFolder.close()
+        postFolder.close()
+
+        switch (val) {
+          case 'Pop':
+            particleFolder.open()
+            break
+          case 'Post Effect':
+            postFolder.open()
+            break
+          case 'Particle':
+          default:
+            particleFolder.open()
+        }
+        break
+      case 'mode':
+        pointFolder.close()
+        lineFolder.close()
+
+        switch (Number(val)) {
+          case LINE_STRIP:
+          case TRIANGLES:
+            lineFolder.open()
+            break
+          case POINTS:
+          default:
+            pointFolder.open()
+        }
+        break
+    }
+  }
+
+  ipcRenderer.send('dispatch-webcam-particle', 'init', settings)
+}

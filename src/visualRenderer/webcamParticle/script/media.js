@@ -1,14 +1,16 @@
 import getElements from 'get-elements-array'
 
+import { getFirstValue } from './utils.js'
+
 export default class Media {
-  constructor (size, pointResolution) {
+  constructor (size, pointResolution, videoWrapper) {
     this.video = document.createElement('video')
     this.video.width = size
     this.video.height = size
     this.video.loop = true
     this.video.muted = true
 
-    this.wrapper = document.getElementById('video-wrapper')
+    this.wrapper = videoWrapper
     this.wrapper.appendChild(this.video)
 
     this.toggleThumb(false)
@@ -45,6 +47,8 @@ export default class Media {
             break
         }
       })
+      this.videoSource = getFirstValue(this.videoDevices)
+      this.audioSource = getFirstValue(this.audioDevices)
 
       if (this.smartphone) {
         this.videoDevices['Smartphone'] = 'smartphone'

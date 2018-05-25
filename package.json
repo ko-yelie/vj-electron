@@ -34,6 +34,7 @@
     "glsl-random": "0.0.5",
     "gsap": "^1.20.2",
     "jquery": "^3.2.1",
+    "js-easing-functions": "^1.0.2",
     "noisejs": "^2.1.0",
     "particles.js": "^2.0.0",
     "quietflow": "^1.0.1",
