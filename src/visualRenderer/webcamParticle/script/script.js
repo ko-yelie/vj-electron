@@ -643,7 +643,7 @@ function initGlsl () {
 }
 
 function initMedia () {
-  media = new Media(VIDEO_RESOLUTION, POINT_RESOLUTION, options.videoWrapper)
+  media = new Media(VIDEO_RESOLUTION, POINT_RESOLUTION)
   media.enumerateDevices().then(initVideo)
 
   // detectorMessage = new Vue({
@@ -1139,9 +1139,6 @@ export function update (property, value) {
           runDetector()
         }
       })()
-      break
-    case 'thumb':
-      media.toggleThumb(settings.thumb)
       break
     case 'inputAudio':
       isAudio = settings.inputAudio ? 1 : 0

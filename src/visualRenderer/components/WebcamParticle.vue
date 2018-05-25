@@ -1,9 +1,6 @@
 <template lang="pug">
 div
   canvas(ref="canvas")
-
-  .thumb(ref="videoWrapper")
-    //- img.video(src="http://your.ip.address:8080/video", crossorigin="anonymous")#smartphone
 </template>
 
 <script>
@@ -17,7 +14,6 @@ export default {
         run({
           el: this.$el,
           canvas: this.$refs.canvas,
-          videoWrapper: this.$refs.videoWrapper,
           settings
         })
       },

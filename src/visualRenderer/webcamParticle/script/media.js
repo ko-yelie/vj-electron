@@ -3,17 +3,12 @@ import getElements from 'get-elements-array'
 import { getFirstValue } from './utils.js'
 
 export default class Media {
-  constructor (size, pointResolution, videoWrapper) {
+  constructor (size, pointResolution) {
     this.video = document.createElement('video')
     this.video.width = size
     this.video.height = size
     this.video.loop = true
     this.video.muted = true
-
-    this.wrapper = videoWrapper
-    this.wrapper.appendChild(this.video)
-
-    this.toggleThumb(false)
 
     this.size = size
     this.pointResolution = pointResolution
@@ -138,9 +133,5 @@ export default class Media {
       max = Math.max(this.array[i], max)
     }
     return max / 255 * 2
-  }
-
-  toggleThumb (showThumb) {
-    this.wrapper.style.display = showThumb ? 'flex' : 'none'
   }
 }
