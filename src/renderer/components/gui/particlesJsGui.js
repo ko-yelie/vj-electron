@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron'
 import { pick } from 'lodash'
-import dat from 'dat.gui/build/dat.gui.js'
+import dat from 'dat.gui'
 
 import defaultConfig from '../../assets/json/js/particlesjs-config.json'
 import topConfig from '../../assets/json/js/particlesjs-config-top.json'

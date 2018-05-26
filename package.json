@@ -28,7 +28,7 @@
   "dependencies": {
     "@tensorflow/tfjs": "^0.11.1",
     "axios": "^0.16.1",
-    "dat.gui": "^0.6.1",
+    "dat.gui": "^0.7.2",
     "get-elements-array": "^1.0.1",
     "glsl-noise": "0.0.0",
     "glsl-random": "0.0.5",

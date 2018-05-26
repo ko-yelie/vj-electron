@@ -40,8 +40,8 @@ function createWindow () {
     visualWindow = null
   })
 
-  ipcMain.on('receive-webcam-particle', (event, payload) => {
-    mainWindow.webContents.send('receive-webcam-particle', payload)
+  ipcMain.on('receive-media', (event, payload) => {
+    mainWindow.webContents.send('receive-media', payload)
   })
   ipcMain.on('receive-particles-js', (event, payload) => {
     mainWindow.webContents.send('receive-particles-js', payload)
@@ -66,6 +66,9 @@ function createVisualWindow (mainWindow) {
 
   ipcMain.on('dispatch-connect', (event, typeName, ...payload) => {
     visualWindow.webContents.send('dispatch-connect', typeName, ...payload)
+  })
+  ipcMain.on('dispatch-media', (event, ...payload) => {
+    visualWindow.webContents.send('dispatch-media', ...payload)
   })
   ipcMain.on('dispatch-webcam-particle', (event, typeName, ...payload) => {
     visualWindow.webContents.send('dispatch-webcam-particle', typeName, ...payload)

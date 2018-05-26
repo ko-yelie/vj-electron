@@ -1,6 +1,6 @@
 import getElements from 'get-elements-array'
 
-import { getFirstValue } from './utils.js'
+import { getFirstValue } from '../webcamParticle/script/utils.js'
 
 export default class Media {
   constructor (size, pointResolution) {
@@ -61,7 +61,7 @@ export default class Media {
     })
   }
 
-  getUserMedia (sources) {
+  getUserMedia (sources = {}) {
     let videoFile, smartphoneFile
     if (/^file:/.test(sources.video)) {
       videoFile = this.videoFiles[sources.video]

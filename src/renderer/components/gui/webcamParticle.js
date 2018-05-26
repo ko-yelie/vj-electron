@@ -1,8 +1,7 @@
 import { ipcRenderer } from 'electron'
-import dat from 'dat.gui/build/dat.gui.js'
+import dat from 'dat.gui'
 
 import json from '../../assets/json/js/webcamParticle/scene.json'
-import { getFirstValue } from '../../../visualRenderer/webcamParticle/script/utils.js'
 
 const MIN_ZOOM = 2
 const MAX_ZOOM = 10
@@ -122,38 +121,6 @@ export default async function (argConfig) {
     const effectMap = ['none', 'glitch', 'ykob glitch', 'dot', 'dot screen']
     postFolder.add(settings, 'effect', effectMap).onChange(dispatchVisual)
   }
-
-  ipcRenderer.on('receive-webcam-particle', (event, media) => {
-    // video folder
-    const videoFolder = gui.addFolder('video')
-    videoFolder.open()
-
-    // video
-    const videoController = videoFolder.add(settings, 'video', media.videoDevices).onChange(dispatchVisual)
-    if (!Object.keys(media.videoDevices).some(key => settings.video === media.videoDevices[key])) {
-      videoController.setValue(getFirstValue(media.videoDevices))
-    }
-
-    // videoZoom
-    const videoZoomMap = [1, 3]
-    videoFolder.add(settings, 'videoZoom', ...videoZoomMap).onChange(dispatchVisual)
-
-    // thumb
-    thumbController = videoFolder.add(settings, 'thumb').onChange(dispatchVisual)
-
-    // audio folder
-    const audioFolder = gui.addFolder('audio')
-    audioFolder.open()
-
-    // inputAudio
-    audioFolder.add(settings, 'inputAudio').onChange(dispatchVisual)
-
-    // audio
-    const audioController = audioFolder.add(settings, 'audio', media.audioDevices).onChange(dispatchVisual)
-    if (!Object.keys(media.audioDevices).some(key => settings.audio === media.audioDevices[key])) {
-      audioController.setValue(getFirstValue(media.audioDevices))
-    }
-  })
 
   function dispatchVisual (val) {
     ipcRenderer.send('dispatch-webcam-particle', 'update', this.property, val)

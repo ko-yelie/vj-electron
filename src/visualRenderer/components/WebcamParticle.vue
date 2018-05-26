@@ -1,29 +1,44 @@
 <template lang="pug">
-div
-  canvas(ref="canvas")
+canvas
 </template>
 
 <script>
 import { ipcRenderer } from 'electron'
-import { run, update } from '../webcamParticle/script/script.js'
+import {
+  run,
+  update,
+  updateMedia,
+  updateZoom,
+  updateInputAudio
+} from '../webcamParticle/script/script.js'
 
 export default {
   mounted () {
     const actions = {
       init: (settings) => {
         run({
-          el: this.$el,
-          canvas: this.$refs.canvas,
-          settings
+          canvas: this.$el,
+          settings,
+          media: this.$store.state.Media.media
         })
       },
-      update: (settings, property) => {
-        update(settings, property)
+      update: (property, value) => {
+        update(property, value)
       }
     }
 
     ipcRenderer.on('dispatch-webcam-particle', (event, typeName, ...payload) => {
       actions[typeName](...payload)
+    })
+
+    this.$store.watch(this.$store.getters.media, media => {
+      updateMedia(media)
+    })
+    this.$store.watch(this.$store.getters.zoom, zoom => {
+      updateZoom(zoom)
+    })
+    this.$store.watch(this.$store.getters.inputAudio, inputAudio => {
+      updateInputAudio(inputAudio)
     })
   }
 }

@@ -78,58 +78,6 @@
         "videoZoom": 1,
         "thumb": false
       }
-    },
-    "Detector": {
-      "0": {
-        "scene": "Post Effect",
-        "animation": 0,
-        "mode": 0,
-        "pointShape": 1,
-        "pointSize": 8,
-        "lineShape": "line",
-        "deformation": false,
-        "deformationProgress": 0,
-        "bgColor": 0,
-        "zPosition": 5,
-        "pointer": false,
-        "accel": false,
-        "rotation": false,
-        "capture": false,
-        "stopMotion": false,
-        "inputAudio": false,
-        "audio": null,
-        "detector": true,
-        "effect": "none",
-        "video": "file:Dance-4428",
-        "videoZoom": 1,
-        "thumb": true
-      }
-    },
-    "Dev": {
-      "0": {
-        "scene": "Particle",
-        "animation": 1,
-        "mode": 0,
-        "pointShape": 1,
-        "pointSize": 5,
-        "lineShape": "line",
-        "deformation": false,
-        "deformationProgress": 0,
-        "bgColor": 0,
-        "zPosition": 8,
-        "pointer": true,
-        "accel": false,
-        "rotation": false,
-        "capture": false,
-        "stopMotion": false,
-        "inputAudio": false,
-        "audio": null,
-        "detector": false,
-        "effect": "glitch",
-        "video": "file:live-5",
-        "videoZoom": 1,
-        "thumb": true
-      }
     }
   },
   "closed": false,

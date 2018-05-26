@@ -1,4 +1,3 @@
-import { ipcRenderer } from 'electron'
 import MatIV from './minMatrix.js'
 import {
   initWebGL,
@@ -15,15 +14,10 @@ import {
   getPointVbo
 } from './gl-utils.js'
 import { setGl, createFramebuffer, createFramebufferFloat, getWebGLExtensions } from './doxas-utils.js'
-// import { getFirstValue, clamp } from './utils.js'
 import { clamp } from './utils.js'
 import Tween from './tween.js'
-import Media from './media.js'
-import { Webcam } from './webcam.js'
-import Detector from './detector.js'
-// import DetectorMessage from './vue/DetectorMessage'
 
-const POINT_RESOLUTION = window.innerWidth < 1000 ? 64 : 128
+const POINT_RESOLUTION = 128
 const POP_RESOLUTION = 16
 const VIDEO_RESOLUTION = 416
 const BASE_RESOLUTION = 256
@@ -90,7 +84,6 @@ let postDotScreenPrg
 
 let render
 let media
-let webcam
 let settings = {}
 let video
 let detector
@@ -124,6 +117,8 @@ let isDoneInit = false
 export function run (argOptions) {
   options = argOptions
   settings = options.settings
+  media = options.media
+
   // canvas element を取得しサイズをウィンドウサイズに設定
   const obj = initWebGL(options.canvas)
   canvas = obj.canvas
@@ -639,55 +634,13 @@ function initGlsl () {
   sceneBufferIndex = framebufferCount
   framebufferCount += 1
 
-  initMedia()
+  initVideo()
 }
 
-function initMedia () {
-  media = new Media(VIDEO_RESOLUTION, POINT_RESOLUTION)
-  media.enumerateDevices().then(initVideo)
-
-  // detectorMessage = new Vue({
-  //   el: '#detector',
-  //   data: {
-  //     isShow: false,
-  //     isReady: false
-  //   },
-  //   components: {
-  //     [DetectorMessage.name]: DetectorMessage
-  //   }
-  // })
-}
-
-async function initVideo () {
-  video = await media.getUserMedia({
-    video: settings.video,
-    audio: settings.audio
-  })
-
-  webcam = new Webcam(video)
-  // await webcam.setup()
-  webcam.adjustVideoSize(video.videoWidth || video.naturalWidth, video.videoHeight || video.naturalHeight)
-
-  if (detector) {
-    resetDetector()
-    runDetector()
-  }
-
-  ipcRenderer.send('receive-webcam-particle', media)
+function initVideo () {
+  video = media.currentVideo
 
   init()
-}
-
-async function runDetector () {
-  detector = new Detector(webcam, media.wrapper)
-  await detector.promise
-  detector.detect()
-  // detectorMessage.isReady = true
-}
-
-function resetDetector () {
-  detector.reset()
-  // detectorMessage.isReady = false
 }
 
 function updateCamera () {
@@ -1126,25 +1079,30 @@ export function update (property, value) {
           currentPostPrg = postNonePrg
       }
       break
-    case 'video':
-      (async () => {
-        video = await media.getUserMedia({ video: settings.video })
-
-        webcam = new Webcam(video)
-        // await webcam.setup()
-        webcam.adjustVideoSize(video.videoWidth || video.naturalWidth, video.videoHeight || video.naturalHeight)
-
-        if (detector) {
-          resetDetector()
-          runDetector()
-        }
-      })()
-      break
-    case 'inputAudio':
-      isAudio = settings.inputAudio ? 1 : 0
-      break
-    case 'audio':
-      media.getUserMedia({ audio: settings.audio })
-      break
   }
+}
+
+export function updateMedia (media) {
+  if (!isDoneInit) return
+
+  settings.video = media.videoSource
+  settings.audio = media.audioSource
+  video = media.currentVideo
+}
+
+export function updateZoom (zoom) {
+  settings.videoZoom = zoom
+}
+
+export function updateInputAudio (inputAudio) {
+  settings.inputAudio = inputAudio
+  isAudio = settings.inputAudio ? 1 : 0
+}
+
+export function stop () {
+  isRun = false
+}
+
+export function start () {
+  isRun = true
 }
