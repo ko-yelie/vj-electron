@@ -112,7 +112,6 @@ let volume = 1
 let defaultFocus = [0, 0, 1, 1]
 let deformationProgressTl
 let stopMotionTimer
-let isDoneInit = false
 
 export function run (argOptions) {
   options = argOptions
@@ -665,6 +664,11 @@ function updateCamera () {
 }
 
 function init () {
+  // init settings
+  Object.keys(settings).forEach(key => {
+    update(key, settings[key])
+  })
+
   // textures
   createTexture(video)
 
@@ -998,12 +1002,9 @@ function init () {
   }
 
   render()
-  isDoneInit = true
 }
 
 export function update (property, value) {
-  if (!isDoneInit) return
-
   settings[property] = value
 
   switch (property) {
@@ -1080,14 +1081,6 @@ export function update (property, value) {
       }
       break
   }
-}
-
-export function updateMedia (media) {
-  if (!isDoneInit) return
-
-  settings.video = media.videoSource
-  settings.audio = media.audioSource
-  video = media.currentVideo
 }
 
 export function updateZoom (zoom) {
