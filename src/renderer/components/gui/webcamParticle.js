@@ -24,8 +24,7 @@ export default async function (argConfig) {
   let pointFolder
   let lineFolder
   let postFolder
-  let thumbController
-  let changeDetector
+  // let thumbController
 
   const settings = config.remembered[preset][0]
   gui.remember(settings)
@@ -106,16 +105,7 @@ export default async function (argConfig) {
     postFolder = gui.addFolder('Post Effect')
 
     // detector
-    changeDetector = val => {
-      if (val) {
-        thumbController.setValue(true)
-      } else {
-        thumbController.setValue(false)
-      }
-
-      dispatchVisual(val, 'detector')
-    }
-    postFolder.add(settings, 'detector').onChange(changeDetector)
+    postFolder.add(settings, 'detector').onChange(dispatchVisual)
 
     // effect
     const effectMap = ['none', 'glitch', 'ykob glitch', 'dot', 'dot screen']
@@ -155,6 +145,13 @@ export default async function (argConfig) {
           default:
             pointFolder.open()
         }
+        break
+      case 'detector':
+        // if (val) {
+        //   thumbController.setValue(true)
+        // } else {
+        //   thumbController.setValue(false)
+        // }
         break
     }
   }

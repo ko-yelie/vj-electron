@@ -16,6 +16,7 @@ import {
 import { setGl, createFramebuffer, createFramebufferFloat, getWebGLExtensions } from './doxas-utils.js'
 import { clamp } from './utils.js'
 import Tween from './tween.js'
+import Detector from './detector.js'
 
 const POINT_RESOLUTION = 128
 const POP_RESOLUTION = 16
@@ -639,7 +640,24 @@ function initGlsl () {
 function initVideo () {
   video = media.currentVideo
 
+  if (detector) {
+    resetDetector()
+    runDetector()
+  }
+
   init()
+}
+
+async function runDetector () {
+  detector = new Detector(media.webcam, media.wrapper)
+  await detector.promise
+  detector.detect()
+  // detectorMessage.isReady = true
+}
+
+function resetDetector () {
+  detector.reset()
+  // detectorMessage.isReady = false
 }
 
 function updateCamera () {
@@ -1052,13 +1070,13 @@ export function update (property, value) {
     case 'detector':
       if (settings.detector) {
         // detectorMessage.isShow = true
-        // runDetector()
+        runDetector()
       } else {
-        // if (!detector) return
+        if (!detector) return
 
         // detectorMessage.isShow = false
-        // resetDetector()
-        // detector = null
+        resetDetector()
+        detector = null
       }
       break
     case 'effect':

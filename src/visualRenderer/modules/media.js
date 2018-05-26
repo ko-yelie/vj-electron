@@ -1,19 +1,27 @@
 import getElements from 'get-elements-array'
 
 import { getFirstValue } from '../webcamParticle/script/utils.js'
+import { Webcam } from '../webcamParticle/script/webcam.js'
 
 export default class Media {
   constructor (size, pointResolution) {
-    this.video = document.createElement('video')
-    this.video.width = size
-    this.video.height = size
-    this.video.loop = true
-    this.video.muted = true
-
     this.size = size
     this.pointResolution = pointResolution
 
+    this.video = document.createElement('video')
+    this.video.width = this.size
+    this.video.height = this.size
+    this.video.loop = true
+    this.video.muted = true
+
+    this.initWebcam()
     this.loadSmartphone()
+  }
+
+  initWebcam () {
+    this.webcam = new Webcam(this.video)
+    // await this.webcam.setup()
+    this.webcam.adjustVideoSize(this.video.videoWidth || this.video.naturalWidth, this.video.videoHeight || this.video.naturalHeight)
   }
 
   // smartphone webcam

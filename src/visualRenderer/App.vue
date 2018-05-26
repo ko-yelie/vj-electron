@@ -3,8 +3,7 @@ import { ipcRenderer } from 'electron'
 import Vue from 'vue'
 
 import VjVisualComponent from './components/VjVisual'
-import Media from './store/media.js'
-import { Webcam } from './webcamParticle/script/webcam.js'
+import Media from './modules/media.js'
 
 const POINT_RESOLUTION = 128
 const VIDEO_RESOLUTION = 416
@@ -21,22 +20,14 @@ export default {
   mounted () {
     const media = new Media(VIDEO_RESOLUTION, POINT_RESOLUTION)
     media.enumerateDevices().then(async () => {
-      const updateMedia = async sources => {
-        const video = await media.getUserMedia(sources)
-
-        const webcam = new Webcam(video)
-        // await webcam.setup()
-        webcam.adjustVideoSize(video.videoWidth || video.naturalWidth, video.videoHeight || video.naturalHeight)
-      }
-
-      await updateMedia()
+      await media.getUserMedia()
       this.$store.commit('UPDATE_MEDIA', media)
 
       ipcRenderer.on('dispatch-media', async (event, property, value) => {
         switch (property) {
           case 'video':
           case 'audio':
-            await updateMedia({
+            await media.getUserMedia({
               [property]: value
             })
             this.$store.commit('UPDATE_MEDIA', media)

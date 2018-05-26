@@ -6,6 +6,26 @@ import dat from 'dat.gui'
 
 import VjDisplayingVideo from './LandingPage/VjDisplayingVideo'
 import { getFirstValue } from '../../visualRenderer/webcamParticle/script/utils.js'
+import Media from '../../visualRenderer/modules/media.js'
+
+const POINT_RESOLUTION = 128
+const VIDEO_RESOLUTION = 416
+
+class ControlMedia extends Media {
+  constructor (size, pointResolution, media) {
+    super(size, pointResolution)
+
+    ;[
+      'videoDevices',
+      'audioDevices',
+      'videoSource',
+      'audioSource',
+      'smartphone'
+    ].forEach(key => {
+      super[key] = media[key]
+    })
+  }
+}
 
 let displayingVideosCache = []
 
@@ -43,7 +63,13 @@ export default {
     ])
   },
   mounted () {
-    ipcRenderer.on('receive-media', (event, media) => {
+    ipcRenderer.on('receive-media', async (event, media) => {
+      // init thumbnail
+      const controlMedia = new ControlMedia(VIDEO_RESOLUTION, POINT_RESOLUTION, media)
+      await controlMedia.getUserMedia()
+      this.$el.appendChild(controlMedia.currentVideo)
+
+      // init gui
       const gui = new dat.GUI({
         closed: true,
         hideable: true
@@ -85,8 +111,17 @@ export default {
         audioController.setValue(getFirstValue(media.audioDevices))
       }
 
-      function dispatchMedia (val) {
-        ipcRenderer.send('dispatch-media', this.property, val)
+      async function dispatchMedia (value) {
+        ipcRenderer.send('dispatch-media', this.property, value)
+
+        switch (this.property) {
+          case 'video':
+          case 'audio':
+            await controlMedia.getUserMedia({
+              [this.property]: value
+            })
+            break
+        }
       }
     })
   }

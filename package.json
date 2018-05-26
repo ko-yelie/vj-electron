@@ -26,7 +26,7 @@
     "postinstall": "npm run lint:fix"
   },
   "dependencies": {
-    "@tensorflow/tfjs": "^0.11.1",
+    "@tensorflow/tfjs": "0.9.0",
     "axios": "^0.16.1",
     "dat.gui": "^0.7.2",
     "get-elements-array": "^1.0.1",
