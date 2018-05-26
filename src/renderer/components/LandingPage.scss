@@ -99,6 +99,13 @@ body {
     z-index: 1000;
   }
   &.a {
+    min-height: 1px;
     margin-right: 0;
+  }
+
+  li.save-row {
+    .button {
+      box-sizing: content-box;
+    }
   }
 }
