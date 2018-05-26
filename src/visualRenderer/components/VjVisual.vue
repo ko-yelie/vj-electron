@@ -4,6 +4,7 @@ component.visual(
   :visual="visual"
   :class="{ 'visual-copyright': visual.copyright }"
   :style="{ 'z-index': order, opacity: visual.opacity }"
+  v-if="isShow"
 )
 </template>
 
@@ -18,7 +19,7 @@ import VjQuietflow from './VjQuietflow'
 import VjParticleSandbox from './VjParticleSandbox'
 
 export default {
-  props: ['visual', 'order'],
+  props: ['visual', 'order', 'isShow'],
   components: {
     iframe: VjIframe,
     videoTag: VjVideo,

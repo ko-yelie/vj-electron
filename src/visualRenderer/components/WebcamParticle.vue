@@ -6,14 +6,24 @@ canvas
 import { ipcRenderer } from 'electron'
 import {
   run,
+  stop,
+  start,
   update,
   updateMedia,
   updateZoom,
   updateInputAudio
 } from '../webcamParticle/script/script.js'
 
+let isDirty = false
+
 export default {
   mounted () {
+    if (isDirty) {
+      start()
+      return
+    }
+    isDirty = true
+
     const actions = {
       init: (settings) => {
         run({
@@ -40,6 +50,9 @@ export default {
     this.$store.watch(this.$store.getters.inputAudio, inputAudio => {
       updateInputAudio(inputAudio)
     })
+  },
+  beforeDestroy () {
+    stop()
   }
 }
 </script>

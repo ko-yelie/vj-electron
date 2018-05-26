@@ -54,8 +54,17 @@ export default {
 
       const actions = {
         addDisplayingVideo: (visual) => {
+          const component = this.components[visual.id]
+          if (component) {
+            component.isShow = true
+            return
+          }
+
           const addedComponent = new VjVisual({
-            propsData: { visual },
+            propsData: {
+              visual,
+              isShow: true
+            },
             store: this.$store
           }).$mount()
           this.$el.appendChild(addedComponent.$el)
@@ -71,8 +80,9 @@ export default {
           this.components[visual.id].visual.opacity = visual.opacity
         },
         removeDisplayingVideo: (visual) => {
-          this.$el.removeChild(this.components[visual.id].$el)
-          delete this.components[visual.id]
+          const component = this.components[visual.id]
+          component.isShow = false
+          this.$el.removeChild(component.$el)
         },
         refresh () {
           location.reload()
