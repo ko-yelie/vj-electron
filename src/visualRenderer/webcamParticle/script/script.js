@@ -131,12 +131,6 @@ export function run (argOptions) {
     onResize () {
       canvasWidth = canvas.width
       canvasHeight = canvas.height
-
-      particleSceneFramebuffer = createFramebuffer(canvasWidth, canvasHeight)
-      bindTexture(particleSceneFramebuffer.texture, particleSceneBufferIndex)
-
-      postSceneFramebuffer = createFramebuffer(canvasWidth, canvasHeight)
-      bindTexture(postSceneFramebuffer.texture, postSceneBufferIndex)
     }
   })
 
@@ -159,8 +153,7 @@ export function run (argOptions) {
   // Esc キーで実行を止められるようにイベントを設定
   window.addEventListener('keydown', e => {
     if (e.keyCode === 27) {
-      isRun = !isRun
-      isRun && render()
+      isRun ? stop() : start()
     }
   })
 
@@ -619,7 +612,7 @@ function initGlsl () {
 
   // video
   for (var i = 0; i < CAPTURE_FRAMEBUFFERS_COUNT; i++) {
-    videoFramebuffers.push(createFramebufferFloat(ext, canvasWidth, canvasHeight))
+    videoFramebuffers.push(createFramebuffer(canvasWidth, canvasHeight))
   }
   videoBufferIndex = framebufferCount
   framebufferCount += CAPTURE_FRAMEBUFFERS_COUNT
@@ -1167,4 +1160,5 @@ export function stop () {
 
 export function start () {
   isRun = true
+  render()
 }
