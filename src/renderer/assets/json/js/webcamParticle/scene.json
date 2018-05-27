@@ -115,7 +115,7 @@
     },
     "Post Effect": {
       "preset": "Default",
-      "closed": true,
+      "closed": false,
       "folders": {}
     }
   }

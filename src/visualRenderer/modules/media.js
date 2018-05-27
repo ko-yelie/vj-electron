@@ -1,5 +1,3 @@
-import getElements from 'get-elements-array'
-
 import { getFirstValue } from '../webcamParticle/script/utils.js'
 import { Webcam } from '../webcamParticle/script/webcam.js'
 
@@ -14,7 +12,12 @@ export default class Media {
     this.video.loop = true
     this.video.muted = true
 
+    this.videoDevices = {}
+    this.videoFiles = {}
+    this.audioDevices = {}
+
     this.initWebcam()
+    this.initVideoFiles()
     this.loadSmartphone()
   }
 
@@ -22,6 +25,20 @@ export default class Media {
     this.webcam = new Webcam(this.video)
     // await this.webcam.setup()
     this.webcam.adjustVideoSize(this.video.videoWidth || this.video.naturalWidth, this.video.videoHeight || this.video.naturalHeight)
+  }
+
+  initVideoFiles () {
+    ;['live-1-2'].forEach(videoId => {
+      const id = `file:${videoId}`
+      const video = document.createElement('video')
+      video.src = `/src/visualRenderer/assets/video/${videoId}.mp4`
+      video.width = this.size
+      video.height = this.size
+      video.loop = true
+      video.muted = true
+      this.videoDevices[`File: ${videoId}`] = id
+      this.videoFiles[id] = video
+    })
   }
 
   // smartphone webcam
@@ -32,14 +49,12 @@ export default class Media {
     this.smartphone = smartphone
     this.smartphone.width = this.size
     this.smartphone.height = this.size
+
+    this.videoDevices['Smartphone'] = 'smartphone'
   }
 
   enumerateDevices () {
     return navigator.mediaDevices.enumerateDevices().then(mediaDeviceInfos => {
-      this.videoDevices = {}
-      this.videoFiles = {}
-      this.audioDevices = {}
-
       mediaDeviceInfos.forEach(mediaDeviceInfo => {
         switch (mediaDeviceInfo.kind) {
           case 'videoinput':
@@ -52,20 +67,6 @@ export default class Media {
       })
       this.videoSource = getFirstValue(this.videoDevices)
       this.audioSource = getFirstValue(this.audioDevices)
-
-      if (this.smartphone) {
-        this.videoDevices['Smartphone'] = 'smartphone'
-      }
-
-      getElements('.js-video').forEach(video => {
-        const id = `file:${video.id}`
-        video.width = this.size
-        video.height = this.size
-        video.loop = true
-        video.muted = true
-        this.videoDevices[`File: ${video.innerText}`] = id
-        this.videoFiles[id] = video
-      })
     })
   }
 
@@ -89,18 +90,12 @@ export default class Media {
         .then(stream => {
           // on webcam enabled
           if (videoFile) {
-            this.currentVideo && (this.currentVideo.style.display = 'none')
             this.currentVideo = videoFile
-            videoFile.style.display = 'block'
           } else if (smartphoneFile) {
-            this.currentVideo && (this.currentVideo.style.display = 'none')
             this.currentVideo = smartphoneFile
-            smartphoneFile.style.display = 'block'
           } else {
-            this.currentVideo && (this.currentVideo.style.display = 'none')
             this.video.srcObject = stream
             this.currentVideo = this.video
-            this.video.style.display = 'block'
           }
 
           const audioCtx = new AudioContext()

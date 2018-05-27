@@ -22,7 +22,7 @@ class ControlMedia extends Media {
       'audioSource',
       'smartphone'
     ].forEach(key => {
-      super[key] = media[key]
+      this[key] = media[key]
     })
   }
 }
@@ -67,7 +67,9 @@ export default {
       // init thumbnail
       const controlMedia = new ControlMedia(VIDEO_RESOLUTION, POINT_RESOLUTION, media)
       await controlMedia.getUserMedia()
-      this.$el.appendChild(controlMedia.currentVideo)
+      const thumb = this.$refs.thumb
+      thumb.textContent = null
+      thumb.appendChild(controlMedia.currentVideo)
 
       // init gui
       const gui = new dat.GUI({
@@ -81,10 +83,10 @@ export default {
       videoFolder.open()
 
       // video
-      settings.video = getFirstValue(media.videoDevices)
-      const videoController = videoFolder.add(settings, 'video', media.videoDevices).onChange(dispatchMedia)
-      if (!Object.keys(media.videoDevices).some(key => settings.video === media.videoDevices[key])) {
-        videoController.setValue(getFirstValue(media.videoDevices))
+      settings.video = getFirstValue(controlMedia.videoDevices)
+      const videoController = videoFolder.add(settings, 'video', controlMedia.videoDevices).onChange(dispatchMedia)
+      if (!Object.keys(controlMedia.videoDevices).some(key => settings.video === controlMedia.videoDevices[key])) {
+        videoController.setValue(getFirstValue(controlMedia.videoDevices))
       }
 
       // videoZoom
@@ -105,10 +107,10 @@ export default {
       audioFolder.add(settings, 'inputAudio').onChange(dispatchMedia)
 
       // audio
-      settings.audio = getFirstValue(media.audioDevices)
-      const audioController = audioFolder.add(settings, 'audio', media.audioDevices).onChange(dispatchMedia)
-      if (!Object.keys(media.audioDevices).some(key => settings.audio === media.audioDevices[key])) {
-        audioController.setValue(getFirstValue(media.audioDevices))
+      settings.audio = getFirstValue(controlMedia.audioDevices)
+      const audioController = audioFolder.add(settings, 'audio', controlMedia.audioDevices).onChange(dispatchMedia)
+      if (!Object.keys(controlMedia.audioDevices).some(key => settings.audio === controlMedia.audioDevices[key])) {
+        audioController.setValue(getFirstValue(controlMedia.audioDevices))
       }
 
       async function dispatchMedia (value) {
@@ -120,6 +122,8 @@ export default {
             await controlMedia.getUserMedia({
               [this.property]: value
             })
+            thumb.textContent = null
+            thumb.appendChild(controlMedia.currentVideo)
             break
         }
       }

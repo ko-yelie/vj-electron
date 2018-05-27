@@ -16,6 +16,7 @@ export default {
     }
   },
   getters: {
+    video: state => () => state.media.currentVideo,
     zoom: state => () => state.zoom,
     inputAudio: state => () => state.inputAudio
   }

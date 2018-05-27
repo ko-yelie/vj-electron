@@ -9,6 +9,7 @@ import {
   stop,
   start,
   update,
+  updateVideo,
   updateZoom,
   updateInputAudio
 } from '../webcamParticle/script/script.js'
@@ -40,6 +41,9 @@ export default {
       actions[typeName](...payload)
     })
 
+    this.$store.watch(this.$store.getters.video, video => {
+      updateVideo(video)
+    })
     this.$store.watch(this.$store.getters.zoom, zoom => {
       updateZoom(zoom)
     })

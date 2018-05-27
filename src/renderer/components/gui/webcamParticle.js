@@ -30,7 +30,7 @@ export default async function (argConfig) {
   gui.remember(settings)
 
   // scene
-  const sceneMap = ['Particle', 'Pop', 'Post Effect']
+  const sceneMap = ['Particle', 'Pop']
   gui.add(settings, 'scene', sceneMap).onChange(dispatchVisual)
 
   // Particle folder
@@ -103,6 +103,7 @@ export default async function (argConfig) {
   // Post Effect folder
   {
     postFolder = gui.addFolder('Post Effect')
+    postFolder.open()
 
     // detector
     postFolder.add(settings, 'detector').onChange(dispatchVisual)
@@ -118,14 +119,10 @@ export default async function (argConfig) {
     switch (this.property) {
       case 'scene':
         particleFolder.close()
-        postFolder.close()
 
         switch (val) {
           case 'Pop':
             particleFolder.open()
-            break
-          case 'Post Effect':
-            postFolder.open()
             break
           case 'Particle':
           default:
