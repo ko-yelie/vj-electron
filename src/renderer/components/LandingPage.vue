@@ -83,7 +83,7 @@ export default {
       videoFolder.open()
 
       // video
-      settings.video = getFirstValue(controlMedia.videoDevices)
+      settings.video = controlMedia.videoSource
       const videoController = videoFolder.add(settings, 'video', controlMedia.videoDevices).onChange(dispatchMedia)
       if (!Object.keys(controlMedia.videoDevices).some(key => settings.video === controlMedia.videoDevices[key])) {
         videoController.setValue(getFirstValue(controlMedia.videoDevices))
@@ -108,7 +108,7 @@ export default {
       audioFolder.add(settings, 'inputAudio').onChange(dispatchMedia)
 
       // audio
-      settings.audio = getFirstValue(controlMedia.audioDevices)
+      settings.audio = controlMedia.audioSource
       const audioController = audioFolder.add(settings, 'audio', controlMedia.audioDevices).onChange(dispatchMedia)
       if (!Object.keys(controlMedia.audioDevices).some(key => settings.audio === controlMedia.audioDevices[key])) {
         audioController.setValue(getFirstValue(controlMedia.audioDevices))

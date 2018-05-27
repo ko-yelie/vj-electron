@@ -17,7 +17,7 @@ export default class Media {
     this.audioDevices = {}
 
     this.initWebcam()
-    this.initVideoFiles()
+    // this.initVideoFiles()
     this.loadSmartphone()
   }
 
@@ -55,18 +55,30 @@ export default class Media {
 
   enumerateDevices () {
     return navigator.mediaDevices.enumerateDevices().then(mediaDeviceInfos => {
+      let webcamCount = 0
+      const videoDevices = {}
+      const audioDevices = {}
+
       mediaDeviceInfos.forEach(mediaDeviceInfo => {
         switch (mediaDeviceInfo.kind) {
           case 'videoinput':
-            this.videoDevices[mediaDeviceInfo.label.replace(/ \(.+?\)/, '')] = mediaDeviceInfo.deviceId
+            videoDevices[mediaDeviceInfo.label.replace(/ \(.+?\)/, '')] = mediaDeviceInfo.deviceId
+            webcamCount++
             break
           case 'audioinput':
-            this.audioDevices[mediaDeviceInfo.label.replace(/ \(.+?\)/, '')] = mediaDeviceInfo.deviceId
+            audioDevices[mediaDeviceInfo.label.replace(/ \(.+?\)/, '')] = mediaDeviceInfo.deviceId
             break
         }
       })
-      this.videoSource = getFirstValue(this.videoDevices)
-      this.audioSource = getFirstValue(this.audioDevices)
+
+      if (webcamCount > 1) {
+        delete videoDevices['FaceTime HD Camera']
+      }
+
+      this.videoSource = videoDevices['HD Pro Webcam C920'] || getFirstValue(videoDevices)
+      this.audioSource = getFirstValue(audioDevices)
+      Object.assign(this.videoDevices, videoDevices)
+      Object.assign(this.audioDevices, audioDevices)
     })
   }
 
