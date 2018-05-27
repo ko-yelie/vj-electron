@@ -35,6 +35,9 @@ export default {
     draggable,
     VjDisplayingVideo
   },
+  data: () => ({
+    isThumb: false
+  }),
   computed: {
     visualStock: {
       get () {
@@ -64,12 +67,18 @@ export default {
   },
   mounted () {
     ipcRenderer.on('receive-media', async (event, media) => {
+      const updateMedia = async (sources) => {
+        await controlMedia.getUserMedia(sources)
+
+        // add thumbnail
+        const thumb = this.$refs.thumb
+        thumb.textContent = null
+        thumb.appendChild(controlMedia.currentVideo)
+      }
+
       // init thumbnail
       const controlMedia = new ControlMedia(VIDEO_RESOLUTION, POINT_RESOLUTION, media)
-      await controlMedia.getUserMedia()
-      const thumb = this.$refs.thumb
-      thumb.textContent = null
-      thumb.appendChild(controlMedia.currentVideo)
+      updateMedia()
 
       // init gui
       const gui = new dat.GUI({
@@ -99,6 +108,10 @@ export default {
       settings.videoAlpha = videoAlphaMap[1]
       videoFolder.add(settings, 'videoAlpha', ...videoAlphaMap).onChange(dispatchMedia)
 
+      // thumb
+      settings.thumb = false
+      videoFolder.add(settings, 'thumb').onChange(dispatchMedia)
+
       // audio folder
       const audioFolder = gui.addFolder('audio')
       audioFolder.open()
@@ -114,17 +127,19 @@ export default {
         audioController.setValue(getFirstValue(controlMedia.audioDevices))
       }
 
+      const self = this
       async function dispatchMedia (value) {
         ipcRenderer.send('dispatch-media', this.property, value)
 
         switch (this.property) {
           case 'video':
           case 'audio':
-            await controlMedia.getUserMedia({
+            updateMedia({
               [this.property]: value
             })
-            thumb.textContent = null
-            thumb.appendChild(controlMedia.currentVideo)
+            break
+          case 'thumb':
+            self.isThumb = value
             break
         }
       }
