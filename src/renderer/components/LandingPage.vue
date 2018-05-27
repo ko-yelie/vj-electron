@@ -82,8 +82,7 @@ export default {
 
       // init gui
       const gui = new dat.GUI({
-        closed: true,
-        hideable: true
+        closed: true
       })
       const settings = {}
 
@@ -100,12 +99,12 @@ export default {
 
       // videoZoom
       const videoZoomMap = [1, 3]
-      settings.videoZoom = videoZoomMap[0]
+      settings.videoZoom = 1
       videoFolder.add(settings, 'videoZoom', ...videoZoomMap).onChange(dispatchMedia)
 
       // videoAlpha
       const videoAlphaMap = [0, 1]
-      settings.videoAlpha = videoAlphaMap[1]
+      settings.videoAlpha = 1
       videoFolder.add(settings, 'videoAlpha', ...videoAlphaMap).onChange(dispatchMedia)
 
       // thumb
