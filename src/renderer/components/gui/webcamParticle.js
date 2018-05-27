@@ -33,6 +33,20 @@ export default async function (argConfig, store) {
   const sceneMap = ['none', 'Post Effect', 'Particle', 'Pop']
   gui.add(settings, 'scene', sceneMap).onChange(dispatchVisual)
 
+  // Post Effect folder
+  {
+    postFolder = gui.addFolder('Post Effect')
+    postFolder.open()
+
+    // detector
+    postFolder.add(settings, 'detector').onChange(dispatchVisual)
+
+    // effect
+    const effectMap = ['none', 'glitch', 'ykob glitch', 'dot', 'dot screen']
+    postFolder.add(settings, 'effect', effectMap).onChange(dispatchVisual)
+    postFolder.add(settings, 'lastEffect', effectMap).onChange(dispatchVisual)
+  }
+
   // Particle folder
   {
     particleFolder = gui.addFolder('Particle')
@@ -102,19 +116,6 @@ export default async function (argConfig, store) {
     // particleAlpha
     const particleAlphaMap = [0, 1]
     particleFolder.add(settings, 'particleAlpha', ...particleAlphaMap).onChange(dispatchVisual)
-  }
-
-  // Post Effect folder
-  {
-    postFolder = gui.addFolder('Post Effect')
-    postFolder.open()
-
-    // detector
-    postFolder.add(settings, 'detector').onChange(dispatchVisual)
-
-    // effect
-    const effectMap = ['none', 'glitch', 'ykob glitch', 'dot', 'dot screen']
-    postFolder.add(settings, 'effect', effectMap).onChange(dispatchVisual)
   }
 
   function dispatchVisual (val) {

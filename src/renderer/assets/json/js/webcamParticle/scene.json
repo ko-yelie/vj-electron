@@ -23,6 +23,7 @@
         "audio": null,
         "detector": false,
         "effect": "none",
+        "lastEffect": "none",
         "video": null,
         "videoZoom": 1,
         "videoAlpha": 1
@@ -46,10 +47,11 @@
         "capture": false,
         "stopMotion": false,
         "particleAlpha": 0,
-        "inputAudio": false,
+        "inputAudio": true,
         "audio": null,
         "detector": false,
         "effect": "none",
+        "lastEffect": "glitch",
         "video": null,
         "videoZoom": 1,
         "videoAlpha": 1
@@ -77,6 +79,7 @@
         "audio": null,
         "detector": false,
         "effect": "none",
+        "lastEffect": "none",
         "video": null,
         "videoZoom": 1,
         "videoAlpha": 0
@@ -104,6 +107,7 @@
         "audio": null,
         "detector": false,
         "effect": "none",
+        "lastEffect": "none",
         "video": null,
         "videoZoom": 1,
         "videoAlpha": 0.5
@@ -131,6 +135,7 @@
         "audio": null,
         "detector": false,
         "effect": "none",
+        "lastEffect": "none",
         "video": null,
         "videoZoom": 1,
         "videoAlpha": 0
@@ -139,6 +144,11 @@
   },
   "closed": false,
   "folders": {
+    "Post Effect": {
+      "preset": "Default",
+      "closed": false,
+      "folders": {}
+    },
     "Particle": {
       "preset": "Default",
       "closed": false,
@@ -169,11 +179,6 @@
           "folders": {}
         }
       }
-    },
-    "Post Effect": {
-      "preset": "Default",
-      "closed": false,
-      "folders": {}
     }
   }
 }

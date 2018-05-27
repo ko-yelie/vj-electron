@@ -52,22 +52,24 @@ let vpMatrix
 let mvpMatrix
 
 let videoFramebuffers = []
+let postSceneFramebuffer
+let postSceneLastFramebuffer
 let pictureFramebuffers = []
 let velocityFramebuffers = []
 let positionFramebuffers = []
 let particleSceneFramebuffer
 let popVelocityFramebuffers = []
 let popPositionFramebuffers = []
-let postSceneFramebuffer
 
 let videoBufferIndex
+let postSceneBufferIndex
+let postSceneLastBufferIndex
 let pictureBufferIndex
 let velocityBufferIndex
 let positionBufferIndex
 let particleSceneBufferIndex
 let popVelocityBufferIndex
 let popPositionBufferIndex
-let postSceneBufferIndex
 
 let videoPrg
 let picturePrg
@@ -79,6 +81,7 @@ let popVelocityPrg
 let popPositionPrg
 let popScenePrg
 let currentPostPrg
+let currentPostLastPrg
 let postNonePrg
 let postGlitchPrg
 let postYkobGlitchPrg
@@ -214,6 +217,34 @@ export function run (argOptions) {
     if (!videoPrg) return
   }
 
+  // Post Effect
+  const postVs = createShader(require('../shader/post/post.vert'), 'vertex')
+  {
+    const fs = createShader(require('../shader/post/none.frag'), 'fragment')
+    postNonePrg = new Program(postVs, fs)
+    if (!postNonePrg) return
+  }
+  {
+    const fs = createShader(require('../shader/post/glitch.frag'), 'fragment')
+    postGlitchPrg = new Program(postVs, fs)
+    if (!postGlitchPrg) return
+  }
+  {
+    const fs = createShader(require('../shader/post/ykobGlitch.frag'), 'fragment')
+    postYkobGlitchPrg = new Program(postVs, fs)
+    if (!postYkobGlitchPrg) return
+  }
+  {
+    const fs = createShader(require('../shader/post/dot.frag'), 'fragment')
+    postDotPrg = new Program(postVs, fs)
+    if (!postDotPrg) return
+  }
+  {
+    const fs = createShader(require('../shader/post/DotScreen.frag'), 'fragment')
+    postDotScreenPrg = new Program(postVs, fs)
+    if (!postDotScreenPrg) return
+  }
+
   // picture
   {
     const fs = createShader(require('../shader/picture.frag'), 'fragment')
@@ -260,34 +291,6 @@ export function run (argOptions) {
     const fs = createShader(require('../shader/particle/pop_scene.frag'), 'fragment')
     popScenePrg = new Program(vs, fs)
     if (!popScenePrg) return
-  }
-
-  // Post Effect
-  const postVs = createShader(require('../shader/post/post.vert'), 'vertex')
-  {
-    const fs = createShader(require('../shader/post/none.frag'), 'fragment')
-    postNonePrg = new Program(postVs, fs)
-    if (!postNonePrg) return
-  }
-  {
-    const fs = createShader(require('../shader/post/glitch.frag'), 'fragment')
-    postGlitchPrg = new Program(postVs, fs)
-    if (!postGlitchPrg) return
-  }
-  {
-    const fs = createShader(require('../shader/post/ykobGlitch.frag'), 'fragment')
-    postYkobGlitchPrg = new Program(postVs, fs)
-    if (!postYkobGlitchPrg) return
-  }
-  {
-    const fs = createShader(require('../shader/post/dot.frag'), 'fragment')
-    postDotPrg = new Program(postVs, fs)
-    if (!postDotPrg) return
-  }
-  {
-    const fs = createShader(require('../shader/post/DotScreen.frag'), 'fragment')
-    postDotScreenPrg = new Program(postVs, fs)
-    if (!postDotScreenPrg) return
   }
 
   // render
@@ -370,6 +373,33 @@ function initGlsl () {
       type: '4fv'
     }
   })
+
+  // Post Effect
+  function setPostVariables (prg) {
+    prg.createAttribute(planeAttribute)
+    prg.createUniform({
+      resolution: {
+        type: '2fv'
+      },
+      texture: {
+        type: '1i'
+      },
+      time: {
+        type: '1f'
+      },
+      volume: {
+        type: '1f'
+      },
+      isAudio: {
+        type: '1f'
+      }
+    })
+  }
+  setPostVariables(postNonePrg)
+  setPostVariables(postGlitchPrg)
+  setPostVariables(postYkobGlitchPrg)
+  setPostVariables(postDotPrg)
+  setPostVariables(postDotScreenPrg)
 
   // picture
   picturePrg.createAttribute(planeAttribute)
@@ -563,33 +593,6 @@ function initGlsl () {
     }
   })
 
-  // Post Effect
-  function setPostVariables (prg) {
-    prg.createAttribute(planeAttribute)
-    prg.createUniform({
-      resolution: {
-        type: '2fv'
-      },
-      texture: {
-        type: '1i'
-      },
-      time: {
-        type: '1f'
-      },
-      volume: {
-        type: '1f'
-      },
-      isAudio: {
-        type: '1f'
-      }
-    })
-  }
-  setPostVariables(postNonePrg)
-  setPostVariables(postGlitchPrg)
-  setPostVariables(postYkobGlitchPrg)
-  setPostVariables(postDotPrg)
-  setPostVariables(postDotScreenPrg)
-
   // render
   scenePrg.createAttribute(planeAttribute)
   scenePrg.createUniform({
@@ -616,6 +619,16 @@ function initGlsl () {
   }
   videoBufferIndex = framebufferCount
   framebufferCount += CAPTURE_FRAMEBUFFERS_COUNT
+
+  // Post Effect
+  postSceneFramebuffer = createFramebuffer(canvasWidth, canvasHeight)
+  postSceneBufferIndex = framebufferCount
+  framebufferCount += 1
+
+  // last effect
+  postSceneLastFramebuffer = createFramebuffer(canvasWidth, canvasHeight)
+  postSceneLastBufferIndex = framebufferCount
+  framebufferCount += 1
 
   // picture
   for (let i = 0; i < GPGPU_FRAMEBUFFERS_COUNT; i++) {
@@ -653,11 +666,6 @@ function initGlsl () {
   }
   popPositionBufferIndex = framebufferCount
   framebufferCount += GPGPU_FRAMEBUFFERS_COUNT
-
-  // Post Effect
-  postSceneFramebuffer = createFramebuffer(canvasWidth, canvasHeight)
-  postSceneBufferIndex = framebufferCount
-  framebufferCount += 1
 
   initVideo()
 }
@@ -720,6 +728,10 @@ function init () {
     bindTexture(videoFramebuffers[i].texture, videoBufferIndex + i)
   }
 
+  // Post Effect
+  bindTexture(postSceneFramebuffer.texture, postSceneBufferIndex)
+  bindTexture(postSceneLastFramebuffer.texture, postSceneLastBufferIndex)
+
   // picture
   for (let i = 0; i < GPGPU_FRAMEBUFFERS_COUNT; ++i) {
     bindTexture(pictureFramebuffers[i].texture, pictureBufferIndex + i)
@@ -741,9 +753,6 @@ function init () {
   for (let i = 0; i < GPGPU_FRAMEBUFFERS_COUNT; ++i) {
     bindTexture(popPositionFramebuffers[i].texture, popPositionBufferIndex + i)
   }
-
-  // Post Effect
-  bindTexture(postSceneFramebuffer.texture, postSceneBufferIndex)
 
   const posList = (detector && detector.posList) || []
   const focusCount = Math.min(posList.length || 1, 4)
@@ -881,6 +890,20 @@ function init () {
     currentPostPrg.setUniform('time', time)
     currentPostPrg.setUniform('volume', volume)
     currentPostPrg.setUniform('isAudio', isAudio)
+    gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
+
+    // last effect
+    useProgram(currentPostLastPrg)
+    bindFramebuffer(postSceneLastFramebuffer.framebuffer)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+    gl.viewport(0, 0, canvasWidth, canvasHeight)
+
+    currentPostLastPrg.setAttribute('position')
+    currentPostLastPrg.setUniform('resolution', [canvasWidth, canvasHeight])
+    currentPostLastPrg.setUniform('texture', postSceneBufferIndex)
+    currentPostLastPrg.setUniform('time', time)
+    currentPostLastPrg.setUniform('volume', volume)
+    currentPostLastPrg.setUniform('isAudio', isAudio)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
     gl.viewport(0, 0, POINT_RESOLUTION, POINT_RESOLUTION)
@@ -1041,7 +1064,7 @@ function init () {
 
     scenePrg.setAttribute('position')
     scenePrg.setUniform('particleTexture', particleSceneBufferIndex)
-    scenePrg.setUniform('postTexture', postSceneBufferIndex)
+    scenePrg.setUniform('postTexture', postSceneLastBufferIndex)
     scenePrg.setUniform('videoAlpha', settings.videoAlpha)
     scenePrg.setUniform('particleAlpha', settings.particleAlpha)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
@@ -1132,6 +1155,25 @@ export function update (property, value) {
         case 'none':
         default:
           currentPostPrg = postNonePrg
+      }
+      break
+    case 'lastEffect':
+      switch (settings.lastEffect) {
+        case 'glitch':
+          currentPostLastPrg = postGlitchPrg
+          break
+        case 'ykob glitch':
+          currentPostLastPrg = postYkobGlitchPrg
+          break
+        case 'dot':
+          currentPostLastPrg = postDotPrg
+          break
+        case 'dot screen':
+          currentPostLastPrg = postDotScreenPrg
+          break
+        case 'none':
+        default:
+          currentPostLastPrg = postNonePrg
       }
       break
   }
