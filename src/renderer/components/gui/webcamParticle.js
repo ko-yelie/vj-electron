@@ -6,9 +6,6 @@ import json from '../../assets/json/js/webcamParticle/scene.json'
 const MIN_ZOOM = 2
 const MAX_ZOOM = 10
 
-const ANIMATION_NORMAL = 0
-const ANIMATION_WARP = 1
-
 const POINTS = 0
 const LINE_STRIP = 1
 const TRIANGLES = 3
@@ -29,10 +26,6 @@ export default async function (argConfig, store) {
   const settings = config.remembered[preset][0]
   gui.remember(settings)
 
-  // scene
-  const sceneMap = ['none', 'Post Effect', 'Particle', 'Pop']
-  gui.add(settings, 'scene', sceneMap).onChange(dispatchVisual)
-
   // Post Effect folder
   {
     postFolder = gui.addFolder('Post Effect')
@@ -52,7 +45,7 @@ export default async function (argConfig, store) {
     particleFolder = gui.addFolder('Particle')
 
     // animation
-    const animationMap = { normal: ANIMATION_NORMAL, warp: ANIMATION_WARP }
+    const animationMap = ['none', 'normal', 'warp', 'pop']
     particleFolder.add(settings, 'animation', animationMap).onChange(dispatchVisual)
 
     // mode
@@ -115,24 +108,33 @@ export default async function (argConfig, store) {
 
     // particleAlpha
     const particleAlphaMap = [0, 1]
-    particleFolder.add(settings, 'particleAlpha', ...particleAlphaMap).onChange(dispatchVisual)
+    particleFolder.add(settings, 'particleAlpha', ...particleAlphaMap).onChange(dispatchVisual).listen()
   }
 
   function dispatchVisual (val) {
     ipcRenderer.send('dispatch-webcam-particle', 'update', this.property, val)
 
     switch (this.property) {
-      case 'scene':
-        particleFolder.close()
-
+      case 'animation':
         switch (val) {
-          case 'Pop':
+          case 'normal':
+          case 'warp':
+          case 'pop':
             particleFolder.open()
+            settings.particleAlpha = 1
+            settings.videoAlpha = 0
             break
-          case 'Particle':
+          case 'none':
           default:
-            particleFolder.open()
+            particleFolder.close()
+            settings.particleAlpha = 0
+            settings.videoAlpha = 1
         }
+
+        ipcRenderer.send('dispatch-webcam-particle', 'update', 'particleAlpha', settings.particleAlpha)
+        ipcRenderer.send('dispatch-webcam-particle', 'update', 'videoAlpha', settings.videoAlpha)
+        store.commit('UPDATE_ALPHA', settings.videoAlpha)
+
         break
       case 'mode':
         pointFolder.close()

@@ -3,8 +3,7 @@
   "remembered": {
     "Default": {
       "0": {
-        "scene": "none",
-        "animation": 0,
+        "animation": "none",
         "mode": 0,
         "pointShape": 1,
         "pointSize": 8,
@@ -31,8 +30,7 @@
     },
     "Post Effect": {
       "0": {
-        "scene": "none",
-        "animation": 0,
+        "animation": "none",
         "mode": 0,
         "pointShape": 1,
         "pointSize": 8,
@@ -59,8 +57,7 @@
     },
     "Particle": {
       "0": {
-        "scene": "Particle",
-        "animation": 0,
+        "animation": "normal",
         "mode": 0,
         "pointShape": 1,
         "pointSize": 8,
@@ -87,8 +84,7 @@
     },
     "Warp": {
       "0": {
-        "scene": "Particle",
-        "animation": 1,
+        "animation": "warp",
         "mode": 0,
         "pointShape": 1,
         "pointSize": 5,
@@ -115,8 +111,7 @@
     },
     "Pop": {
       "0": {
-        "scene": "Pop",
-        "animation": 0,
+        "animation": "pop",
         "mode": 0,
         "pointShape": 1,
         "pointSize": 5,

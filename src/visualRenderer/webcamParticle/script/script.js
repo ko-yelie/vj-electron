@@ -28,9 +28,6 @@ const MAX_ZOOM = 10
 const GPGPU_FRAMEBUFFERS_COUNT = 2
 const CAPTURE_FRAMEBUFFERS_COUNT = 3
 
-// const ANIMATION_NORMAL = 0
-const ANIMATION_WARP = 1
-
 let options
 let canvas
 let canvasWidth
@@ -93,6 +90,7 @@ let render
 let media
 let settings = {}
 let video
+let animation
 let detector
 // let detectorMessage
 let vbo
@@ -694,7 +692,7 @@ function resetDetector () {
 }
 
 function updateCamera () {
-  const cameraPositionRate = settings.animation === ANIMATION_WARP ? 1.5 : 0.3
+  const cameraPositionRate = settings.animation === 'warp' ? 1.5 : 0.3
   cameraPosition.x += (pointer.x * cameraPositionRate - cameraPosition.x) * 0.1
   cameraPosition.y += (pointer.y * cameraPositionRate - cameraPosition.y) * 0.1
   cameraPosition.z += (settings.zPosition - cameraPosition.z) * 0.1
@@ -918,7 +916,7 @@ function init () {
     picturePrg.setUniform('prevPictureTexture', pictureBufferIndex + prevBufferIndex)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
-    if (settings.scene === 'Particle') {
+    if (settings.animation === 'normal' || settings.animation === 'warp') {
       // Particle
 
       // velocity update
@@ -928,7 +926,7 @@ function init () {
       velocityPrg.setUniform('resolution', [POINT_RESOLUTION, POINT_RESOLUTION])
       velocityPrg.setUniform('prevVelocityTexture', velocityBufferIndex + prevBufferIndex)
       velocityPrg.setUniform('pictureTexture', pictureBufferIndex + targetBufferIndex)
-      velocityPrg.setUniform('animation', settings.animation)
+      velocityPrg.setUniform('animation', animation)
       velocityPrg.setUniform('isAccel', settings.accel)
       velocityPrg.setUniform('isRotation', settings.rotation)
       gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
@@ -941,7 +939,7 @@ function init () {
       positionPrg.setUniform('prevPositionTexture', positionBufferIndex + prevBufferIndex)
       positionPrg.setUniform('velocityTexture', velocityBufferIndex + targetBufferIndex)
       positionPrg.setUniform('pictureTexture', pictureBufferIndex + targetBufferIndex)
-      positionPrg.setUniform('animation', settings.animation)
+      positionPrg.setUniform('animation', animation)
       gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
       if (isCapture) {
@@ -969,7 +967,7 @@ function init () {
         positionPrg.setUniform('prevPositionTexture', positionBufferIndex + prevBufferIndex)
         positionPrg.setUniform('velocityTexture', velocityBufferIndex + targetBufferIndex)
         positionPrg.setUniform('pictureTexture', pictureBufferIndex + targetBufferIndex)
-        positionPrg.setUniform('animation', settings.animation)
+        positionPrg.setUniform('animation', animation)
         gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
         isCapture = false
@@ -1002,7 +1000,7 @@ function init () {
       particleScenePrg.setUniform('deformationProgress', settings.deformationProgress)
       particleScenePrg.setUniform('loopCount', loopCount)
       gl.drawArrays(settings.mode, 0, arrayLength)
-    } else if (settings.scene === 'Pop') {
+    } else if (settings.animation === 'pop') {
       // Pop
 
       gl.viewport(0, 0, POP_RESOLUTION, POP_RESOLUTION)
@@ -1085,6 +1083,22 @@ export function update (property, value) {
   settings[property] = value
 
   switch (property) {
+    case 'animation':
+      switch (settings.animation) {
+        case 'normal':
+          animation = 0
+          break
+        case 'warp':
+          animation = 1
+          break
+        case 'pop':
+          animation = 2
+          break
+        case 'none':
+        default:
+          animation = -1
+      }
+      break
     case 'lineShape':
       switch (settings.lineShape) {
         case 'mesh':
