@@ -24,7 +24,7 @@
         "effect": "none",
         "video": null,
         "videoZoom": 1,
-        "thumb": false
+        "videoAlpha": 1
       }
     },
     "Pop": {
@@ -50,7 +50,7 @@
         "effect": "none",
         "video": null,
         "videoZoom": 1,
-        "thumb": false
+        "videoAlpha": 0
       }
     },
     "Warp": {
@@ -76,7 +76,7 @@
         "effect": "none",
         "video": null,
         "videoZoom": 1,
-        "thumb": false
+        "videoAlpha": 1
       }
     }
   },

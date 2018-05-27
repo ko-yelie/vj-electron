@@ -35,6 +35,9 @@ export default {
           case 'videoZoom':
             this.$store.commit('UPDATE_ZOOM', value)
             break
+          case 'videoAlpha':
+            this.$store.commit('UPDATE_ALPHA', value)
+            break
           case 'inputAudio':
             this.$store.commit('UPDATE_INPUT_AUDIO', value)
             break

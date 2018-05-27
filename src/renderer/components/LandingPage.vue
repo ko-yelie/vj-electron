@@ -94,9 +94,10 @@ export default {
       settings.videoZoom = videoZoomMap[0]
       videoFolder.add(settings, 'videoZoom', ...videoZoomMap).onChange(dispatchMedia)
 
-      // thumb
-      settings.thumb = false
-      videoFolder.add(settings, 'thumb').onChange(dispatchMedia)
+      // videoAlpha
+      const videoAlphaMap = [0, 1]
+      settings.videoAlpha = videoAlphaMap[1]
+      videoFolder.add(settings, 'videoAlpha', ...videoAlphaMap).onChange(dispatchMedia)
 
       // audio folder
       const audioFolder = gui.addFolder('audio')

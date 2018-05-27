@@ -605,6 +605,9 @@ function initGlsl () {
     },
     postTexture: {
       type: '1i'
+    },
+    videoAlpha: {
+      type: '1f'
     }
   })
 
@@ -1043,6 +1046,7 @@ function init () {
     scenePrg.setAttribute('position')
     scenePrg.setUniform('particleTexture', particleSceneBufferIndex)
     scenePrg.setUniform('postTexture', postSceneBufferIndex)
+    scenePrg.setUniform('videoAlpha', settings.videoAlpha)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
     gl.flush()
@@ -1142,6 +1146,10 @@ export function updateVideo () {
 
 export function updateZoom (zoom) {
   settings.videoZoom = zoom
+}
+
+export function updateAlpha (alpha) {
+  settings.videoAlpha = alpha
 }
 
 export function updateInputAudio (inputAudio) {

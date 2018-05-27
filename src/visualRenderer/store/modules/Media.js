@@ -2,6 +2,7 @@ export default {
   state: {
     media: null,
     zoom: null,
+    alpha: null,
     inputAudio: null
   },
   mutations: {
@@ -11,6 +12,9 @@ export default {
     UPDATE_ZOOM (state, zoom) {
       state.zoom = zoom
     },
+    UPDATE_ALPHA (state, alpha) {
+      state.alpha = alpha
+    },
     UPDATE_INPUT_AUDIO (state, inputAudio) {
       state.inputAudio = inputAudio
     }
@@ -18,6 +22,7 @@ export default {
   getters: {
     video: state => () => state.media.currentVideo,
     zoom: state => () => state.zoom,
+    alpha: state => () => state.alpha,
     inputAudio: state => () => state.inputAudio
   }
 }

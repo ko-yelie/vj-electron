@@ -11,6 +11,7 @@ import {
   update,
   updateVideo,
   updateZoom,
+  updateAlpha,
   updateInputAudio
 } from '../webcamParticle/script/script.js'
 
@@ -46,6 +47,9 @@ export default {
     })
     this.$store.watch(this.$store.getters.zoom, zoom => {
       updateZoom(zoom)
+    })
+    this.$store.watch(this.$store.getters.alpha, alpha => {
+      updateAlpha(alpha)
     })
     this.$store.watch(this.$store.getters.inputAudio, inputAudio => {
       updateInputAudio(inputAudio)
