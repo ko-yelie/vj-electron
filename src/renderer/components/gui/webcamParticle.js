@@ -35,7 +35,14 @@ export default async function (argConfig, store) {
     postFolder.add(settings, 'detector').onChange(dispatchVisual)
 
     // effect
-    const effectMap = ['none', 'glitch', 'ykob glitch', 'dot', 'dot screen']
+    const effectMap = [
+      'none',
+      'rock',
+      'glitch',
+      'ykob glitch',
+      'dot',
+      'dot screen'
+    ]
     postFolder.add(settings, 'effect', effectMap).onChange(dispatchVisual)
     postFolder.add(settings, 'lastEffect', effectMap).onChange(dispatchVisual)
   }

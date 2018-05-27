@@ -19,8 +19,7 @@ void main(){
   float regularBomb = smoothstep(interval - 0.3 * 2., interval - 0.3, modTime) * (1. - smoothstep(interval - 0.3, interval, modTime)) * 0.05;
   float strength = (rnd * 2. - 1.) * ((1. - isAudio) * regularBomb + isAudio * (volume - 1.) * 0.6);
 
-  vec2 st = gl_FragCoord.xy / resolution.xy;
-  float yRnd = random(vec2(0., floor(st.t * resolution.y / divisionPx)) + mod(time, 10.));
+  float yRnd = random(vec2(0., floor(vUv.y * resolution.y / divisionPx)) + mod(time, 10.));
   vec2 uv = vec2(vUv.x + (yRnd * 2. - 1.) * deflection * (strength + rnd * 0.4), vUv.y);
 
   uv += strength * 3.;
