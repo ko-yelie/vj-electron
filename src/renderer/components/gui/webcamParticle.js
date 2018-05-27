@@ -13,7 +13,7 @@ const POINTS = 0
 const LINE_STRIP = 1
 const TRIANGLES = 3
 
-export default async function (argConfig) {
+export default async function (argConfig, store) {
   const config = argConfig || json
   const preset = location.search.substring(1) || config.preset
   const gui = new dat.GUI({
@@ -30,7 +30,7 @@ export default async function (argConfig) {
   gui.remember(settings)
 
   // scene
-  const sceneMap = ['Particle', 'Pop']
+  const sceneMap = ['none', 'Post Effect', 'Particle', 'Pop']
   gui.add(settings, 'scene', sceneMap).onChange(dispatchVisual)
 
   // Particle folder
@@ -98,6 +98,10 @@ export default async function (argConfig) {
 
     // stopMotion
     videoFolder.add(settings, 'stopMotion').onChange(dispatchVisual)
+
+    // particleAlpha
+    const particleAlphaMap = [0, 1]
+    particleFolder.add(settings, 'particleAlpha', ...particleAlphaMap).onChange(dispatchVisual)
   }
 
   // Post Effect folder
@@ -149,6 +153,39 @@ export default async function (argConfig) {
         // } else {
         //   thumbController.setValue(false)
         // }
+        break
+    }
+  }
+
+  // media folder
+  {
+    const mediaFolder = gui.addFolder('media')
+
+    // videoZoom
+    const videoZoomMap = [1, 3]
+    settings.videoZoom = 1
+    mediaFolder.add(settings, 'videoZoom', ...videoZoomMap).onChange(dispatchMedia)
+
+    // videoAlpha
+    const videoAlphaMap = [0, 1]
+    settings.videoAlpha = 1
+    mediaFolder.add(settings, 'videoAlpha', ...videoAlphaMap).onChange(dispatchMedia)
+
+    // inputAudio
+    settings.inputAudio = false
+    mediaFolder.add(settings, 'inputAudio').onChange(dispatchMedia)
+  }
+
+  function dispatchMedia (value) {
+    switch (this.property) {
+      case 'videoZoom':
+        store.commit('UPDATE_ZOOM', settings.videoZoom)
+        break
+      case 'videoAlpha':
+        store.commit('UPDATE_ALPHA', settings.videoAlpha)
+        break
+      case 'inputAudio':
+        store.commit('UPDATE_INPUT_AUDIO', settings.inputAudio)
         break
     }
   }

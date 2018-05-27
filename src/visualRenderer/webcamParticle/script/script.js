@@ -608,6 +608,9 @@ function initGlsl () {
     },
     videoAlpha: {
       type: '1f'
+    },
+    particleAlpha: {
+      type: '1f'
     }
   })
 
@@ -1047,6 +1050,7 @@ function init () {
     scenePrg.setUniform('particleTexture', particleSceneBufferIndex)
     scenePrg.setUniform('postTexture', postSceneBufferIndex)
     scenePrg.setUniform('videoAlpha', settings.videoAlpha)
+    scenePrg.setUniform('particleAlpha', settings.particleAlpha)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
     gl.flush()

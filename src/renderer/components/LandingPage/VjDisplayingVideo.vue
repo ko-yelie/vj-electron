@@ -50,7 +50,7 @@ export default {
     }
   },
   mounted () {
-    this.video.gui && loadGUI[this.video.gui](this.video.config)
+    this.video.gui && loadGUI[this.video.gui](this.video.config, this.$store)
   }
 }
 </script>

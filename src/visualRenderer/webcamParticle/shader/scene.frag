@@ -2,7 +2,8 @@ precision mediump float;
 uniform sampler2D particleTexture;
 uniform sampler2D postTexture;
 uniform float videoAlpha;
-varying vec2      vUv;
+uniform float particleAlpha;
+varying vec2 vUv;
 
 void main(){
   vec4 post = texture2D(postTexture, vUv);
@@ -10,5 +11,5 @@ void main(){
 
   float isParticle = (1. - step(particle.w, 0.));
 
-  gl_FragColor = post * videoAlpha + particle * isParticle;
+  gl_FragColor = post * videoAlpha + particle * isParticle * particleAlpha;
 }

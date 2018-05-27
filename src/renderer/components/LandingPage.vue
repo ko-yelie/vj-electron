@@ -84,6 +84,7 @@ export default {
       const gui = new dat.GUI({
         closed: true
       })
+      gui.close()
       const settings = {}
 
       // video folder
@@ -100,12 +101,12 @@ export default {
       // videoZoom
       const videoZoomMap = [1, 3]
       settings.videoZoom = 1
-      videoFolder.add(settings, 'videoZoom', ...videoZoomMap).onChange(dispatchMedia)
+      videoFolder.add(settings, 'videoZoom', ...videoZoomMap).onChange(dispatchMedia).listen()
 
       // videoAlpha
       const videoAlphaMap = [0, 1]
       settings.videoAlpha = 1
-      videoFolder.add(settings, 'videoAlpha', ...videoAlphaMap).onChange(dispatchMedia)
+      videoFolder.add(settings, 'videoAlpha', ...videoAlphaMap).onChange(dispatchMedia).listen()
 
       // thumb
       settings.thumb = false
@@ -117,7 +118,7 @@ export default {
 
       // inputAudio
       settings.inputAudio = false
-      audioFolder.add(settings, 'inputAudio').onChange(dispatchMedia)
+      audioFolder.add(settings, 'inputAudio').onChange(dispatchMedia).listen()
 
       // audio
       settings.audio = controlMedia.audioSource
@@ -142,6 +143,19 @@ export default {
             break
         }
       }
+
+      this.$store.watch(this.$store.getters.zoom, videoZoom => {
+        settings.videoZoom = videoZoom
+        ipcRenderer.send('dispatch-media', 'videoZoom', videoZoom)
+      })
+      this.$store.watch(this.$store.getters.alpha, videoAlpha => {
+        settings.videoAlpha = videoAlpha
+        ipcRenderer.send('dispatch-media', 'videoAlpha', videoAlpha)
+      })
+      this.$store.watch(this.$store.getters.inputAudio, inputAudio => {
+        settings.inputAudio = inputAudio
+        ipcRenderer.send('dispatch-media', 'inputAudio', inputAudio)
+      })
     })
   }
 }
