@@ -396,6 +396,9 @@ function initGlsl () {
       },
       isAudio: {
         type: '1f'
+      },
+      custom: {
+        type: '1f'
       }
     })
   }
@@ -895,6 +898,7 @@ function init () {
     currentPostPrg.setUniform('time', time)
     currentPostPrg.setUniform('volume', volume)
     currentPostPrg.setUniform('isAudio', isAudio)
+    currentPostPrg.setUniform('custom', settings.custom)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
     // last effect
@@ -909,6 +913,7 @@ function init () {
     currentPostLastPrg.setUniform('time', time)
     currentPostLastPrg.setUniform('volume', volume)
     currentPostLastPrg.setUniform('isAudio', isAudio)
+    currentPostLastPrg.setUniform('custom', settings.custom)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
     gl.viewport(0, 0, POINT_RESOLUTION, POINT_RESOLUTION)

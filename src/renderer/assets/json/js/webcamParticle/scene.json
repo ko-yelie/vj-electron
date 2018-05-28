@@ -23,6 +23,7 @@
         "detector": false,
         "effect": "none",
         "lastEffect": "none",
+        "custom": 0.3,
         "video": null,
         "videoZoom": 1,
         "videoAlpha": 1

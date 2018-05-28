@@ -45,6 +45,10 @@ export default async function (argConfig, store) {
     ]
     postFolder.add(settings, 'effect', effectMap).onChange(dispatchVisual)
     postFolder.add(settings, 'lastEffect', effectMap).onChange(dispatchVisual)
+
+    // custom value
+    const customMap = [0, 1]
+    postFolder.add(settings, 'custom', ...customMap).onChange(dispatchVisual)
   }
 
   // Particle folder
