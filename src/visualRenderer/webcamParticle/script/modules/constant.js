@@ -12,6 +12,7 @@ export const POST_LIST = [
   'none',
   'rock',
   'toon',
+  'water',
   'glitch',
   'ykobGlitch',
   'dot',
