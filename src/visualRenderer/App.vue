@@ -4,9 +4,10 @@ import Vue from 'vue'
 
 import VjVisualComponent from './components/VjVisual'
 import Media from './modules/media.js'
-
-const POINT_RESOLUTION = 128
-const VIDEO_RESOLUTION = 416
+import {
+  VIDEO_RESOLUTION,
+  POINT_RESOLUTION
+} from './webcamParticle/script/modules/constant.js'
 
 const VjVisual = Vue.extend(VjVisualComponent)
 

@@ -7,9 +7,10 @@ import dat from 'dat.gui'
 import VjDisplayingVideo from './LandingPage/VjDisplayingVideo'
 import { getFirstValue } from '../../visualRenderer/webcamParticle/script/utils.js'
 import Media from '../../visualRenderer/modules/media.js'
-
-const POINT_RESOLUTION = 128
-const VIDEO_RESOLUTION = 416
+import {
+  VIDEO_RESOLUTION,
+  POINT_RESOLUTION
+} from '../../visualRenderer/webcamParticle/script/modules/constant.js'
 
 class ControlMedia extends Media {
   constructor (size, pointResolution, media) {
