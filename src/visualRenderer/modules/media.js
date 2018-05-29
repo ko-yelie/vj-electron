@@ -16,6 +16,8 @@ export default class Media {
     this.videoFiles = {}
     this.audioDevices = {}
 
+    this.audioCtx = new AudioContext()
+
     this.initWebcam()
     // this.initVideoFiles()
     this.loadSmartphone()
@@ -110,10 +112,9 @@ export default class Media {
             this.currentVideo = this.video
           }
 
-          const audioCtx = new AudioContext()
-          const source = audioCtx.createMediaStreamSource(stream)
-          // const source = audioCtx.createMediaElementSource(this.currentVideo)
-          this.analyser = audioCtx.createAnalyser()
+          const source = this.audioCtx.createMediaStreamSource(stream)
+          // const source = this.audioCtx.createMediaElementSource(this.currentVideo)
+          this.analyser = this.audioCtx.createAnalyser()
           this.analyser.fftSize = this.pointResolution
           source.connect(this.analyser)
           this.array = new Uint8Array(this.analyser.fftSize)
