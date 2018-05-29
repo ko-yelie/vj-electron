@@ -12,6 +12,8 @@ import {
   POINT_RESOLUTION
 } from '../../visualRenderer/webcamParticle/script/modules/constant.js'
 
+const THUMB_HEIGHT = 312
+
 class ControlMedia extends Media {
   constructor (size, pointResolution, media) {
     super(size, pointResolution)
@@ -37,7 +39,11 @@ export default {
     VjDisplayingVideo
   },
   data: () => ({
-    isThumb: false
+    isThumb: false,
+    windowSize: {
+      width: 1024,
+      height: 768
+    }
   }),
   computed: {
     visualStock: {
@@ -55,6 +61,12 @@ export default {
       set (displayingVideos) {
         displayingVideosCache = displayingVideos
       }
+    },
+    thumbStyle () {
+      return {
+        width: this.windowSize.width * THUMB_HEIGHT / this.windowSize.height + 'px',
+        height: THUMB_HEIGHT + 'px'
+      }
     }
   },
   methods: {
@@ -67,13 +79,18 @@ export default {
     ])
   },
   mounted () {
-    ipcRenderer.on('receive-media', async (event, media) => {
+    ipcRenderer.on('receive-window', (event, windowSize) => {
+      this.windowSize = windowSize
+    })
+
+    ipcRenderer.on('receive-media', (event, media) => {
       const updateMedia = async (sources) => {
         await controlMedia.getUserMedia(sources)
 
         // add thumbnail
         const thumb = this.$refs.thumb
         thumb.textContent = null
+        controlMedia.currentVideo.classList.add('thumb_video')
         thumb.appendChild(controlMedia.currentVideo)
       }
 
@@ -129,7 +146,7 @@ export default {
       }
 
       const self = this
-      async function dispatchMedia (value) {
+      function dispatchMedia (value) {
         ipcRenderer.send('dispatch-media', this.property, value)
 
         switch (this.property) {

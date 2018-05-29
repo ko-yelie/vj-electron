@@ -40,6 +40,9 @@ function createWindow () {
     visualWindow = null
   })
 
+  ipcMain.on('receive-window', (event, payload) => {
+    mainWindow.webContents.send('receive-window', payload)
+  })
   ipcMain.on('receive-media', (event, payload) => {
     mainWindow.webContents.send('receive-media', payload)
   })

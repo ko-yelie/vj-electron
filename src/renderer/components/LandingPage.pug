@@ -44,4 +44,4 @@
                       img(:src="visual.thumbnail", alt="")
                     span {{ visual.title }}
 
-  div(ref="thumb", v-show="isThumb")
+  div.thumb(ref="thumb", v-show="isThumb", :style="thumbStyle")

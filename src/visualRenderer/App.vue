@@ -19,6 +19,15 @@ export default {
     }
   },
   mounted () {
+    const sendWindowSize = () => {
+      ipcRenderer.send('receive-window', {
+        width: window.innerWidth,
+        height: window.innerHeight
+      })
+    }
+    sendWindowSize()
+    window.addEventListener('resize', sendWindowSize)
+
     const media = new Media(VIDEO_RESOLUTION, POINT_RESOLUTION)
     media.enumerateDevices().then(async () => {
       await media.getUserMedia()
