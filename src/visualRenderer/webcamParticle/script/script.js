@@ -1,3 +1,13 @@
+import {
+  POINT_RESOLUTION,
+  POP_RESOLUTION,
+  BASE_RESOLUTION,
+  MIN_ZOOM,
+  MAX_ZOOM,
+  GPGPU_FRAMEBUFFERS_COUNT,
+  CAPTURE_FRAMEBUFFERS_COUNT,
+  POST_LIST
+} from './modules/constant.js'
 import MatIV from './minMatrix.js'
 import {
   initWebGL,
@@ -17,16 +27,6 @@ import { setGl, createFramebuffer, createFramebufferFloat, getWebGLExtensions } 
 import { clamp } from './utils.js'
 import Tween from './tween.js'
 import Detector from './detector.js'
-
-const POINT_RESOLUTION = 128
-const POP_RESOLUTION = 16
-const BASE_RESOLUTION = 256
-
-const MIN_ZOOM = 2
-const MAX_ZOOM = 10
-
-const GPGPU_FRAMEBUFFERS_COUNT = 2
-const CAPTURE_FRAMEBUFFERS_COUNT = 3
 
 let options
 let canvas
@@ -79,13 +79,7 @@ let popPositionPrg
 let popScenePrg
 let currentPostPrg
 let currentPostLastPrg
-let postNonePrg
-let postRockPrg
-let postToonPrg
-let postGlitchPrg
-let postYkobGlitchPrg
-let postDotPrg
-let postDotScreenPrg
+let postPrg = {}
 let scenePrg
 
 let render
@@ -219,40 +213,10 @@ export function run (argOptions) {
 
   // Post Effect
   const postVs = createShader(require('../shader/post/post.vert'), 'vertex')
-  {
-    const fs = createShader(require('../shader/post/none.frag'), 'fragment')
-    postNonePrg = new Program(postVs, fs)
-    if (!postNonePrg) return
-  }
-  {
-    const fs = createShader(require('../shader/post/rock.frag'), 'fragment')
-    postRockPrg = new Program(postVs, fs)
-    if (!postRockPrg) return
-  }
-  {
-    const fs = createShader(require('../shader/post/toon.frag'), 'fragment')
-    postToonPrg = new Program(postVs, fs)
-    if (!postToonPrg) return
-  }
-  {
-    const fs = createShader(require('../shader/post/glitch.frag'), 'fragment')
-    postGlitchPrg = new Program(postVs, fs)
-    if (!postGlitchPrg) return
-  }
-  {
-    const fs = createShader(require('../shader/post/ykobGlitch.frag'), 'fragment')
-    postYkobGlitchPrg = new Program(postVs, fs)
-    if (!postYkobGlitchPrg) return
-  }
-  {
-    const fs = createShader(require('../shader/post/dot.frag'), 'fragment')
-    postDotPrg = new Program(postVs, fs)
-    if (!postDotPrg) return
-  }
-  {
-    const fs = createShader(require('../shader/post/DotScreen.frag'), 'fragment')
-    postDotScreenPrg = new Program(postVs, fs)
-    if (!postDotScreenPrg) return
+  for (const name of POST_LIST) {
+    const fs = createShader(require(`../shader/post/${name}.frag`), 'fragment')
+    postPrg[name] = new Program(postVs, fs)
+    if (!postPrg[name]) return
   }
 
   // picture
@@ -408,13 +372,9 @@ function initGlsl () {
       }
     })
   }
-  setPostVariables(postNonePrg)
-  setPostVariables(postRockPrg)
-  setPostVariables(postToonPrg)
-  setPostVariables(postGlitchPrg)
-  setPostVariables(postYkobGlitchPrg)
-  setPostVariables(postDotPrg)
-  setPostVariables(postDotScreenPrg)
+  for (const name of POST_LIST) {
+    setPostVariables(postPrg[name])
+  }
 
   // picture
   picturePrg.createAttribute(planeAttribute)
@@ -1172,54 +1132,10 @@ export function update (property, value) {
       }
       break
     case 'effect':
-      switch (settings.effect) {
-        case 'rock':
-          currentPostPrg = postRockPrg
-          break
-        case 'toon':
-          currentPostPrg = postToonPrg
-          break
-        case 'glitch':
-          currentPostPrg = postGlitchPrg
-          break
-        case 'ykob glitch':
-          currentPostPrg = postYkobGlitchPrg
-          break
-        case 'dot':
-          currentPostPrg = postDotPrg
-          break
-        case 'dot screen':
-          currentPostPrg = postDotScreenPrg
-          break
-        case 'none':
-        default:
-          currentPostPrg = postNonePrg
-      }
+      currentPostPrg = postPrg[settings.effect || POST_LIST[0]]
       break
     case 'lastEffect':
-      switch (settings.lastEffect) {
-        case 'rock':
-          currentPostPrg = postRockPrg
-          break
-        case 'toon':
-          currentPostPrg = postToonPrg
-          break
-        case 'glitch':
-          currentPostLastPrg = postGlitchPrg
-          break
-        case 'ykob glitch':
-          currentPostLastPrg = postYkobGlitchPrg
-          break
-        case 'dot':
-          currentPostLastPrg = postDotPrg
-          break
-        case 'dot screen':
-          currentPostLastPrg = postDotScreenPrg
-          break
-        case 'none':
-        default:
-          currentPostLastPrg = postNonePrg
-      }
+      currentPostLastPrg = postPrg[settings.lastEffect || POST_LIST[0]]
       break
   }
 }

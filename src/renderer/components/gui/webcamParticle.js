@@ -2,13 +2,14 @@ import { ipcRenderer } from 'electron'
 import dat from 'dat.gui'
 
 import json from '../../assets/json/js/webcamParticle/scene.json'
-
-const MIN_ZOOM = 2
-const MAX_ZOOM = 10
-
-const POINTS = 0
-const LINE_STRIP = 1
-const TRIANGLES = 3
+import {
+  MIN_ZOOM,
+  MAX_ZOOM,
+  POST_LIST,
+  POINTS,
+  LINE_STRIP,
+  TRIANGLES
+} from '../../../visualRenderer/webcamParticle/script/modules/constant.js'
 
 export default async function (argConfig, store) {
   const config = argConfig || json
@@ -35,15 +36,7 @@ export default async function (argConfig, store) {
     postFolder.add(settings, 'detector').onChange(dispatchVisual)
 
     // effect
-    const effectMap = [
-      'none',
-      'rock',
-      'toon',
-      'glitch',
-      'ykob glitch',
-      'dot',
-      'dot screen'
-    ]
+    const effectMap = POST_LIST
     postFolder.add(settings, 'effect', effectMap).onChange(dispatchVisual)
     postFolder.add(settings, 'lastEffect', effectMap).onChange(dispatchVisual)
 
