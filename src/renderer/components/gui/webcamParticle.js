@@ -38,6 +38,7 @@ export default async function (argConfig, store) {
     const effectMap = [
       'none',
       'rock',
+      'toon',
       'glitch',
       'ykob glitch',
       'dot',

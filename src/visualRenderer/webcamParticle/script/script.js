@@ -81,6 +81,7 @@ let currentPostPrg
 let currentPostLastPrg
 let postNonePrg
 let postRockPrg
+let postToonPrg
 let postGlitchPrg
 let postYkobGlitchPrg
 let postDotPrg
@@ -227,6 +228,11 @@ export function run (argOptions) {
     const fs = createShader(require('../shader/post/rock.frag'), 'fragment')
     postRockPrg = new Program(postVs, fs)
     if (!postRockPrg) return
+  }
+  {
+    const fs = createShader(require('../shader/post/toon.frag'), 'fragment')
+    postToonPrg = new Program(postVs, fs)
+    if (!postToonPrg) return
   }
   {
     const fs = createShader(require('../shader/post/glitch.frag'), 'fragment')
@@ -404,6 +410,7 @@ function initGlsl () {
   }
   setPostVariables(postNonePrg)
   setPostVariables(postRockPrg)
+  setPostVariables(postToonPrg)
   setPostVariables(postGlitchPrg)
   setPostVariables(postYkobGlitchPrg)
   setPostVariables(postDotPrg)
@@ -1169,6 +1176,9 @@ export function update (property, value) {
         case 'rock':
           currentPostPrg = postRockPrg
           break
+        case 'toon':
+          currentPostPrg = postToonPrg
+          break
         case 'glitch':
           currentPostPrg = postGlitchPrg
           break
@@ -1190,6 +1200,9 @@ export function update (property, value) {
       switch (settings.lastEffect) {
         case 'rock':
           currentPostPrg = postRockPrg
+          break
+        case 'toon':
+          currentPostPrg = postToonPrg
           break
         case 'glitch':
           currentPostLastPrg = postGlitchPrg
