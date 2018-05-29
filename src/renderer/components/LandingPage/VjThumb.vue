@@ -16,10 +16,16 @@ export default {
     }
   }),
   computed: {
+    thumbSize () {
+      return {
+        width: this.windowSize.width * THUMB_HEIGHT / this.windowSize.height,
+        height: THUMB_HEIGHT
+      }
+    },
     thumbStyle () {
       return {
-        width: this.windowSize.width * THUMB_HEIGHT / this.windowSize.height + 'px',
-        height: THUMB_HEIGHT + 'px'
+        width: this.thumbSize.width + 'px',
+        height: this.thumbSize.height + 'px'
       }
     }
   },
@@ -32,6 +38,28 @@ export default {
     }
   },
   mounted () {
+    const sendPointer = e => {
+      let x = e.offsetX / this.thumbSize.width * 2.0 - 1.0
+      let y = e.offsetY / this.thumbSize.height * 2.0 - 1.0
+      ipcRenderer.send('dispatch-webcam-particle', 'update', 'pointerPosition', {
+        x,
+        y: -y
+      })
+    }
+    this.$el.addEventListener('pointerdown', e => {
+      this.isDown = true
+
+      sendPointer(e)
+    })
+    this.$el.addEventListener('pointermove', e => {
+      if (!this.isDown) return
+
+      sendPointer(e)
+    })
+    this.$el.addEventListener('pointerup', e => {
+      this.isDown = false
+    })
+
     ipcRenderer.on('receive-window', (event, windowSize) => {
       this.windowSize = windowSize
     })

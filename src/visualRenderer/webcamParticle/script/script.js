@@ -1105,6 +1105,11 @@ export function update (property, value) {
         }
       }
       break
+    case 'pointerPosition':
+      if (settings.pointer) {
+        pointer = value
+      }
+      break
     case 'capture':
       isStop = settings.capture ? 1 : 0
       isCapture = settings.capture
