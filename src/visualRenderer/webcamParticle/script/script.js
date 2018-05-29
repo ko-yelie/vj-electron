@@ -730,7 +730,7 @@ function init () {
   }
 
   const posList = (detector && detector.posList) || []
-  const focusCount = Math.min(posList.length || 1, 4)
+  const focusCount = Math.min(posList.length, 4)
 
   // reset video
   gl.viewport(0, 0, canvasWidth, canvasWidth)
@@ -827,7 +827,7 @@ function init () {
     const time = loopCount / 60
 
     const posList = (detector && detector.posList) || []
-    const focusCount = Math.min(posList.length || 1, 4)
+    const focusCount = Math.min(posList.length, 4)
 
     volume += (media.getVolume() - volume) * 0.1
 
