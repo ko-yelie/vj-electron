@@ -5,14 +5,13 @@ import { mapActions } from 'vuex'
 import dat from 'dat.gui'
 
 import VjDisplayingVideo from './LandingPage/VjDisplayingVideo'
+import VjThumb from './LandingPage/VjThumb'
 import { getFirstValue } from '../../visualRenderer/webcamParticle/script/utils.js'
 import Media from '../../visualRenderer/modules/media.js'
 import {
   VIDEO_RESOLUTION,
   POINT_RESOLUTION
 } from '../../visualRenderer/webcamParticle/script/modules/constant.js'
-
-const THUMB_HEIGHT = 312
 
 class ControlMedia extends Media {
   constructor (size, pointResolution, media) {
@@ -36,14 +35,12 @@ export default {
   name: 'landing-page',
   components: {
     draggable,
-    VjDisplayingVideo
+    VjDisplayingVideo,
+    VjThumb
   },
   data: () => ({
     isThumb: false,
-    windowSize: {
-      width: 1024,
-      height: 768
-    }
+    thumb: null
   }),
   computed: {
     visualStock: {
@@ -61,12 +58,6 @@ export default {
       set (displayingVideos) {
         displayingVideosCache = displayingVideos
       }
-    },
-    thumbStyle () {
-      return {
-        width: this.windowSize.width * THUMB_HEIGHT / this.windowSize.height + 'px',
-        height: THUMB_HEIGHT + 'px'
-      }
     }
   },
   methods: {
@@ -79,19 +70,13 @@ export default {
     ])
   },
   mounted () {
-    ipcRenderer.on('receive-window', (event, windowSize) => {
-      this.windowSize = windowSize
-    })
-
     ipcRenderer.on('receive-media', (event, media) => {
       const updateMedia = async (sources) => {
         await controlMedia.getUserMedia(sources)
 
         // add thumbnail
-        const thumb = this.$refs.thumb
-        thumb.textContent = null
         controlMedia.currentVideo.classList.add('thumb_video')
-        thumb.appendChild(controlMedia.currentVideo)
+        this.thumb = controlMedia.currentVideo
       }
 
       // init thumbnail
