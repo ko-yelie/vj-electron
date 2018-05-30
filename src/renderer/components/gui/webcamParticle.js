@@ -18,7 +18,6 @@ export default async function (argConfig, store) {
     load: config,
     preset: preset
   })
-  let particleFolder
   let pointFolder
   let lineFolder
   let postFolder
@@ -44,7 +43,7 @@ export default async function (argConfig, store) {
 
   // Particle folder
   {
-    particleFolder = gui.addFolder('Particle')
+    const particleFolder = gui.addFolder('Particle')
 
     // animation
     const animationMap = ['none', 'normal', 'warp', 'pop']
@@ -122,13 +121,10 @@ export default async function (argConfig, store) {
           case 'normal':
           case 'warp':
           case 'pop':
-            particleFolder.open()
             settings.particleAlpha = 1
-            settings.videoAlpha = 0
             break
           case 'none':
           default:
-            particleFolder.close()
             settings.particleAlpha = 0
             settings.videoAlpha = 1
         }
