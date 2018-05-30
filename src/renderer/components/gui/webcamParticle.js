@@ -21,7 +21,7 @@ export default async function (argConfig, store) {
   let pointFolder
   let lineFolder
   let postFolder
-  // let thumbController
+  let bgColorController
 
   const settings = config.remembered[preset][0]
   gui.remember(settings)
@@ -83,7 +83,7 @@ export default async function (argConfig, store) {
 
     // bgColor
     const bgColorMap = { black: 0, white: 1 }
-    canvasFolder.add(settings, 'bgColor', bgColorMap).onChange(dispatchVisual)
+    bgColorController = canvasFolder.add(settings, 'bgColor', bgColorMap).onChange(dispatchVisual)
 
     // z position
     const zPositionMap = [MIN_ZOOM, MAX_ZOOM]
@@ -127,6 +127,9 @@ export default async function (argConfig, store) {
           default:
             settings.particleAlpha = 0
             settings.videoAlpha = 1
+        }
+        if (val === 'pop') {
+          bgColorController.setValue(1)
         }
 
         ipcRenderer.send('dispatch-webcam-particle', 'update', 'particleAlpha', settings.particleAlpha)

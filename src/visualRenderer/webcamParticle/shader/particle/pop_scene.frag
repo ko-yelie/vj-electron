@@ -37,5 +37,5 @@ void main(){
   vec4 currentColor = mix(vec4(minCurrentColor), vec4(maxCurrentColor), video);
   vec3 rndColor = hsv(length(vTexCoord) * PI2, 0.4, 1.);
 
-  gl_FragColor = vec4(rndColor, particleColor);
+  gl_FragColor = vec4(rndColor, particleColor * 0.9);
 }
