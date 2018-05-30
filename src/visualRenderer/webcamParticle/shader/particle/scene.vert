@@ -18,7 +18,7 @@ const float speed = 0.3;
 const float amplitude = 0.1;
 const float halfAmplitude = amplitude / 2.;
 const float standardRadius = 1.1;
-const float maxDeformationDistance = 5.;
+const float maxDeformationDistance = 10.;
 const float deformationSize = 1. / maxDeformationDistance;
 
 void main(){
@@ -30,7 +30,7 @@ void main(){
   position.z *= mix(1., volume, isAudio) * deformationDistance;
   vec3 videoPosition = vec3(position.xyz);
 
-  float randomValue = (data.z + random(texCoord + mod(loopCount, 10.))) / 2.;
+  float randomValue = (data.w + random(texCoord + mod(loopCount, 10.))) / 2.;
   float radian = loopCount * speed * randomValue;
   float radius = standardRadius + randomValue * amplitude - halfAmplitude;
   vec3 circlePosition = vec3(cos(radian) * radius, sin(radian) * radius, 0.);
@@ -38,5 +38,5 @@ void main(){
   vTexCoord = texCoord;
   vPosition = position;
   gl_Position = mvpMatrix * vec4(mix(videoPosition, circlePosition, deformationProgress), 1.);
-  gl_PointSize = position.z * pointSize * mix(mix(1., 1.3, pointShape), 4., step(2., pointShape)) * mix(1., deformationSize, deformationProgress);
+  gl_PointSize = min(position.z, 10.) * pointSize * mix(mix(1., 1.3, pointShape), 4., step(2., pointShape)) * mix(1., deformationSize, deformationProgress);
 }

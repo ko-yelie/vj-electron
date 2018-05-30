@@ -7,7 +7,7 @@ uniform float     isAccel;
 uniform float     isRotation;
 
 const float normalSpeed = -0.0004;
-const float warpSpeed = 0.018;
+const float warpSpeed = 0.012;
 const float accelWarpSpeed = 0.05;
 const float rotationSpeed = -0.08;
 
