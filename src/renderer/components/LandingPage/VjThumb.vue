@@ -1,15 +1,39 @@
 <template lang="pug">
-.thumb(ref="thumb", v-show="isShow", :style="thumbStyle")
+.thumb(v-show="isShow", :style="thumbStyle")
 </template>
 
 <script>
 import { ipcRenderer } from 'electron'
+import dat from 'dat.gui'
+
+import { getFirstValue } from '../../../visualRenderer/webcamParticle/script/utils.js'
+import Media from '../../../visualRenderer/modules/media.js'
+import {
+  VIDEO_RESOLUTION,
+  POINT_RESOLUTION
+} from '../../../visualRenderer/webcamParticle/script/modules/constant.js'
+
+class ControlMedia extends Media {
+  constructor (size, pointResolution, media) {
+    super(size, pointResolution)
+
+    ;[
+      'videoDevices',
+      'audioDevices',
+      'videoSource',
+      'audioSource',
+      'smartphone'
+    ].forEach(key => {
+      this[key] = media[key]
+    })
+  }
+}
 
 const THUMB_HEIGHT = 312
 
 export default {
-  props: ['el', 'isShow'],
   data: () => ({
+    isShow: false,
     windowSize: {
       width: 1024,
       height: 768
@@ -29,15 +53,101 @@ export default {
       }
     }
   },
-  watch: {
-    el () {
-      // add thumbnail
-      this.$el.textContent = null
-      this.el.classList.add('thumb_video')
-      this.$el.appendChild(this.el)
-    }
-  },
   mounted () {
+    ipcRenderer.on('receive-media', (event, media) => {
+      const updateMedia = async (sources) => {
+        await controlMedia.getUserMedia(sources)
+
+        // add thumbnail
+        const thumb = controlMedia.currentVideo
+        this.$el.textContent = null
+        thumb.classList.add('thumb_video')
+        this.$el.appendChild(thumb)
+      }
+
+      // init thumbnail
+      const controlMedia = new ControlMedia(VIDEO_RESOLUTION, POINT_RESOLUTION, media)
+      updateMedia()
+
+      // init gui
+      const gui = new dat.GUI({
+        closed: true
+      })
+      gui.close()
+      const settings = {}
+
+      // video folder
+      const videoFolder = gui.addFolder('video')
+      videoFolder.open()
+
+      // video
+      settings.video = controlMedia.videoSource
+      const videoController = videoFolder.add(settings, 'video', controlMedia.videoDevices).onChange(dispatchMedia)
+      if (!Object.keys(controlMedia.videoDevices).some(key => settings.video === controlMedia.videoDevices[key])) {
+        videoController.setValue(getFirstValue(controlMedia.videoDevices))
+      }
+
+      // videoZoom
+      const videoZoomMap = [1, 3]
+      settings.videoZoom = 1
+      videoFolder.add(settings, 'videoZoom', ...videoZoomMap).onChange(dispatchMedia).listen()
+
+      // videoAlpha
+      const videoAlphaMap = [0, 1]
+      settings.videoAlpha = 1
+      videoFolder.add(settings, 'videoAlpha', ...videoAlphaMap).onChange(dispatchMedia).listen()
+
+      // thumb
+      settings.thumb = false
+      videoFolder.add(settings, 'thumb').onChange(dispatchMedia)
+
+      // audio folder
+      const audioFolder = gui.addFolder('audio')
+      audioFolder.open()
+
+      // inputAudio
+      settings.inputAudio = false
+      audioFolder.add(settings, 'inputAudio').onChange(dispatchMedia).listen()
+
+      // audio
+      settings.audio = controlMedia.audioSource
+      const audioController = audioFolder.add(settings, 'audio', controlMedia.audioDevices).onChange(dispatchMedia)
+      if (!Object.keys(controlMedia.audioDevices).some(key => settings.audio === controlMedia.audioDevices[key])) {
+        audioController.setValue(getFirstValue(controlMedia.audioDevices))
+      }
+
+      const self = this
+      function dispatchMedia (value) {
+        ipcRenderer.send('dispatch-media', this.property, value)
+
+        switch (this.property) {
+          case 'video':
+          case 'audio':
+            updateMedia({
+              [this.property]: value
+            })
+            break
+          case 'thumb':
+            self.isShow = value
+            break
+        }
+      }
+
+      this.$store.watch(this.$store.getters.zoom, videoZoom => {
+        settings.videoZoom = videoZoom
+        ipcRenderer.send('dispatch-media', 'videoZoom', videoZoom)
+      })
+      this.$store.watch(this.$store.getters.alpha, videoAlpha => {
+        settings.videoAlpha = videoAlpha
+        ipcRenderer.send('dispatch-media', 'videoAlpha', videoAlpha)
+      })
+      this.$store.watch(this.$store.getters.inputAudio, inputAudio => {
+        settings.inputAudio = inputAudio
+        ipcRenderer.send('dispatch-media', 'inputAudio', inputAudio)
+      })
+    })
+
+    // pointer
     const sendPointer = e => {
       let x = e.offsetX / this.thumbSize.width * 2.0 - 1.0
       let y = e.offsetY / this.thumbSize.height * 2.0 - 1.0
@@ -60,6 +170,7 @@ export default {
       this.isDown = false
     })
 
+    // window size
     ipcRenderer.on('receive-window', (event, windowSize) => {
       this.windowSize = windowSize
     })
