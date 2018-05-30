@@ -14,6 +14,7 @@ const float PI2 = PI * 2.0;
 const float interval = 10.;
 const float rgbDiff = 0.1;
 const float interval2 = 1.;
+const float colorInterval = 40.;
 const float binalizationThreshold = 0.3;
 
 void main(){
@@ -23,7 +24,9 @@ void main(){
   float average = (video.r + video.g + video.b) / 3.;
   vec3 mono = vec3(average);
   vec3 binary = vec3(step(binalizationThreshold, average));
-  vec3 rndColor = hsv(abs(sin(nTime * 0.1 * PI)), 1., 1.);
+
+  float colorNTime = mod(time, colorInterval) / colorInterval;
+  vec3 rndColor = hsv(colorNTime * PI2, 1., 1.);
 
   float rnd = random(vec2(time));
   float strength = sin(nTime * PI2);
@@ -33,8 +36,8 @@ void main(){
   float b = texture2D(texture, vec2(vUv.x - cRgbDiff, vUv.y)).b;
   vec4 color = vec4(r, g, b, 1.0);
 
-  nTime = mod(time, interval2) / interval2;
-  vec2 uv = (vUv - 0.5) / mix(0.8, 1.4, nTime) + 0.5;
+  float nTime2 = mod(time, interval2) / interval2;
+  vec2 uv = (vUv - 0.5) / mix(0.8, 1.4, nTime2) + 0.5;
   vec4 color2 = texture2D(texture, uv);
   vec3 binary2 = vec3(step(binalizationThreshold, (color2.r + color2.g + color2.b) / 3.));
   // color2 = vec4(vec3(color2.r, 0., 0.), 0.5);
