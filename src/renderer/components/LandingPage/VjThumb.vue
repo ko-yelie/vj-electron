@@ -1,6 +1,7 @@
 <template lang="pug">
-.thumb
-  .thumb_wrapper(ref="wrapper", v-show="isShow", :style="thumbStyle")
+.thumb(v-show="isShow", :style="elStyle")
+  .thumb_wrapper(ref="wrapper", :style="thumbStyle")
+  .rect_wrapper(ref="rectWrapper", :style="rectWrapperStyle")
   .detector(v-show="isShowDetectorMessage")
     p.progress(v-if='!isReady') Loading model...
     p.done(v-else) Click to detect!
@@ -57,6 +58,17 @@ export default {
       return {
         width: this.thumbSize.width + 'px',
         height: this.thumbSize.height + 'px'
+      }
+    },
+    elStyle () {
+      return {
+        height: THUMB_HEIGHT + 'px'
+      }
+    },
+    rectWrapperStyle () {
+      return {
+        width: THUMB_HEIGHT + 'px',
+        height: THUMB_HEIGHT + 'px'
       }
     }
   },
@@ -172,7 +184,7 @@ export default {
       const runDetector = async () => {
         this.isShowDetectorMessage = true
         resetDetector()
-        this.detector = new Detector(controlMedia.webcam, this.$refs.wrapper)
+        this.detector = new Detector(controlMedia.webcam, this.$refs.rectWrapper)
         await this.detector.promise
         this.isReady = true
         return detect()
@@ -241,6 +253,8 @@ export default {
 
 <style lang="scss">
 .thumb {
+  overflow: hidden;
+  position: relative;
   background-color: #000;
 
   &_wrapper {
@@ -270,6 +284,16 @@ export default {
   z-index: 1;
   border: 1px solid red;
   font-size: 24px;
+
+  &_wrapper {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    pointer-events: none;
+  }
 
   .label {
     position: absolute;
