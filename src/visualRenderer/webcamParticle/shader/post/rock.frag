@@ -7,6 +7,7 @@ uniform float     custom;
 varying vec2      vUv;
 
 #pragma glslify: random = require(glsl-random)
+#pragma glslify: hsv = require(../modules/color.glsl)
 
 const float PI = 3.1415926;
 const float PI2 = PI * 2.0;
@@ -14,12 +15,6 @@ const float interval = 10.;
 const float rgbDiff = 0.1;
 const float interval2 = 1.;
 const float binalizationThreshold = 0.3;
-
-vec3 hsv(float h, float s, float v) {
-  vec4 t = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-  vec3 p = abs(fract(vec3(h) + t.xyz) * 6.0 - vec3(t.w));
-  return v * mix(vec3(t.x), clamp(p - vec3(t.x), 0.0, 1.0), s);
-}
 
 void main(){
   vec4 video = texture2D(texture, vUv);

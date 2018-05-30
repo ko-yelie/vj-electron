@@ -157,16 +157,13 @@ export default async function (argConfig, store) {
 
     // videoZoom
     const videoZoomMap = [1, 3]
-    settings.videoZoom = 1
     mediaFolder.add(settings, 'videoZoom', ...videoZoomMap).onChange(dispatchMedia)
 
     // videoAlpha
     const videoAlphaMap = [0, 1]
-    settings.videoAlpha = 1
     mediaFolder.add(settings, 'videoAlpha', ...videoAlphaMap).onChange(dispatchMedia)
 
     // inputAudio
-    settings.inputAudio = false
     mediaFolder.add(settings, 'inputAudio').onChange(dispatchMedia)
   }
 

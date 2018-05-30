@@ -25,6 +25,7 @@ import {
   MAX_VIDEO_ZOOM
 } from '../../../visualRenderer/webcamParticle/script/modules/constant.js'
 import Detector from '../../../visualRenderer/webcamParticle/script/detector.js'
+import json from '../../assets/json/js/webcamParticle/scene.json'
 
 const THUMB_HEIGHT = 416
 const INITIAL_VIDEO_ZOOM = 1
@@ -144,8 +145,13 @@ export default {
       await updateMedia()
 
       // init gui
-      const gui = new dat.GUI()
-      const settings = {}
+      const config = json
+      const preset = config.preset
+      const gui = new dat.GUI({
+        load: config,
+        preset: preset
+      })
+      const settings = config.remembered[preset][0]
 
       // video folder
       {
@@ -161,12 +167,10 @@ export default {
 
         // videoZoom
         const videoZoomMap = [MIN_VIDEO_ZOOM, MAX_VIDEO_ZOOM]
-        settings.videoZoom = INITIAL_VIDEO_ZOOM
         videoFolder.add(settings, 'videoZoom', ...videoZoomMap).onChange(dispatchMedia).listen()
 
         // videoAlpha
         const videoAlphaMap = [0, 1]
-        settings.videoAlpha = 1
         videoFolder.add(settings, 'videoAlpha', ...videoAlphaMap).onChange(dispatchMedia).listen()
 
         // thumb
@@ -180,7 +184,6 @@ export default {
           detectorFolder.open()
 
           // detector
-          settings.detector = false
           detectorFolder.add(settings, 'detector').onChange(dispatchMedia)
 
           // detect
@@ -195,7 +198,6 @@ export default {
         audioFolder.open()
 
         // inputAudio
-        settings.inputAudio = false
         audioFolder.add(settings, 'inputAudio').onChange(dispatchMedia).listen()
 
         // audio

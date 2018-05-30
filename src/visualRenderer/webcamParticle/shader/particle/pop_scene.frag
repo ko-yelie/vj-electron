@@ -7,8 +7,12 @@ varying vec2 vTexCoord;
 varying vec4 vPosition;
 varying float vRnd;
 
+const float PI = 3.1415926;
+const float PI2 = PI * 2.;
 const float amplitude = 0.1;
 const float amplitude2 = amplitude * 2.;
+
+#pragma glslify: hsv = require(../modules/color.glsl)
 
 float circle(vec2 st) {
   return 1. - step(1. - amplitude2, length(st));
@@ -31,6 +35,7 @@ void main(){
   float minCurrentColor = mix(0.2, 0.4, bgColor);
   float maxCurrentColor = mix(0.9, 0.95, bgColor);
   vec4 currentColor = mix(vec4(minCurrentColor), vec4(maxCurrentColor), video);
+  vec3 rndColor = hsv(length(vTexCoord) * PI2, 0.4, 1.);
 
-  gl_FragColor = vec4(currentColor.rgb, 0.75 * particleColor);
+  gl_FragColor = vec4(rndColor, particleColor);
 }

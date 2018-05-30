@@ -23,7 +23,7 @@
         "detector": false,
         "effect": "none",
         "lastEffect": "none",
-        "custom": 0.3,
+        "custom": 0.7,
         "video": null,
         "videoZoom": 1,
         "videoAlpha": 1
@@ -51,6 +51,7 @@
         "detector": false,
         "effect": "none",
         "lastEffect": "glitch",
+        "custom": 0.7,
         "video": null,
         "videoZoom": 1,
         "videoAlpha": 1
@@ -78,6 +79,7 @@
         "detector": false,
         "effect": "none",
         "lastEffect": "none",
+        "custom": 0.7,
         "video": null,
         "videoZoom": 1,
         "videoAlpha": 0
@@ -88,7 +90,7 @@
         "animation": "warp",
         "mode": 0,
         "pointShape": 1,
-        "pointSize": 5,
+        "pointSize": 10,
         "lineShape": "line",
         "deformation": false,
         "deformationProgress": 0,
@@ -105,6 +107,7 @@
         "detector": false,
         "effect": "none",
         "lastEffect": "none",
+        "custom": 0.7,
         "video": null,
         "videoZoom": 1,
         "videoAlpha": 0.5
@@ -130,8 +133,9 @@
         "inputAudio": false,
         "audio": null,
         "detector": false,
-        "effect": "none",
+        "effect": "toon",
         "lastEffect": "none",
+        "custom": 0.7,
         "video": null,
         "videoZoom": 1,
         "videoAlpha": 0

@@ -32,7 +32,7 @@ void main(){
     m[0][0] - m[2][0] + (m[0][1] - m[2][1]) * 2.0 + m[0][2] - m[2][2]
   );
   float d = 1.0 - length(h);
-  d = step(binalizationThreshold, d); // binalization
+  d = step(custom, d); // binalization
 
   gl_FragColor = vec4(vec3(d), 1.0);
   gl_FragColor *= mix(vec4(minColor), vec4(1.), video);

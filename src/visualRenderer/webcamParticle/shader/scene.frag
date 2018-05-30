@@ -11,5 +11,5 @@ void main(){
 
   float isParticle = (1. - step(particle.w, 0.));
 
-  gl_FragColor = post * videoAlpha + particle * isParticle * particleAlpha;
+  gl_FragColor = post * videoAlpha * (1. - particle.w) + particle * particle.w * particleAlpha;
 }
