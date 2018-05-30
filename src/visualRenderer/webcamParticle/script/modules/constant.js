@@ -6,6 +6,9 @@ export const BASE_RESOLUTION = 256
 export const MIN_ZOOM = 2
 export const MAX_ZOOM = 10
 
+export const MIN_VIDEO_ZOOM = 1
+export const MAX_VIDEO_ZOOM = 3
+
 export const GPGPU_FRAMEBUFFERS_COUNT = 2
 export const CAPTURE_FRAMEBUFFERS_COUNT = 3
 

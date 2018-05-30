@@ -3,6 +3,7 @@ uniform vec2      resolution;
 uniform vec2      videoResolution;
 uniform sampler2D videoTexture;
 uniform float     zoom;
+uniform vec2      zoomPos;
 uniform float     focusCount;
 uniform vec4      focusPos1;
 uniform vec4      focusPos2;
@@ -15,7 +16,8 @@ void main(){
   vec2 coord = gl_FragCoord.st / resolution;
   coord.y = 1. - coord.y;
 
-  vec2 defaultCoord = coord / zoom + (1. - 1. / zoom) / 2.;
+  float zoomScale = 1. / zoom;
+  vec2 defaultCoord = coord * zoomScale + (1. - zoomScale) / 2. + zoomPos * zoomScale;
 
   float count = max(focusCount, 1.);
   float width = 1. / count;

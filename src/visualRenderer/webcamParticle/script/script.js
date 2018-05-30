@@ -92,6 +92,8 @@ let vbo
 let arrayLength
 let popArrayLength
 let isRun
+let videoZoom = 1
+let zoomPos = [0, 0]
 let pointer = {
   x: 0,
   y: 0
@@ -325,6 +327,9 @@ function initGlsl () {
     },
     zoom: {
       type: '1f'
+    },
+    zoomPos: {
+      type: '2fv'
     },
     focusCount: {
       type: '1f'
@@ -637,12 +642,6 @@ function initGlsl () {
   popPositionBufferIndex = framebufferCount
   framebufferCount += GPGPU_FRAMEBUFFERS_COUNT
 
-  initVideo()
-}
-
-function initVideo () {
-  video = media.currentVideo
-
   init()
 }
 
@@ -672,6 +671,11 @@ function init () {
   Object.keys(settings).forEach(key => {
     update(key, settings[key])
   })
+
+  // init media value
+  video = media.currentVideo
+  videoZoom = settings.videoZoom
+  settings.zoomPos = zoomPos
 
   // textures
   createTexture(video)
@@ -716,7 +720,8 @@ function init () {
   videoPrg.setUniform('resolution', [canvasWidth, canvasHeight])
   videoPrg.setUniform('videoResolution', [video.videoWidth, video.videoHeight])
   videoPrg.setUniform('videoTexture', 0)
-  videoPrg.setUniform('zoom', settings.videoZoom)
+  videoPrg.setUniform('zoom', videoZoom)
+  videoPrg.setUniform('zoomPos', zoomPos)
   videoPrg.setUniform('focusCount', focusCount)
   videoPrg.setUniform('focusPos1', focusPosList[0] || defaultFocus)
   videoPrg.setUniform('focusPos2', focusPosList[1] || defaultFocus)
@@ -805,6 +810,13 @@ function init () {
 
     const focusCount = Math.min(focusPosList.length, 4)
 
+    // update media value
+    videoZoom += (settings.videoZoom - videoZoom) * 0.1
+
+    zoomPos.forEach((pos, i) => {
+      zoomPos[i] += (settings.zoomPos[i] - zoomPos[i]) * 0.1
+    })
+
     volume += (media.getVolume() - volume) * 0.1
 
     // video texture
@@ -821,7 +833,8 @@ function init () {
     videoPrg.setUniform('resolution', [canvasWidth, canvasHeight])
     videoPrg.setUniform('videoResolution', [video.videoWidth, video.videoHeight])
     videoPrg.setUniform('videoTexture', 0)
-    videoPrg.setUniform('zoom', settings.videoZoom)
+    videoPrg.setUniform('zoom', videoZoom)
+    videoPrg.setUniform('zoomPos', zoomPos)
     videoPrg.setUniform('focusCount', focusCount)
     videoPrg.setUniform('focusPos1', focusPosList[0] || defaultFocus)
     videoPrg.setUniform('focusPos2', focusPosList[1] || defaultFocus)
@@ -905,7 +918,8 @@ function init () {
         videoPrg.setUniform('resolution', [canvasWidth, canvasHeight])
         videoPrg.setUniform('videoResolution', [video.videoWidth, video.videoHeight])
         videoPrg.setUniform('videoTexture', 0)
-        videoPrg.setUniform('zoom', settings.videoZoom)
+        videoPrg.setUniform('zoom', videoZoom)
+        videoPrg.setUniform('zoomPos', zoomPos)
         videoPrg.setUniform('focusCount', focusCount)
         videoPrg.setUniform('focusPos1', focusPosList[0] || defaultFocus)
         videoPrg.setUniform('focusPos2', focusPosList[1] || defaultFocus)

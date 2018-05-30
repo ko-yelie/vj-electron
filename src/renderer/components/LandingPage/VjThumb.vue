@@ -1,6 +1,8 @@
 <template lang="pug">
 .thumb(v-show="isShow", :style="elStyle")
-  .thumb_wrapper(ref="wrapper", :style="thumbStyle")
+  .thumb_wrapper(ref="wrapper", :style="wrapperStyle")
+    .thumb_scope(ref="scope", :style="scopeStyle")
+
   .rect_wrapper(ref="rectWrapper", :style="rectWrapperStyle")
   .detector(v-show="isShowDetectorMessage")
     p.progress(v-if='!isReady') Loading model...
@@ -11,15 +13,21 @@
 import { ipcRenderer } from 'electron'
 import dat from 'dat.gui'
 
-import { getFirstValue } from '../../../visualRenderer/webcamParticle/script/utils.js'
+import {
+  getFirstValue,
+  clamp
+} from '../../../visualRenderer/webcamParticle/script/utils.js'
 import Media from '../../../visualRenderer/modules/media.js'
 import {
   VIDEO_RESOLUTION,
-  POINT_RESOLUTION
+  POINT_RESOLUTION,
+  MIN_VIDEO_ZOOM,
+  MAX_VIDEO_ZOOM
 } from '../../../visualRenderer/webcamParticle/script/modules/constant.js'
 import Detector from '../../../visualRenderer/webcamParticle/script/detector.js'
 
 const THUMB_HEIGHT = 416
+const INITIAL_VIDEO_ZOOM = 1
 
 class ControlMedia extends Media {
   constructor (size, pointResolution, media) {
@@ -42,27 +50,58 @@ export default {
     isShow: false,
     isShowDetectorMessage: false,
     isReady: false,
+    video: {
+      videoWidth: 1,
+      videoHeight: 1
+    },
+    videoZoom: INITIAL_VIDEO_ZOOM,
+    scopePos: {
+      width: 0,
+      height: 0,
+      x: 0,
+      y: 0
+    },
     windowSize: {
-      width: 1024,
-      height: 768
+      width: 1,
+      height: 1
+    },
+    maxSize: {
+      width: 1,
+      height: 1
     }
   }),
   computed: {
-    thumbSize () {
-      return {
-        width: this.windowSize.width * THUMB_HEIGHT / this.windowSize.height,
-        height: THUMB_HEIGHT
-      }
-    },
-    thumbStyle () {
-      return {
-        width: this.thumbSize.width + 'px',
-        height: this.thumbSize.height + 'px'
-      }
-    },
     elStyle () {
       return {
         height: THUMB_HEIGHT + 'px'
+      }
+    },
+    wrapperSize () {
+      return this.containSize({
+        width: this.video.videoWidth,
+        height: this.video.videoHeight
+      }, this.maxSize)
+    },
+    wrapperStyle () {
+      return {
+        width: this.wrapperSize.width + 'px',
+        height: this.wrapperSize.height + 'px'
+      }
+    },
+    scopeSize () {
+      const size = this.containSize(this.windowSize, this.wrapperSize)
+      const scale = 1 / this.videoZoom
+      return {
+        width: size.width * scale,
+        height: size.height * scale
+      }
+    },
+    scopeStyle () {
+      return {
+        width: this.scopeSize.width + 'px',
+        height: this.scopeSize.height + 'px',
+        top: this.scopePos.y + 'px',
+        left: this.scopePos.x + 'px'
       }
     },
     rectWrapperStyle () {
@@ -72,22 +111,37 @@ export default {
       }
     }
   },
+  methods: {
+    containSize (inputResolution, outputResolution) {
+      const inputRatio = inputResolution.width / inputResolution.height
+      const outputRatio = outputResolution.width / outputResolution.height
+      let width, height
+      if (inputRatio >= outputRatio) {
+        width = outputResolution.width
+        height = inputResolution.height * (outputResolution.width / inputResolution.width)
+      } else {
+        height = outputResolution.height
+        width = inputResolution.width * (outputResolution.height / inputResolution.height)
+      }
+      return { width, height }
+    }
+  },
   mounted () {
-    ipcRenderer.on('receive-media', (event, media) => {
+    ipcRenderer.on('receive-media', async (event, media) => {
       const updateMedia = async (sources) => {
         await controlMedia.getUserMedia(sources)
 
         // add thumbnail
-        const thumb = controlMedia.currentVideo
-        this.$refs.wrapper.textContent = null
-        thumb.classList.add('thumb_video')
-        this.$refs.wrapper.appendChild(thumb)
-        thumb.play()
+        this.video.videoWidth > 1 && this.$refs.wrapper.removeChild(this.video)
+        this.video = controlMedia.currentVideo
+        this.video.classList.add('thumb_video')
+        this.$refs.wrapper.appendChild(this.video)
+        this.video.play()
       }
 
       // init thumbnail
       const controlMedia = new ControlMedia(VIDEO_RESOLUTION, POINT_RESOLUTION, media)
-      updateMedia()
+      await updateMedia()
 
       // init gui
       const gui = new dat.GUI()
@@ -106,8 +160,8 @@ export default {
         }
 
         // videoZoom
-        const videoZoomMap = [1, 3]
-        settings.videoZoom = 1
+        const videoZoomMap = [MIN_VIDEO_ZOOM, MAX_VIDEO_ZOOM]
+        settings.videoZoom = INITIAL_VIDEO_ZOOM
         videoFolder.add(settings, 'videoZoom', ...videoZoomMap).onChange(dispatchMedia).listen()
 
         // videoAlpha
@@ -153,8 +207,10 @@ export default {
       }
 
       const self = this
-      async function dispatchMedia (value) {
-        switch (this.property) {
+      async function dispatchMedia (value, property) {
+        property = property || this.property
+
+        switch (property) {
           case 'video':
             await updateMedia({
               video: value
@@ -167,6 +223,14 @@ export default {
               audio: value
             })
             break
+          case 'videoZoom':
+            const width = self.scopeSize.width
+            const height = self.scopeSize.height
+            self.videoZoom = value
+            self.scopePos.x += (width - self.scopeSize.width) / 2
+            self.scopePos.y += (height - self.scopeSize.height) / 2
+            setScopePos()
+            break
           case 'thumb':
             self.isShow = value
             break
@@ -178,7 +242,7 @@ export default {
             break
         }
 
-        ipcRenderer.send('dispatch-media', this.property, value)
+        ipcRenderer.send('dispatch-media', property, value)
       }
 
       const runDetector = async () => {
@@ -213,37 +277,78 @@ export default {
       ].forEach(property => {
         this.$store.watch(this.$store.getters[property], value => {
           settings[property] = value
-          ipcRenderer.send('dispatch-media', property, value)
+          dispatchMedia(value, property)
         })
       })
-    })
 
-    // pointer
-    const sendPointer = e => {
-      let x = e.offsetX / this.thumbSize.width * 2.0 - 1.0
-      let y = e.offsetY / this.thumbSize.height * 2.0 - 1.0
-      ipcRenderer.send('dispatch-webcam-particle', 'update', 'pointerPosition', {
-        x,
-        y: -y
+      // pointer
+      let isDown = false
+      let startValue
+      const setScopePos = (x = this.scopePos.x, y = this.scopePos.y) => {
+        this.scopePos.x = clamp(
+          x,
+          0,
+          this.wrapperSize.width - this.scopeSize.width
+        )
+        this.scopePos.y = clamp(
+          y,
+          0,
+          this.wrapperSize.height - this.scopeSize.height
+        )
+
+        ipcRenderer.send('dispatch-media', 'zoomPos', [
+          (this.scopePos.x + this.scopeSize.width / 2) / this.wrapperSize.width * 2.0 - 1.0,
+          (this.scopePos.y + this.scopeSize.height / 2) / this.wrapperSize.height * 2.0 - 1.0
+        ])
+      }
+      this.$refs.wrapper.addEventListener('pointerdown', e => {
+        isDown = true
+        startValue = {
+          scope: {
+            x: this.scopePos.x,
+            y: this.scopePos.y
+          },
+          pointer: {
+            x: e.offsetX,
+            y: e.offsetY
+          }
+        }
       })
-    }
-    this.$refs.wrapper.addEventListener('pointerdown', e => {
-      this.isDown = true
+      this.$refs.wrapper.addEventListener('pointermove', e => {
+        if (!isDown) return
 
-      sendPointer(e)
-    })
-    this.$refs.wrapper.addEventListener('pointermove', e => {
-      if (!this.isDown) return
+        setScopePos(
+          startValue.scope.x + e.offsetX - startValue.pointer.x,
+          startValue.scope.y + e.offsetY - startValue.pointer.y
+        )
+      })
+      this.$refs.wrapper.addEventListener('pointerup', e => {
+        isDown = false
+      })
+      this.$refs.wrapper.addEventListener('wheel', e => {
+        settings.videoZoom = clamp(settings.videoZoom - e.deltaY * 0.001, MIN_VIDEO_ZOOM, MAX_VIDEO_ZOOM)
+        dispatchMedia(settings.videoZoom, 'videoZoom')
+      })
 
-      sendPointer(e)
-    })
-    this.$refs.wrapper.addEventListener('pointerup', e => {
-      this.isDown = false
+      setTimeout(() => {
+        this.maxSize.width = this.$el.clientWidth
+        this.maxSize.height = THUMB_HEIGHT
+
+        this.scopePos = {
+          y: (this.wrapperSize.height - this.scopeSize.height) / 2,
+          x: (this.wrapperSize.width - this.scopeSize.width) / 2
+        }
+      }, 0)
     })
 
     // window size
     ipcRenderer.on('receive-window', (event, windowSize) => {
       this.windowSize = windowSize
+
+      this.scopePos = {
+        y: (this.wrapperSize.height - this.scopeSize.height) / 2,
+        x: (this.wrapperSize.width - this.scopeSize.width) / 2
+      }
     })
   }
 }
@@ -258,16 +363,13 @@ export default {
   &_wrapper {
     position: relative;
     margin: auto;
+  }
 
-    &::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      border: dashed 1px rgba(white, 0.5);
-    }
+  &_scope {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: dashed 2px rgba(white, 0.6);
   }
 
   &_video:not(.md-image) {
@@ -290,6 +392,7 @@ export default {
     bottom: 0;
     left: 0;
     margin: auto;
+    border: dotted 1px rgba(white, 0.3);
     pointer-events: none;
   }
 
