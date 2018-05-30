@@ -9,12 +9,7 @@ import {
   run,
   stop,
   start,
-  update,
-  updateVideo,
-  updateZoom,
-  updateAlpha,
-  updateFocusPosList,
-  updateInputAudio
+  update
 } from '../webcamParticle/script/script.js'
 import Media from '../modules/media.js'
 import {
@@ -45,29 +40,18 @@ export default {
       ipcRenderer.on('dispatch-media', async (event, property, value) => {
         switch (property) {
           case 'video':
-            const video = await media.getUserMedia({
+            value = await media.getUserMedia({
               video: value
             })
-            updateVideo(video)
             break
           case 'audio':
             media.getUserMedia({
               audio: value
             })
-            break
-          case 'videoZoom':
-            updateZoom(value)
-            break
-          case 'videoAlpha':
-            updateAlpha(value)
-            break
-          case 'detect':
-            updateFocusPosList(value)
-            break
-          case 'inputAudio':
-            updateInputAudio(value)
-            break
+            return
         }
+
+        update(property, value)
       })
 
       ipcRenderer.send('receive-media', media)

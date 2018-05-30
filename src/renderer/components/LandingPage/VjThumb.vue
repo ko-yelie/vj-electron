@@ -206,17 +206,15 @@ export default {
         return this.detector.posList
       }
 
-      this.$store.watch(this.$store.getters.zoom, videoZoom => {
-        settings.videoZoom = videoZoom
-        ipcRenderer.send('dispatch-media', 'videoZoom', videoZoom)
-      })
-      this.$store.watch(this.$store.getters.alpha, videoAlpha => {
-        settings.videoAlpha = videoAlpha
-        ipcRenderer.send('dispatch-media', 'videoAlpha', videoAlpha)
-      })
-      this.$store.watch(this.$store.getters.inputAudio, inputAudio => {
-        settings.inputAudio = inputAudio
-        ipcRenderer.send('dispatch-media', 'inputAudio', inputAudio)
+      ;[
+        'videoZoom',
+        'videoAlpha',
+        'inputAudio'
+      ].forEach(property => {
+        this.$store.watch(this.$store.getters[property], value => {
+          settings[property] = value
+          ipcRenderer.send('dispatch-media', property, value)
+        })
       })
     })
 

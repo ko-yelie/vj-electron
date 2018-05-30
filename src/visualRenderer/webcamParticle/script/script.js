@@ -1106,28 +1106,18 @@ export function update (property, value) {
     case 'lastEffect':
       currentPostLastPrg = postPrg[settings.lastEffect || POST_LIST[0]]
       break
+
+    // media
+    case 'video':
+      video = media.currentVideo
+      break
+    case 'detect':
+      focusPosList = value
+      break
+    case 'inputAudio':
+      isAudio = settings.inputAudio ? 1 : 0
+      break
   }
-}
-
-export function updateVideo () {
-  video = media.currentVideo
-}
-
-export function updateZoom (value) {
-  settings.videoZoom = value
-}
-
-export function updateAlpha (value) {
-  settings.videoAlpha = value
-}
-
-export function updateFocusPosList (value) {
-  focusPosList = value
-}
-
-export function updateInputAudio (inputAudio) {
-  settings.inputAudio = inputAudio
-  isAudio = settings.inputAudio ? 1 : 0
 }
 
 export function stop () {
