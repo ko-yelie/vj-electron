@@ -1,5 +1,9 @@
 <template lang="pug">
-.thumb(v-show="isShow", :style="thumbStyle")
+.thumb
+  .thumb_wrapper(ref="wrapper", v-show="isShow", :style="thumbStyle")
+  .detector(v-show="isShowDetectorMessage")
+    p.progress(v-if='!isReady') Loading model...
+    p.done(v-else) Click to detect!
 </template>
 
 <script>
@@ -12,6 +16,9 @@ import {
   VIDEO_RESOLUTION,
   POINT_RESOLUTION
 } from '../../../visualRenderer/webcamParticle/script/modules/constant.js'
+import Detector from '../../../visualRenderer/webcamParticle/script/detector.js'
+
+const THUMB_HEIGHT = 416
 
 class ControlMedia extends Media {
   constructor (size, pointResolution, media) {
@@ -29,11 +36,11 @@ class ControlMedia extends Media {
   }
 }
 
-const THUMB_HEIGHT = 312
-
 export default {
   data: () => ({
     isShow: false,
+    isShowDetectorMessage: false,
+    isReady: false,
     windowSize: {
       width: 1024,
       height: 768
@@ -60,9 +67,10 @@ export default {
 
         // add thumbnail
         const thumb = controlMedia.currentVideo
-        this.$el.textContent = null
+        this.$refs.wrapper.textContent = null
         thumb.classList.add('thumb_video')
-        this.$el.appendChild(thumb)
+        this.$refs.wrapper.appendChild(thumb)
+        thumb.play()
       }
 
       // init thumbnail
@@ -70,10 +78,7 @@ export default {
       updateMedia()
 
       // init gui
-      const gui = new dat.GUI({
-        closed: true
-      })
-      gui.close()
+      const gui = new dat.GUI()
       const settings = {}
 
       // video folder
@@ -99,8 +104,9 @@ export default {
         videoFolder.add(settings, 'videoAlpha', ...videoAlphaMap).onChange(dispatchMedia).listen()
 
         // thumb
-        settings.thumb = false
+        settings.thumb = true
         videoFolder.add(settings, 'thumb').onChange(dispatchMedia)
+        this.isShow = settings.thumb
 
         // Detector folder
         {
@@ -112,9 +118,7 @@ export default {
           detectorFolder.add(settings, 'detector').onChange(dispatchMedia)
 
           // detect
-          settings.detect = () => {
-            console.log('detect')
-          }
+          settings.detect = () => {}
           detectorFolder.add(settings, 'detect').onChange(dispatchMedia)
         }
       }
@@ -137,20 +141,57 @@ export default {
       }
 
       const self = this
-      function dispatchMedia (value) {
-        ipcRenderer.send('dispatch-media', this.property, value)
-
+      async function dispatchMedia (value) {
         switch (this.property) {
           case 'video':
+            await updateMedia({
+              video: value
+            })
+            ipcRenderer.send('dispatch-media', 'detect', resetDetector())
+            ipcRenderer.send('dispatch-media', 'detect', await detect())
+            break
           case 'audio':
             updateMedia({
-              [this.property]: value
+              audio: value
             })
             break
           case 'thumb':
             self.isShow = value
             break
+          case 'detector':
+            ipcRenderer.send('dispatch-media', 'detect', value ? await runDetector() : resetDetector())
+            break
+          case 'detect':
+            value = await detect()
+            break
         }
+
+        ipcRenderer.send('dispatch-media', this.property, value)
+      }
+
+      const runDetector = async () => {
+        this.isShowDetectorMessage = true
+        resetDetector()
+        this.detector = new Detector(controlMedia.webcam, this.$refs.wrapper)
+        await this.detector.promise
+        this.isReady = true
+        return detect()
+      }
+
+      const detect = async () => {
+        if (!settings.detector || !this.detector) return []
+
+        await this.detector.detect()
+        return this.detector.posList
+      }
+
+      const resetDetector = () => {
+        if (!this.detector) return []
+
+        this.detector.reset()
+        this.isReady = false
+        this.isShowDetectorMessage = false
+        return this.detector.posList
       }
 
       this.$store.watch(this.$store.getters.zoom, videoZoom => {
@@ -176,17 +217,17 @@ export default {
         y: -y
       })
     }
-    this.$el.addEventListener('pointerdown', e => {
+    this.$refs.wrapper.addEventListener('pointerdown', e => {
       this.isDown = true
 
       sendPointer(e)
     })
-    this.$el.addEventListener('pointermove', e => {
+    this.$refs.wrapper.addEventListener('pointermove', e => {
       if (!this.isDown) return
 
       sendPointer(e)
     })
-    this.$el.addEventListener('pointerup', e => {
+    this.$refs.wrapper.addEventListener('pointerup', e => {
       this.isDown = false
     })
 
@@ -200,23 +241,77 @@ export default {
 
 <style lang="scss">
 .thumb {
-  position: relative;
-  margin: auto;
+  background-color: #000;
 
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    border: dashed 1px rgba(white, 0.5);
+  &_wrapper {
+    position: relative;
+    margin: auto;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      border: dashed 1px rgba(white, 0.5);
+    }
   }
 
   &_video:not(.md-image) {
     object-fit: cover;
     width: 100%;
     height: 100%;
+  }
+}
+
+.rect {
+  position: absolute;
+  z-index: 1;
+  border: 1px solid red;
+  font-size: 24px;
+
+  .label {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background: rgba(white, 0.4);
+    color: #333;
+    font-size: 10px;
+    padding: 0 2px;
+    text-transform: capitalize;
+    white-space: nowrap;
+  }
+
+  &.o-blue {
+    opacity: 0.5;
+    z-index: auto;
+    border-color: blue;
+  }
+}
+
+.detector {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  color: #ddd;
+
+  p {
+    margin: 1em;
+  }
+}
+.progress {
+  animation: loading 1000ms infinite;
+}
+@keyframes loading {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }
 </style>

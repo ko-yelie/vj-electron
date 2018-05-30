@@ -31,18 +31,24 @@ export default class Detector {
 
     const boxes = await yolo(inputImage, storedModel)
     boxes.forEach(box => {
-      const { top, left, bottom, right, className } = box
+      const { top, left, bottom, right, classProb, className } = box
       if (className !== 'person') return
 
-      this.posList.push([top / this.size, this.convert(left), bottom / this.size, this.convert(right)])
-      // this.drawRect(
-      //   left,
-      //   top,
-      //   right - left,
-      //   bottom - top,
-      //   `${Math.round(classProb * 100)}%`,
-      //   this.posList.length > 4 ? 'blue' : 'red'
-      // )
+      this.posList.push([
+        top / this.size,
+        this.convert(left),
+        bottom / this.size,
+        this.convert(right)
+      ])
+
+      this.drawRect(
+        left,
+        top,
+        right - left,
+        bottom - top,
+        `${Math.round(classProb * 100)}%`,
+        this.posList.length > 4 ? 'blue' : 'red'
+      )
     })
   }
 

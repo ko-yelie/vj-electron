@@ -12,6 +12,8 @@ export default class Media {
     this.video.loop = true
     this.video.muted = true
 
+    this.currentVideo = this.video
+
     this.videoDevices = {}
     this.videoFiles = {}
     this.audioDevices = {}
@@ -24,9 +26,9 @@ export default class Media {
   }
 
   initWebcam () {
-    this.webcam = new Webcam(this.video)
+    this.webcam = new Webcam(this.currentVideo)
     // await this.webcam.setup()
-    this.webcam.adjustVideoSize(this.video.videoWidth || this.video.naturalWidth, this.video.videoHeight || this.video.naturalHeight)
+    this.webcam.adjustVideoSize(this.currentVideo.videoWidth || this.currentVideo.naturalWidth, this.currentVideo.videoHeight || this.currentVideo.naturalHeight)
   }
 
   initVideoFiles () {
@@ -124,6 +126,8 @@ export default class Media {
             this.currentVideo.removeEventListener('canplay', playVideo)
             // video 再生開始をコール
             this.currentVideo.play()
+
+            this.initWebcam()
 
             resolve(this.currentVideo)
           }

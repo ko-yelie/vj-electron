@@ -26,7 +26,6 @@ import {
 import { setGl, createFramebuffer, createFramebufferFloat, getWebGLExtensions } from './doxas-utils.js'
 import { clamp } from './utils.js'
 import Tween from './tween.js'
-import Detector from './detector.js'
 
 let options
 let canvas
@@ -87,7 +86,7 @@ let media
 let settings = {}
 let video
 let animation
-let detector
+let focusPosList = []
 // let detectorMessage
 let vbo
 let arrayLength
@@ -188,10 +187,6 @@ export function run (argOptions) {
   canvas.addEventListener('click', e => {
     if (settings.capture) {
       isCapture = true
-    }
-
-    if (settings.detector && detector) {
-      detector.detect()
     }
   })
 
@@ -648,24 +643,7 @@ function initGlsl () {
 function initVideo () {
   video = media.currentVideo
 
-  if (detector) {
-    resetDetector()
-    runDetector()
-  }
-
   init()
-}
-
-async function runDetector () {
-  detector = new Detector(media.webcam, media.wrapper)
-  await detector.promise
-  detector.detect()
-  // detectorMessage.isReady = true
-}
-
-function resetDetector () {
-  detector.reset()
-  // detectorMessage.isReady = false
 }
 
 function updateCamera () {
@@ -729,8 +707,7 @@ function init () {
     bindTexture(popPositionFramebuffers[i].texture, popPositionBufferIndex + i)
   }
 
-  const posList = (detector && detector.posList) || []
-  const focusCount = Math.min(posList.length, 4)
+  const focusCount = Math.min(focusPosList.length, 4)
 
   // reset video
   gl.viewport(0, 0, canvasWidth, canvasWidth)
@@ -741,10 +718,10 @@ function init () {
   videoPrg.setUniform('videoTexture', 0)
   videoPrg.setUniform('zoom', settings.videoZoom)
   videoPrg.setUniform('focusCount', focusCount)
-  videoPrg.setUniform('focusPos1', posList[0] || defaultFocus)
-  videoPrg.setUniform('focusPos2', posList[1] || defaultFocus)
-  videoPrg.setUniform('focusPos3', posList[2] || defaultFocus)
-  videoPrg.setUniform('focusPos4', posList[3] || defaultFocus)
+  videoPrg.setUniform('focusPos1', focusPosList[0] || defaultFocus)
+  videoPrg.setUniform('focusPos2', focusPosList[1] || defaultFocus)
+  videoPrg.setUniform('focusPos3', focusPosList[2] || defaultFocus)
+  videoPrg.setUniform('focusPos4', focusPosList[3] || defaultFocus)
   for (let targetBufferIndex = 0; targetBufferIndex < CAPTURE_FRAMEBUFFERS_COUNT; ++targetBufferIndex) {
     // video buffer
     bindFramebuffer(videoFramebuffers[targetBufferIndex].framebuffer)
@@ -826,8 +803,7 @@ function init () {
     const prevBufferIndex = 1 - targetBufferIndex
     const time = loopCount / 60
 
-    const posList = (detector && detector.posList) || []
-    const focusCount = Math.min(posList.length, 4)
+    const focusCount = Math.min(focusPosList.length, 4)
 
     volume += (media.getVolume() - volume) * 0.1
 
@@ -847,10 +823,10 @@ function init () {
     videoPrg.setUniform('videoTexture', 0)
     videoPrg.setUniform('zoom', settings.videoZoom)
     videoPrg.setUniform('focusCount', focusCount)
-    videoPrg.setUniform('focusPos1', posList[0] || defaultFocus)
-    videoPrg.setUniform('focusPos2', posList[1] || defaultFocus)
-    videoPrg.setUniform('focusPos3', posList[2] || defaultFocus)
-    videoPrg.setUniform('focusPos4', posList[3] || defaultFocus)
+    videoPrg.setUniform('focusPos1', focusPosList[0] || defaultFocus)
+    videoPrg.setUniform('focusPos2', focusPosList[1] || defaultFocus)
+    videoPrg.setUniform('focusPos3', focusPosList[2] || defaultFocus)
+    videoPrg.setUniform('focusPos4', focusPosList[3] || defaultFocus)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
     // Post Effect
@@ -931,10 +907,10 @@ function init () {
         videoPrg.setUniform('videoTexture', 0)
         videoPrg.setUniform('zoom', settings.videoZoom)
         videoPrg.setUniform('focusCount', focusCount)
-        videoPrg.setUniform('focusPos1', posList[0] || defaultFocus)
-        videoPrg.setUniform('focusPos2', posList[1] || defaultFocus)
-        videoPrg.setUniform('focusPos3', posList[2] || defaultFocus)
-        videoPrg.setUniform('focusPos4', posList[3] || defaultFocus)
+        videoPrg.setUniform('focusPos1', focusPosList[0] || defaultFocus)
+        videoPrg.setUniform('focusPos2', focusPosList[1] || defaultFocus)
+        videoPrg.setUniform('focusPos3', focusPosList[2] || defaultFocus)
+        videoPrg.setUniform('focusPos4', focusPosList[3] || defaultFocus)
         gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
         gl.viewport(0, 0, POINT_RESOLUTION, POINT_RESOLUTION)
@@ -1124,18 +1100,6 @@ export function update (property, value) {
         clearTimeout(stopMotionTimer)
       }
       break
-    case 'detector':
-      if (settings.detector) {
-        // detectorMessage.isShow = true
-        runDetector()
-      } else {
-        if (!detector) return
-
-        // detectorMessage.isShow = false
-        resetDetector()
-        detector = null
-      }
-      break
     case 'effect':
       currentPostPrg = postPrg[settings.effect || POST_LIST[0]]
       break
@@ -1149,12 +1113,16 @@ export function updateVideo () {
   video = media.currentVideo
 }
 
-export function updateZoom (zoom) {
-  settings.videoZoom = zoom
+export function updateZoom (value) {
+  settings.videoZoom = value
 }
 
-export function updateAlpha (alpha) {
-  settings.videoAlpha = alpha
+export function updateAlpha (value) {
+  settings.videoAlpha = value
+}
+
+export function updateFocusPosList (value) {
+  focusPosList = value
 }
 
 export function updateInputAudio (inputAudio) {
