@@ -32,9 +32,6 @@ export default async function (argConfig, store) {
     postFolder = gui.addFolder('Post Effect')
     postFolder.open()
 
-    // detector
-    postFolder.add(settings, 'detector').onChange(dispatchVisual)
-
     // effect
     const effectMap = POST_LIST
     postFolder.add(settings, 'effect', effectMap).onChange(dispatchVisual)
@@ -154,13 +151,6 @@ export default async function (argConfig, store) {
           default:
             pointFolder.open()
         }
-        break
-      case 'detector':
-        // if (val) {
-        //   thumbController.setValue(true)
-        // } else {
-        //   thumbController.setValue(false)
-        // }
         break
     }
   }

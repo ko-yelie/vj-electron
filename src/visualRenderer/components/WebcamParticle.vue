@@ -4,6 +4,7 @@ canvas
 
 <script>
 import { ipcRenderer } from 'electron'
+
 import {
   run,
   stop,
@@ -14,6 +15,11 @@ import {
   updateAlpha,
   updateInputAudio
 } from '../webcamParticle/script/script.js'
+import Media from '../modules/media.js'
+import {
+  VIDEO_RESOLUTION,
+  POINT_RESOLUTION
+} from '../webcamParticle/script/modules/constant.js'
 
 let isDirty = false
 
@@ -25,13 +31,46 @@ export default {
     }
     isDirty = true
 
+    const media = new Media(VIDEO_RESOLUTION, POINT_RESOLUTION)
+    media.enumerateDevices().then(async () => {
+      await media.getUserMedia()
+
+      run({
+        canvas: this.$el,
+        settings: this.settings,
+        media: media
+      })
+
+      ipcRenderer.on('dispatch-media', async (event, property, value) => {
+        switch (property) {
+          case 'video':
+          case 'audio':
+            const video = await media.getUserMedia({
+              [property]: value
+            })
+            updateVideo(video)
+            break
+          case 'videoZoom':
+            updateZoom(value)
+            break
+          case 'videoAlpha':
+            updateAlpha(value)
+            break
+          case 'detect':
+            console.log('detect')
+            break
+          case 'inputAudio':
+            updateInputAudio(value)
+            break
+        }
+      })
+
+      ipcRenderer.send('receive-media', media)
+    })
+
     const actions = {
       init: (settings) => {
-        run({
-          canvas: this.$el,
-          settings,
-          media: this.$store.state.Media.media
-        })
+        this.settings = settings
       },
       update: (property, value) => {
         update(property, value)
@@ -40,19 +79,6 @@ export default {
 
     ipcRenderer.on('dispatch-webcam-particle', (event, typeName, ...payload) => {
       actions[typeName](...payload)
-    })
-
-    this.$store.watch(this.$store.getters.video, video => {
-      updateVideo(video)
-    })
-    this.$store.watch(this.$store.getters.zoom, zoom => {
-      updateZoom(zoom)
-    })
-    this.$store.watch(this.$store.getters.alpha, alpha => {
-      updateAlpha(alpha)
-    })
-    this.$store.watch(this.$store.getters.inputAudio, inputAudio => {
-      updateInputAudio(inputAudio)
     })
   },
   beforeDestroy () {

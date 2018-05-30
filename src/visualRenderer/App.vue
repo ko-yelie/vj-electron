@@ -3,11 +3,6 @@ import { ipcRenderer } from 'electron'
 import Vue from 'vue'
 
 import VjVisualComponent from './components/VjVisual'
-import Media from './modules/media.js'
-import {
-  VIDEO_RESOLUTION,
-  POINT_RESOLUTION
-} from './webcamParticle/script/modules/constant.js'
 
 const VjVisual = Vue.extend(VjVisualComponent)
 
@@ -28,74 +23,44 @@ export default {
     sendWindowSize()
     window.addEventListener('resize', sendWindowSize)
 
-    const media = new Media(VIDEO_RESOLUTION, POINT_RESOLUTION)
-    media.enumerateDevices().then(async () => {
-      await media.getUserMedia()
-      this.$store.commit('UPDATE_MEDIA', media)
-
-      ipcRenderer.on('dispatch-media', async (event, property, value) => {
-        switch (property) {
-          case 'video':
-          case 'audio':
-            await media.getUserMedia({
-              [property]: value
-            })
-            this.$store.commit('UPDATE_MEDIA', media)
-            break
-          case 'videoZoom':
-            this.$store.commit('UPDATE_ZOOM', value)
-            break
-          case 'videoAlpha':
-            this.$store.commit('UPDATE_ALPHA', value)
-            break
-          case 'inputAudio':
-            this.$store.commit('UPDATE_INPUT_AUDIO', value)
-            break
+    const actions = {
+      addDisplayingVideo: (visual) => {
+        const component = this.components[visual.id]
+        if (component) {
+          component.isShow = true
+          return
         }
-      })
 
-      ipcRenderer.send('receive-media', media)
-
-      const actions = {
-        addDisplayingVideo: (visual) => {
-          const component = this.components[visual.id]
-          if (component) {
-            component.isShow = true
-            return
+        const addedComponent = new VjVisual({
+          propsData: {
+            visual,
+            isShow: true
           }
+        }).$mount()
+        this.$el.appendChild(addedComponent.$el)
 
-          const addedComponent = new VjVisual({
-            propsData: {
-              visual,
-              isShow: true
-            },
-            store: this.$store
-          }).$mount()
-          this.$el.appendChild(addedComponent.$el)
-
-          this.components[visual.id] = addedComponent
-        },
-        updateDisplayingVideosOrder: (displayingVideos) => {
-          displayingVideos.forEach((visual, index) => {
-            this.components[visual.id].order = index
-          })
-        },
-        updateOpacity: (visual) => {
-          this.components[visual.id].visual.opacity = visual.opacity
-        },
-        removeDisplayingVideo: (visual) => {
-          const component = this.components[visual.id]
-          component.isShow = false
-          this.$el.removeChild(component.$el)
-        },
-        refresh () {
-          location.reload()
-        }
+        this.components[visual.id] = addedComponent
+      },
+      updateDisplayingVideosOrder: (displayingVideos) => {
+        displayingVideos.forEach((visual, index) => {
+          this.components[visual.id].order = index
+        })
+      },
+      updateOpacity: (visual) => {
+        this.components[visual.id].visual.opacity = visual.opacity
+      },
+      removeDisplayingVideo: (visual) => {
+        const component = this.components[visual.id]
+        component.isShow = false
+        this.$el.removeChild(component.$el)
+      },
+      refresh () {
+        location.reload()
       }
+    }
 
-      ipcRenderer.on('dispatch-connect', (event, typeName, ...payload) => {
-        actions[typeName](...payload)
-      })
+    ipcRenderer.on('dispatch-connect', (event, typeName, ...payload) => {
+      actions[typeName](...payload)
     })
   }
 }

@@ -77,43 +77,63 @@ export default {
       const settings = {}
 
       // video folder
-      const videoFolder = gui.addFolder('video')
-      videoFolder.open()
+      {
+        const videoFolder = gui.addFolder('video')
+        videoFolder.open()
 
-      // video
-      settings.video = controlMedia.videoSource
-      const videoController = videoFolder.add(settings, 'video', controlMedia.videoDevices).onChange(dispatchMedia)
-      if (!Object.keys(controlMedia.videoDevices).some(key => settings.video === controlMedia.videoDevices[key])) {
-        videoController.setValue(getFirstValue(controlMedia.videoDevices))
+        // video
+        settings.video = controlMedia.videoSource
+        const videoController = videoFolder.add(settings, 'video', controlMedia.videoDevices).onChange(dispatchMedia)
+        if (!Object.keys(controlMedia.videoDevices).some(key => settings.video === controlMedia.videoDevices[key])) {
+          videoController.setValue(getFirstValue(controlMedia.videoDevices))
+        }
+
+        // videoZoom
+        const videoZoomMap = [1, 3]
+        settings.videoZoom = 1
+        videoFolder.add(settings, 'videoZoom', ...videoZoomMap).onChange(dispatchMedia).listen()
+
+        // videoAlpha
+        const videoAlphaMap = [0, 1]
+        settings.videoAlpha = 1
+        videoFolder.add(settings, 'videoAlpha', ...videoAlphaMap).onChange(dispatchMedia).listen()
+
+        // thumb
+        settings.thumb = false
+        videoFolder.add(settings, 'thumb').onChange(dispatchMedia)
+
+        // Detector folder
+        {
+          const detectorFolder = videoFolder.addFolder('Detector')
+          detectorFolder.open()
+
+          // detector
+          settings.detector = false
+          detectorFolder.add(settings, 'detector').onChange(dispatchMedia)
+
+          // detect
+          settings.detect = () => {
+            console.log('detect')
+          }
+          detectorFolder.add(settings, 'detect').onChange(dispatchMedia)
+        }
       }
 
-      // videoZoom
-      const videoZoomMap = [1, 3]
-      settings.videoZoom = 1
-      videoFolder.add(settings, 'videoZoom', ...videoZoomMap).onChange(dispatchMedia).listen()
-
-      // videoAlpha
-      const videoAlphaMap = [0, 1]
-      settings.videoAlpha = 1
-      videoFolder.add(settings, 'videoAlpha', ...videoAlphaMap).onChange(dispatchMedia).listen()
-
-      // thumb
-      settings.thumb = false
-      videoFolder.add(settings, 'thumb').onChange(dispatchMedia)
-
       // audio folder
-      const audioFolder = gui.addFolder('audio')
-      audioFolder.open()
+      {
+        const audioFolder = gui.addFolder('audio')
+        audioFolder.open()
 
-      // inputAudio
-      settings.inputAudio = false
-      audioFolder.add(settings, 'inputAudio').onChange(dispatchMedia).listen()
+        // inputAudio
+        settings.inputAudio = false
+        audioFolder.add(settings, 'inputAudio').onChange(dispatchMedia).listen()
 
-      // audio
-      settings.audio = controlMedia.audioSource
-      const audioController = audioFolder.add(settings, 'audio', controlMedia.audioDevices).onChange(dispatchMedia)
-      if (!Object.keys(controlMedia.audioDevices).some(key => settings.audio === controlMedia.audioDevices[key])) {
-        audioController.setValue(getFirstValue(controlMedia.audioDevices))
+        // audio
+        settings.audio = controlMedia.audioSource
+        const audioController = audioFolder.add(settings, 'audio', controlMedia.audioDevices).onChange(dispatchMedia)
+        if (!Object.keys(controlMedia.audioDevices).some(key => settings.audio === controlMedia.audioDevices[key])) {
+          audioController.setValue(getFirstValue(controlMedia.audioDevices))
+        }
       }
 
       const self = this
