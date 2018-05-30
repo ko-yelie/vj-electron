@@ -18,8 +18,8 @@ void main(){
   float rate = vPosition.z / vPosition.w;
 
   vec2 pointCoord = gl_PointCoord.st * 2. - 1.;
-  float circle = pow(length(pointCoord), 3.);
-  float star = lengthN(pointCoord, 0.5);
+  float circle = smoothstep(0.9, 1., length(pointCoord));
+  float star = smoothstep(0.9, 1., lengthN(pointCoord, 0.5));
   float shape = mix(1., 1. - mix(circle, star, step(2., pointShape)), pointShape);
   vec4 shapeColor = vec4(vec3(1.), mix(1., shape, step(mode, 0.)));
   vec4 thumbColor = texture2D(videoTexture, vec2(gl_PointCoord.s, 1. - gl_PointCoord.t));
