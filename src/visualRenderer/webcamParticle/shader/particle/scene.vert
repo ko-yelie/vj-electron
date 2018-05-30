@@ -33,7 +33,7 @@ void main(){
   float randomValue = (data.w + random(texCoord + mod(loopCount, 10.))) / 2.;
   float radian = loopCount * speed * randomValue;
   float radius = standardRadius + randomValue * amplitude - halfAmplitude;
-  vec3 circlePosition = vec3(cos(radian) * radius, sin(radian) * radius, 0.);
+  vec3 circlePosition = vec3(cos(radian) * radius, sin(radian) * radius, data.z * 0.1);
 
   vTexCoord = texCoord;
   vPosition = position;
