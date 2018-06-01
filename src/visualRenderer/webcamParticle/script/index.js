@@ -78,6 +78,7 @@ let cameraPosition = {
   y: 0,
   z: 5
 }
+let customSwitch = 0
 let isStop = 0
 let isCapture = false
 let isAudio = 0
@@ -339,6 +340,9 @@ function initGlsl () {
         type: '1f'
       },
       custom: {
+        type: '1f'
+      },
+      customSwitch: {
         type: '1f'
       }
     })
@@ -839,6 +843,7 @@ function init () {
     prgs.currentPost.setUniform('volume', volume)
     prgs.currentPost.setUniform('isAudio', isAudio)
     prgs.currentPost.setUniform('custom', settings.custom)
+    prgs.currentPost.setUniform('customSwitch', customSwitch)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
     // effect 2
@@ -854,6 +859,7 @@ function init () {
     prgs.currentPost2.setUniform('volume', volume)
     prgs.currentPost2.setUniform('isAudio', isAudio)
     prgs.currentPost2.setUniform('custom', settings.custom)
+    prgs.currentPost2.setUniform('customSwitch', customSwitch)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
     gl.viewport(0, 0, POINT_RESOLUTION, POINT_RESOLUTION)
@@ -1034,6 +1040,7 @@ function init () {
     prgs.lastPost.setUniform('volume', volume)
     prgs.lastPost.setUniform('isAudio', isAudio)
     prgs.lastPost.setUniform('custom', settings.custom)
+    prgs.lastPost.setUniform('customSwitch', customSwitch)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
     gl.flush()
@@ -1052,6 +1059,9 @@ export function update (property, value) {
   settings[property] = value
 
   switch (property) {
+    case 'customSwitch':
+      customSwitch = settings.customSwitch ? 1 : 0
+      break
     case 'animation':
       switch (settings.animation) {
         case 'normal':

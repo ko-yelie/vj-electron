@@ -20,7 +20,6 @@ export default async function (argConfig, store) {
   })
   let pointFolder
   let lineFolder
-  let postFolder
   let bgColorController
 
   const settings = config.remembered[preset][0]
@@ -28,7 +27,7 @@ export default async function (argConfig, store) {
 
   // Post Effect folder
   {
-    postFolder = gui.addFolder('Post Effect')
+    const postFolder = gui.addFolder('Post Effect')
     postFolder.open()
 
     // effect
@@ -40,6 +39,9 @@ export default async function (argConfig, store) {
     // custom value
     const customMap = [0, 1]
     postFolder.add(settings, 'custom', ...customMap).onChange(dispatchVisual)
+
+    // custom switch
+    postFolder.add(settings, 'customSwitch').onChange(dispatchVisual)
   }
 
   // Particle folder

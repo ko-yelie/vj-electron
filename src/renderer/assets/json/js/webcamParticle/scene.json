@@ -25,6 +25,7 @@
         "effect2": "none",
         "lastEffect": "none",
         "custom": 0.7,
+        "customSwitch": false,
         "video": null,
         "videoZoom": 1,
         "videoAlpha": 1
@@ -54,6 +55,7 @@
         "effect2": "glitch",
         "lastEffect": "none",
         "custom": 0.7,
+        "customSwitch": false,
         "video": null,
         "videoZoom": 1,
         "videoAlpha": 1
@@ -83,6 +85,7 @@
         "effect2": "none",
         "lastEffect": "none",
         "custom": 0.7,
+        "customSwitch": false,
         "video": null,
         "videoZoom": 1,
         "videoAlpha": 0
@@ -112,6 +115,7 @@
         "effect2": "none",
         "lastEffect": "none",
         "custom": 0.7,
+        "customSwitch": false,
         "video": null,
         "videoZoom": 1,
         "videoAlpha": 0.5
@@ -141,6 +145,7 @@
         "effect2": "none",
         "lastEffect": "none",
         "custom": 0.7,
+        "customSwitch": false,
         "video": null,
         "videoZoom": 1,
         "videoAlpha": 0
