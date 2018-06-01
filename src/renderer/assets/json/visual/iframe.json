@@ -1,5 +1,10 @@
 [
   {
+    "url": "/src/visualRenderer/assets/iframe/nature-homes/",
+    "title": "少年自然の家",
+    "thumbnail": "/src/renderer/assets/thumbnail/nature-homes.jpg"
+  },
+  {
     "url": "/src/visualRenderer/assets/iframe/sakura-animation-using-webgl/",
     "title": "Sakura Animation using WebGl",
     "thumbnail": "/src/renderer/assets/thumbnail/sakura-animation-using-webgl.png"

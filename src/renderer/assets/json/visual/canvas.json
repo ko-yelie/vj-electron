@@ -3,7 +3,7 @@
     "title": "Webcam x Particle",
     "type": "webcamParticle",
     "gui": "webcamParticle",
-    "thumbnail": "/src/renderer/assets/thumbnail/687474703a2f2f76696e63656e74676172726561752e636f6d2f7061727469636c65732e6a732f6173736574732f696d672f6769746875622d73637265656e2e6a7067.jpeg"
+    "thumbnail": "/src/renderer/assets/thumbnail/webcam-particle.gif"
   },
   {
     "title": "particles.js",
