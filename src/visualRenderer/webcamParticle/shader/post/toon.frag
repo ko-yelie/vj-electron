@@ -18,10 +18,13 @@ float peek(const in float x, const in float y) {
 }
 
 void main(){
-  vec4 video = texture2D(texture, vUv);
+  float noise = (random(vec2(vUv)) * 2. - 1.) * 0.001;
+  vec2 uv = vUv + noise;
 
-  float x = vUv.x;
-  float y = vUv.y;
+  vec4 video = texture2D(texture, uv);
+
+  float x = uv.x;
+  float y = uv.y;
   mat3 m = mat3(
     peek(x - dx, y - dy), peek(x, y - dy), peek(x + dx, y - dy),
     peek(x - dx, y     ), peek(x, y     ), peek(x + dx, y     ),
@@ -34,6 +37,5 @@ void main(){
   float d = 1.0 - length(h);
   d = step(custom, d); // binalization
 
-  gl_FragColor = vec4(vec3(d), 1.0);
-  gl_FragColor *= mix(vec4(minColor), vec4(1.), video);
+  gl_FragColor = mix(vec4(minColor), vec4(1.), video) * vec4(vec3(d), 1.0);
 }
