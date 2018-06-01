@@ -8,7 +8,7 @@ import {
   CAPTURE_FRAMEBUFFERS_COUNT,
   POST_LIST
 } from './modules/constant.js'
-import MatIV from './minMatrix.js'
+import MatIV from './modules/minMatrix.js'
 import {
   initWebGL,
   initSize,
@@ -22,10 +22,10 @@ import {
   bindFramebuffer,
   clearColor,
   getPointVbo
-} from './gl-utils.js'
-import { setGl, createFramebuffer, createFramebufferFloat, getWebGLExtensions } from './doxas-utils.js'
-import { clamp } from './utils.js'
-import Tween from './tween.js'
+} from './modules/gl-utils.js'
+import { setGl, createFramebuffer, createFramebufferFloat, getWebGLExtensions } from './modules/doxas-utils.js'
+import { clamp } from './modules/utils.js'
+import Tween from './modules/tween.js'
 
 let options
 let canvas

@@ -10,8 +10,8 @@ import {
   stop,
   start,
   update
-} from '../webcamParticle/script/script.js'
-import Media from '../modules/media.js'
+} from '../webcamParticle/script/index.js'
+import Media from '../webcamParticle/script/modules/media.js'
 import {
   VIDEO_RESOLUTION,
   POINT_RESOLUTION

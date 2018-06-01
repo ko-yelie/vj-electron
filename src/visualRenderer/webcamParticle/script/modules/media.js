@@ -1,5 +1,5 @@
-import { getFirstValue } from '../webcamParticle/script/utils.js'
-import { Webcam } from '../webcamParticle/script/webcam.js'
+import { getFirstValue } from './utils.js'
+import { Webcam } from './webcam.js'
 
 export default class Media {
   constructor (size, pointResolution) {

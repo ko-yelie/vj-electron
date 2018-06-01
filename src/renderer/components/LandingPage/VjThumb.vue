@@ -16,15 +16,15 @@ import dat from 'dat.gui'
 import {
   getFirstValue,
   clamp
-} from '../../../visualRenderer/webcamParticle/script/utils.js'
-import Media from '../../../visualRenderer/modules/media.js'
+} from '../../../visualRenderer/webcamParticle/script/modules/utils.js'
+import Media from '../../../visualRenderer/webcamParticle/script/modules/media.js'
 import {
   VIDEO_RESOLUTION,
   POINT_RESOLUTION,
   MIN_VIDEO_ZOOM,
   MAX_VIDEO_ZOOM
 } from '../../../visualRenderer/webcamParticle/script/modules/constant.js'
-import Detector from '../../../visualRenderer/webcamParticle/script/detector.js'
+import Detector from '../../../visualRenderer/webcamParticle/script/modules/detector.js'
 import json from '../../assets/json/js/webcamParticle/scene.json'
 
 const THUMB_HEIGHT = 416
