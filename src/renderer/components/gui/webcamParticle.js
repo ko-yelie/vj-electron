@@ -34,6 +34,7 @@ export default async function (argConfig, store) {
     // effect
     const effectMap = POST_LIST
     postFolder.add(settings, 'effect', effectMap).onChange(dispatchVisual)
+    postFolder.add(settings, 'effect2', effectMap).onChange(dispatchVisual)
     postFolder.add(settings, 'lastEffect', effectMap).onChange(dispatchVisual)
 
     // custom value
