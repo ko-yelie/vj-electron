@@ -468,6 +468,9 @@ function initGlsl () {
     },
     loopCount: {
       type: '1f'
+    },
+    animation: {
+      type: '1f'
     }
   })
 
@@ -552,10 +555,19 @@ function initGlsl () {
     postTexture: {
       type: '1i'
     },
+    resolution: {
+      type: '2fv'
+    },
+    pointResolution: {
+      type: '2fv'
+    },
     videoAlpha: {
       type: '1f'
     },
     particleAlpha: {
+      type: '1f'
+    },
+    animation: {
       type: '1f'
     }
   })
@@ -958,6 +970,7 @@ function init () {
       prgs.particleScene.setUniform('pointShape', settings.pointShape)
       prgs.particleScene.setUniform('deformationProgress', settings.deformationProgress)
       prgs.particleScene.setUniform('loopCount', loopCount)
+      prgs.particleScene.setUniform('animation', animation)
       gl.drawArrays(settings.mode, 0, arrayLength)
     } else if (settings.animation === 'pop') {
       // Pop
@@ -1018,8 +1031,11 @@ function init () {
     prgs.scene.setAttribute('position')
     prgs.scene.setUniform('particleTexture', bufferIndex.particleScene)
     prgs.scene.setUniform('postTexture', bufferIndex.postScene2)
+    prgs.scene.setUniform('resolution', [canvasWidth, canvasHeight])
+    prgs.scene.setUniform('pointResolution', [POINT_RESOLUTION, POINT_RESOLUTION])
     prgs.scene.setUniform('videoAlpha', settings.videoAlpha)
     prgs.scene.setUniform('particleAlpha', settings.particleAlpha)
+    prgs.scene.setUniform('animation', animation)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
     // render to canvas -------------------------------------------

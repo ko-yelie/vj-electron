@@ -5,6 +5,7 @@ uniform float     bgColor;
 uniform float     isStop;
 uniform float     mode;
 uniform float     pointShape;
+uniform float     animation;
 varying vec2 vTexCoord;
 varying vec4 vPosition;
 
@@ -25,7 +26,7 @@ void main(){
   vec4 thumbColor = texture2D(videoTexture, vec2(gl_PointCoord.s, 1. - gl_PointCoord.t));
   vec4 particleColor = mix(shapeColor, thumbColor, step(3., pointShape));
 
-  float minCurrentColor = mix(0.15, 0.4, bgColor);
+  float minCurrentColor = mix(mix(0.2, 0.3, animation), 0.4, bgColor);
   float maxCurrentColor = mix(0.95, 0.95, bgColor);
   vec4 currentColor = mix(vec4(minCurrentColor), vec4(maxCurrentColor), video);
 
