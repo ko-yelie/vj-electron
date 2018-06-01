@@ -21,6 +21,7 @@ export const POST_LIST = [
   'ykobGlitch',
   'dot',
   'dotScreen',
+  'shake',
   'flash'
 ]
 
