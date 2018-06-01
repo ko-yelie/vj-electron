@@ -20,7 +20,8 @@ export const POST_LIST = [
   'glitch',
   'ykobGlitch',
   'dot',
-  'dotScreen'
+  'dotScreen',
+  'flash'
 ]
 
 export const POINTS = 0
