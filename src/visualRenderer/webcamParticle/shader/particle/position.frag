@@ -5,10 +5,12 @@ uniform sampler2D pictureTexture;
 uniform vec2      resolution;
 uniform float     animation;
 
-const float maxZ = 0.8;
-const float minZ = 0.5;
 const float PI   = 3.1415926;
 const float PI2  = PI * 2.;
+const float maxZ = 0.8;
+const float minZ = 0.5;
+const float limitMin = -5.;
+const float limitMax = 5.;
 
 void main(){
   vec2 coord = gl_FragCoord.st / resolution;
@@ -25,5 +27,5 @@ void main(){
   float radius = length(mix(startXY, prevPosition.xy, animation)) + z * 0.01;
   vec2 xy = mix(vec2(cos(radian) * radius, sin(radian) * radius), startXY, picture.w);
 
-  gl_FragColor = vec4(xy, z, mix(prevPosition.w, startZ, picture.w));
+  gl_FragColor = vec4(clamp(vec3(xy, z), limitMin, limitMax), mix(prevPosition.w, startZ, picture.w));
 }

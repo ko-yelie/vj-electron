@@ -24,6 +24,8 @@ const float standardRadius = 1.1;
 const float maxDeformationDistance = 5.;
 const float deformationSize = 1. / maxDeformationDistance;
 const float scaleSpeed = 0.8;
+const float limitMin = -5.;
+const float limitMax = 5.;
 
 void main(){
   vec2 texCoord = data.xy;
@@ -38,7 +40,7 @@ void main(){
   position.z += rnd * zAmplitude;
   position.z *= deformationDistance;
   position.w = zAmplitude;
-  vec3 videoPosition = vec3(position.xyz);
+  vec3 videoPosition = vec3(clamp(position.xyz, limitMin, limitMax));
 
   vec4 velocity = texture2D(velocityTexture, texCoord);
 
