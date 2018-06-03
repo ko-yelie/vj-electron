@@ -80,7 +80,7 @@ export default class Media {
       }
 
       this.videoSource = videoDevices['HD Pro Webcam C920'] || getFirstValue(videoDevices)
-      this.audioSource = getFirstValue(audioDevices)
+      this.audioSource = audioDevices['HD Pro Webcam C920'] || getFirstValue(audioDevices)
       Object.assign(this.videoDevices, videoDevices)
       Object.assign(this.audioDevices, audioDevices)
     })

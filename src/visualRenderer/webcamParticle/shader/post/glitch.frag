@@ -17,7 +17,7 @@ void main(){
   float rnd = random(vec2(time));
   float modTime = mod(time, interval);
   float regularBomb = smoothstep(interval - 0.3 * 2., interval - 0.3, modTime) * (1. - smoothstep(interval - 0.3, interval, modTime)) * 0.05;
-  float strength = (rnd * 2. - 1.) * ((1. - isAudio) * regularBomb + isAudio * (volume - 1.) * 0.6);
+  float strength = (rnd * 2. - 1.) * ((1. - isAudio) * regularBomb + isAudio * (volume - 1.) * 0.01);
 
   float yRnd = random(vec2(0., floor(vUv.y * resolution.y / divisionPx)) + mod(time, 10.));
   vec2 uv = vec2(vUv.x + (yRnd * 2. - 1.) * deflection * (strength + rnd * 0.4), vUv.y);

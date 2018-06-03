@@ -21,7 +21,7 @@ void main(){
   vec2 uv = vUv;
 
   for (float n = 0.; n < MAX_ITER; n++) {
-    t = time * (2. - (3. / (n + 1.)));
+    t = time * 0.5 * (2. - (3. / (n + 1.)));
 
     i = p + vec2(
       cos(t - i.x) + sin(t + i.y),
