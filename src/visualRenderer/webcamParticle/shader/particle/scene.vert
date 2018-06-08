@@ -2,9 +2,7 @@ attribute vec4 data;
 uniform mat4 mvpMatrix;
 uniform float pointSize;
 uniform sampler2D positionTexture;
-uniform sampler2D capturedPositionTexture;
 uniform float volume;
-uniform float isStop;
 uniform float isAudio;
 uniform float pointShape;
 uniform float deformationProgress;
@@ -25,7 +23,7 @@ void main(){
   vec2 texCoord = data.xy;
 
   float deformationDistance = mix(1., maxDeformationDistance, deformationProgress);
-  vec4 position = mix(texture2D(positionTexture, texCoord), texture2D(capturedPositionTexture, texCoord), isStop);
+  vec4 position = texture2D(positionTexture, texCoord);
   position.xy *= pow(deformationDistance, 1.5);
   position.z *= mix(1., volume, isAudio) * deformationDistance;
   vec3 videoPosition = vec3(position.xyz);

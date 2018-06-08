@@ -1,8 +1,6 @@
 precision highp float;
 uniform sampler2D videoTexture;
-uniform sampler2D capturedVideoTexture;
 uniform float     bgColor;
-uniform float     isStop;
 uniform float     mode;
 uniform float     pointShape;
 uniform float     animation;
@@ -15,7 +13,7 @@ float lengthN(vec2 v, float n) {
 }
 
 void main(){
-  vec4 video = mix(texture2D(videoTexture, vTexCoord), texture2D(capturedVideoTexture, vTexCoord), isStop);
+  vec4 video = texture2D(videoTexture, vTexCoord);
   float rate = vPosition.z / vPosition.w;
 
   vec2 pointCoord = gl_PointCoord.st * 2. - 1.;
