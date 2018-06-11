@@ -633,27 +633,6 @@ function initGlsl () {
   init()
 }
 
-function updateCamera () {
-  const cameraPositionRate = settings.animation === 'warp' ? 1.5 : 0.3
-  cameraPosition.x += (pointer.x * cameraPositionRate - cameraPosition.x) * 0.1
-  cameraPosition.y += (pointer.y * cameraPositionRate - cameraPosition.y) * 0.1
-  cameraPosition.z += (settings.zPosition - cameraPosition.z) * 0.1
-
-  mat.identity(mMatrix)
-  mat.lookAt(
-    [cameraPosition.x, cameraPosition.y, cameraPosition.z / (BASE_RESOLUTION / POINT_RESOLUTION)],
-    [cameraPosition.x, cameraPosition.y, 0.0],
-    [0.0, 1.0, 0.0],
-    vMatrix
-  )
-  mat.perspective(60, canvasWidth / canvasHeight, 0.1, 20.0, pMatrix)
-  mat.multiply(pMatrix, vMatrix, vpMatrix)
-
-  mat.rotate(mMatrix, rotation.x, [0.0, 1.0, 0.0], mMatrix)
-  mat.rotate(mMatrix, rotation.y, [-1.0, 0.0, 0.0], mMatrix)
-  mat.multiply(vpMatrix, mMatrix, mvpMatrix)
-}
-
 function init () {
   // init settings
   Object.keys(settings).forEach(key => {
@@ -702,7 +681,7 @@ function init () {
   // last effect
   bindTexture(framebuffers.lastPost.texture, bufferIndex.lastPost)
 
-  const focusCount = Math.min(focusPosList.length, 4)
+  let focusCount = Math.min(focusPosList.length, 4)
 
   // reset video
   gl.viewport(0, 0, canvasWidth, canvasWidth)
@@ -789,18 +768,21 @@ function init () {
 
   // setting
   let loopCount = 0
+  let targetbufferIndex
+  let prevbufferIndex
+  let capturedbufferIndex
+  let time
   isRun = true
 
   vbo = pointVBO
   arrayLength = POINT_RESOLUTION * POINT_RESOLUTION
 
   render = () => {
-    const targetbufferIndex = loopCount % 2
-    const prevbufferIndex = 1 - targetbufferIndex
-    const capturedbufferIndex = isStop ? 2 : targetbufferIndex
-    const time = loopCount / 60
-
-    const focusCount = Math.min(focusPosList.length, 4)
+    targetbufferIndex = loopCount % 2
+    prevbufferIndex = 1 - targetbufferIndex
+    capturedbufferIndex = isStop ? 2 : targetbufferIndex
+    time = loopCount / 60
+    focusCount = Math.min(focusPosList.length, 4)
 
     // update media value
     videoZoom += (settings.videoZoom - videoZoom) * 0.1
@@ -1058,6 +1040,27 @@ function init () {
   }
 
   render()
+}
+
+function updateCamera () {
+  const cameraPositionRate = settings.animation === 'warp' ? 1.5 : 0.3
+  cameraPosition.x += (pointer.x * cameraPositionRate - cameraPosition.x) * 0.1
+  cameraPosition.y += (pointer.y * cameraPositionRate - cameraPosition.y) * 0.1
+  cameraPosition.z += (settings.zPosition - cameraPosition.z) * 0.1
+
+  mat.identity(mMatrix)
+  mat.lookAt(
+    [cameraPosition.x, cameraPosition.y, cameraPosition.z / (BASE_RESOLUTION / POINT_RESOLUTION)],
+    [cameraPosition.x, cameraPosition.y, 0.0],
+    [0.0, 1.0, 0.0],
+    vMatrix
+  )
+  mat.perspective(60, canvasWidth / canvasHeight, 0.1, 20.0, pMatrix)
+  mat.multiply(pMatrix, vMatrix, vpMatrix)
+
+  mat.rotate(mMatrix, rotation.x, [0.0, 1.0, 0.0], mMatrix)
+  mat.rotate(mMatrix, rotation.y, [-1.0, 0.0, 0.0], mMatrix)
+  mat.multiply(vpMatrix, mMatrix, mvpMatrix)
 }
 
 export function update (property, value) {
