@@ -17,13 +17,16 @@ import {
   createVbo,
   createIbo,
   createTexture,
-  bindTexture,
+  createFramebuffer,
+  createFramebufferFloat,
+  getWebGLExtensions,
+  updateTexture,
   useProgram,
   bindFramebuffer,
   clearColor,
-  getPointVbo
+  getPointVbo,
+  loadImage
 } from './modules/gl-utils.js'
-import { setGl, createFramebuffer, createFramebufferFloat, getWebGLExtensions } from './modules/doxas-utils.js'
 import { clamp } from './modules/utils.js'
 import Tween from './modules/tween.js'
 
@@ -47,8 +50,7 @@ let pMatrix
 let vpMatrix
 let mvpMatrix
 
-let framebuffers = {}
-let bufferIndex = {}
+let textures = {}
 let prgs = {}
 let postPrgs = {}
 
@@ -86,6 +88,7 @@ let volume = 1
 let defaultFocus = [0, 0, 1, 1]
 let deformationProgressTl
 let stopMotionTimer
+let logoImg
 
 export function run (argOptions) {
   options = argOptions
@@ -106,8 +109,6 @@ export function run (argOptions) {
 
   canvasWidth = canvas.width
   canvasHeight = canvas.height
-
-  setGl(gl)
 
   mat = new MatIV()
   // matrix
@@ -244,7 +245,25 @@ export function run (argOptions) {
     if (!prgs.scene) return
   }
 
-  initGlsl()
+  loadImage('/src/visualRenderer/assets/_img/luminous101/4c7111_f7526816f93c430dbaa71b416325430e_mv2.png', img => {
+    logoImg = img
+
+    initMedia()
+    initGlsl()
+    init()
+  })
+}
+
+function initMedia () {
+  // init media value
+  video = media.currentVideo
+  videoZoom = settings.videoZoom
+  settings.zoomPos = zoomPos
+
+  // textures
+  textures.video = createTexture(video)
+
+  textures.logoImg = createTexture(logoImg)
 }
 
 function initGlsl () {
@@ -564,73 +583,51 @@ function initGlsl () {
   })
 
   // framebuffer
-  let framebufferCount = 1
 
   // video
-  framebuffers.video = []
+  textures.videoBuffer = []
   for (var i = 0; i < CAPTURE_FRAMEBUFFERS_COUNT; i++) {
-    framebuffers.video.push(createFramebuffer(canvasWidth, canvasHeight))
+    textures.videoBuffer.push(createFramebuffer(canvasWidth, canvasHeight))
   }
-  bufferIndex.video = framebufferCount
-  framebufferCount += CAPTURE_FRAMEBUFFERS_COUNT
 
   // Post Effect
-  framebuffers.postScene = createFramebuffer(canvasWidth, canvasHeight)
-  bufferIndex.postScene = framebufferCount
-  framebufferCount += 1
+  textures.postScene = createFramebuffer(canvasWidth, canvasHeight)
 
   // effect 2
-  framebuffers.postSceneLast = createFramebuffer(canvasWidth, canvasHeight)
-  bufferIndex.postScene2 = framebufferCount
-  framebufferCount += 1
+  textures.postSceneLast = createFramebuffer(canvasWidth, canvasHeight)
 
   // picture
-  framebuffers.picture = []
+  textures.picture = []
   for (let i = 0; i < GPGPU_FRAMEBUFFERS_COUNT; i++) {
-    framebuffers.picture.push(createFramebufferFloat(ext, POINT_RESOLUTION, POINT_RESOLUTION))
+    textures.picture.push(createFramebufferFloat(ext, POINT_RESOLUTION, POINT_RESOLUTION))
   }
-  bufferIndex.picture = framebufferCount
-  framebufferCount += GPGPU_FRAMEBUFFERS_COUNT
 
   // Particle
-  framebuffers.velocity = []
+  textures.velocity = []
   for (let i = 0; i < GPGPU_FRAMEBUFFERS_COUNT; i++) {
-    framebuffers.velocity.push(createFramebufferFloat(ext, POINT_RESOLUTION, POINT_RESOLUTION))
+    textures.velocity.push(createFramebufferFloat(ext, POINT_RESOLUTION, POINT_RESOLUTION))
   }
-  bufferIndex.velocity = framebufferCount
-  framebufferCount += GPGPU_FRAMEBUFFERS_COUNT
 
-  framebuffers.position = []
+  textures.position = []
   for (let i = 0; i < CAPTURE_FRAMEBUFFERS_COUNT; i++) {
-    framebuffers.position.push(createFramebufferFloat(ext, POINT_RESOLUTION, POINT_RESOLUTION))
+    textures.position.push(createFramebufferFloat(ext, POINT_RESOLUTION, POINT_RESOLUTION))
   }
-  bufferIndex.position = framebufferCount
-  framebufferCount += CAPTURE_FRAMEBUFFERS_COUNT
 
-  framebuffers.particleScene = createFramebuffer(canvasWidth, canvasHeight)
-  bufferIndex.particleScene = framebufferCount
-  framebufferCount += 1
+  textures.particleScene = createFramebuffer(canvasWidth, canvasHeight)
 
   // Pop
-  framebuffers.popVelocity = []
+  textures.popVelocity = []
   for (let i = 0; i < GPGPU_FRAMEBUFFERS_COUNT; i++) {
-    framebuffers.popVelocity.push(createFramebufferFloat(ext, POP_RESOLUTION, POP_RESOLUTION))
+    textures.popVelocity.push(createFramebufferFloat(ext, POP_RESOLUTION, POP_RESOLUTION))
   }
-  bufferIndex.popVelocity = framebufferCount
-  framebufferCount += GPGPU_FRAMEBUFFERS_COUNT
 
-  framebuffers.popPosition = []
+  textures.popPosition = []
   for (let i = 0; i < GPGPU_FRAMEBUFFERS_COUNT; i++) {
-    framebuffers.popPosition.push(createFramebufferFloat(ext, POP_RESOLUTION, POP_RESOLUTION))
+    textures.popPosition.push(createFramebufferFloat(ext, POP_RESOLUTION, POP_RESOLUTION))
   }
-  bufferIndex.popPosition = framebufferCount
-  framebufferCount += GPGPU_FRAMEBUFFERS_COUNT
 
   // last effect
-  framebuffers.lastPost = createFramebuffer(canvasWidth, canvasHeight)
-  bufferIndex.lastPost = framebufferCount
-
-  init()
+  textures.lastPost = createFramebuffer(canvasWidth, canvasHeight)
 }
 
 function init () {
@@ -638,48 +635,6 @@ function init () {
   Object.keys(settings).forEach(key => {
     update(key, settings[key])
   })
-
-  // init media value
-  video = media.currentVideo
-  videoZoom = settings.videoZoom
-  settings.zoomPos = zoomPos
-
-  // textures
-  createTexture(video)
-
-  // video
-  for (let i = 0; i < CAPTURE_FRAMEBUFFERS_COUNT; ++i) {
-    bindTexture(framebuffers.video[i].texture, bufferIndex.video + i)
-  }
-
-  // Post Effect
-  bindTexture(framebuffers.postScene.texture, bufferIndex.postScene)
-  bindTexture(framebuffers.postSceneLast.texture, bufferIndex.postScene2)
-
-  // picture
-  for (let i = 0; i < GPGPU_FRAMEBUFFERS_COUNT; ++i) {
-    bindTexture(framebuffers.picture[i].texture, bufferIndex.picture + i)
-  }
-
-  // Particle
-  for (let i = 0; i < GPGPU_FRAMEBUFFERS_COUNT; ++i) {
-    bindTexture(framebuffers.velocity[i].texture, bufferIndex.velocity + i)
-  }
-  for (let i = 0; i < CAPTURE_FRAMEBUFFERS_COUNT; ++i) {
-    bindTexture(framebuffers.position[i].texture, bufferIndex.position + i)
-  }
-  bindTexture(framebuffers.particleScene.texture, bufferIndex.particleScene)
-
-  // Pop
-  for (let i = 0; i < GPGPU_FRAMEBUFFERS_COUNT; ++i) {
-    bindTexture(framebuffers.popVelocity[i].texture, bufferIndex.popVelocity + i)
-  }
-  for (let i = 0; i < GPGPU_FRAMEBUFFERS_COUNT; ++i) {
-    bindTexture(framebuffers.popPosition[i].texture, bufferIndex.popPosition + i)
-  }
-
-  // last effect
-  bindTexture(framebuffers.lastPost.texture, bufferIndex.lastPost)
 
   let focusCount = Math.min(focusPosList.length, 4)
 
@@ -689,7 +644,7 @@ function init () {
   prgs.video.setAttribute('position')
   prgs.video.setUniform('resolution', [canvasWidth, canvasHeight])
   prgs.video.setUniform('videoResolution', [video.videoWidth, video.videoHeight])
-  prgs.video.setUniform('videoTexture', 0)
+  prgs.video.setUniform('videoTexture', textures.video.index)
   prgs.video.setUniform('zoom', videoZoom)
   prgs.video.setUniform('zoomPos', zoomPos)
   prgs.video.setUniform('focusCount', focusCount)
@@ -699,7 +654,7 @@ function init () {
   prgs.video.setUniform('focusPos4', focusPosList[3] || defaultFocus)
   for (let targetbufferIndex = 0; targetbufferIndex < CAPTURE_FRAMEBUFFERS_COUNT; ++targetbufferIndex) {
     // video buffer
-    bindFramebuffer(framebuffers.video[targetbufferIndex].framebuffer)
+    bindFramebuffer(textures.videoBuffer[targetbufferIndex].framebuffer)
     clearColor(0.0, 0.0, 0.0, 0.0)
     gl.clear(gl.COLOR_BUFFER_BIT)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
@@ -709,11 +664,11 @@ function init () {
   useProgram(prgs.picture)
   prgs.picture.setAttribute('position')
   prgs.picture.setUniform('resolution', [POINT_RESOLUTION, POINT_RESOLUTION])
-  prgs.picture.setUniform('videoTexture', 0)
+  prgs.picture.setUniform('videoTexture', textures.video.index)
   gl.viewport(0, 0, POINT_RESOLUTION, POINT_RESOLUTION)
   for (let targetbufferIndex = 0; targetbufferIndex < GPGPU_FRAMEBUFFERS_COUNT; ++targetbufferIndex) {
     // picture buffer
-    bindFramebuffer(framebuffers.picture[targetbufferIndex].framebuffer)
+    bindFramebuffer(textures.picture[targetbufferIndex].framebuffer)
     clearColor(0.0, 0.0, 0.0, 0.0)
     gl.clear(gl.COLOR_BUFFER_BIT)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
@@ -723,18 +678,18 @@ function init () {
   useProgram(prgs.reset)
   prgs.reset.setAttribute('position')
   prgs.reset.setUniform('resolution', [POINT_RESOLUTION, POINT_RESOLUTION])
-  prgs.reset.setUniform('videoTexture', 0)
+  prgs.reset.setUniform('videoTexture', textures.video.index)
   gl.viewport(0, 0, POINT_RESOLUTION, POINT_RESOLUTION)
   for (let targetbufferIndex = 0; targetbufferIndex < GPGPU_FRAMEBUFFERS_COUNT; ++targetbufferIndex) {
     // velocity buffer
-    bindFramebuffer(framebuffers.velocity[targetbufferIndex].framebuffer)
+    bindFramebuffer(textures.velocity[targetbufferIndex].framebuffer)
     clearColor(0.0, 0.0, 0.0, 0.0)
     gl.clear(gl.COLOR_BUFFER_BIT)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
   }
   for (let targetbufferIndex = 0; targetbufferIndex < CAPTURE_FRAMEBUFFERS_COUNT; ++targetbufferIndex) {
     // position buffer
-    bindFramebuffer(framebuffers.position[targetbufferIndex].framebuffer)
+    bindFramebuffer(textures.position[targetbufferIndex].framebuffer)
     clearColor(0.0, 0.0, 0.0, 0.0)
     gl.clear(gl.COLOR_BUFFER_BIT)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
@@ -744,18 +699,18 @@ function init () {
   useProgram(prgs.reset)
   prgs.reset.setAttribute('position')
   prgs.reset.setUniform('resolution', [POP_RESOLUTION, POP_RESOLUTION])
-  prgs.reset.setUniform('videoTexture', 0)
+  prgs.reset.setUniform('videoTexture', textures.video.index)
   gl.viewport(0, 0, POP_RESOLUTION, POP_RESOLUTION)
   for (let targetbufferIndex = 0; targetbufferIndex < GPGPU_FRAMEBUFFERS_COUNT; ++targetbufferIndex) {
     // pop velocity buffer
-    bindFramebuffer(framebuffers.popVelocity[targetbufferIndex].framebuffer)
+    bindFramebuffer(textures.popVelocity[targetbufferIndex].framebuffer)
     clearColor(0.0, 0.0, 0.0, 0.0)
     gl.clear(gl.COLOR_BUFFER_BIT)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
   }
   for (let targetbufferIndex = 0; targetbufferIndex < GPGPU_FRAMEBUFFERS_COUNT; ++targetbufferIndex) {
     // pop position buffer
-    bindFramebuffer(framebuffers.popPosition[targetbufferIndex].framebuffer)
+    bindFramebuffer(textures.popPosition[targetbufferIndex].framebuffer)
     clearColor(0.0, 0.0, 0.0, 0.0)
     gl.clear(gl.COLOR_BUFFER_BIT)
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
@@ -794,7 +749,7 @@ function init () {
     volume += (media.getVolume() - volume) * 0.1
 
     // video texture
-    createTexture(video)
+    updateTexture(textures.video.index, video)
 
     // update gpgpu buffers -------------------------------------------
     gl.disable(gl.BLEND)
@@ -802,11 +757,11 @@ function init () {
     // video update
     gl.viewport(0, 0, canvasWidth, canvasWidth)
     useProgram(prgs.video)
-    bindFramebuffer(framebuffers.video[targetbufferIndex].framebuffer)
+    bindFramebuffer(textures.videoBuffer[targetbufferIndex].framebuffer)
     prgs.video.setAttribute('position')
     prgs.video.setUniform('resolution', [canvasWidth, canvasHeight])
     prgs.video.setUniform('videoResolution', [video.videoWidth, video.videoHeight])
-    prgs.video.setUniform('videoTexture', 0)
+    prgs.video.setUniform('videoTexture', textures.video.index)
     prgs.video.setUniform('zoom', videoZoom)
     prgs.video.setUniform('zoomPos', zoomPos)
     prgs.video.setUniform('focusCount', focusCount)
@@ -817,11 +772,11 @@ function init () {
     gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
     if (isCapture) {
-      bindFramebuffer(framebuffers.video[2].framebuffer)
+      bindFramebuffer(textures.videoBuffer[capturedbufferIndex].framebuffer)
       prgs.video.setAttribute('position')
       prgs.video.setUniform('resolution', [canvasWidth, canvasHeight])
       prgs.video.setUniform('videoResolution', [video.videoWidth, video.videoHeight])
-      prgs.video.setUniform('videoTexture', 0)
+      prgs.video.setUniform('videoTexture', textures.video.index)
       prgs.video.setUniform('zoom', videoZoom)
       prgs.video.setUniform('zoomPos', zoomPos)
       prgs.video.setUniform('focusCount', focusCount)
@@ -834,13 +789,13 @@ function init () {
 
     // Post Effect
     useProgram(prgs.currentPost)
-    bindFramebuffer(framebuffers.postScene.framebuffer)
+    bindFramebuffer(textures.postScene.framebuffer)
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     gl.viewport(0, 0, canvasWidth, canvasHeight)
 
     prgs.currentPost.setAttribute('position')
     prgs.currentPost.setUniform('resolution', [canvasWidth, canvasHeight])
-    prgs.currentPost.setUniform('texture', bufferIndex.video + capturedbufferIndex)
+    prgs.currentPost.setUniform('texture', textures.videoBuffer[capturedbufferIndex].index)
     prgs.currentPost.setUniform('time', time)
     prgs.currentPost.setUniform('volume', volume)
     prgs.currentPost.setUniform('isAudio', isAudio)
@@ -850,13 +805,13 @@ function init () {
 
     // effect 2
     useProgram(prgs.currentPost2)
-    bindFramebuffer(framebuffers.postSceneLast.framebuffer)
+    bindFramebuffer(textures.postSceneLast.framebuffer)
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     gl.viewport(0, 0, canvasWidth, canvasHeight)
 
     prgs.currentPost2.setAttribute('position')
     prgs.currentPost2.setUniform('resolution', [canvasWidth, canvasHeight])
-    prgs.currentPost2.setUniform('texture', bufferIndex.postScene)
+    prgs.currentPost2.setUniform('texture', textures.postScene.index)
     prgs.currentPost2.setUniform('time', time)
     prgs.currentPost2.setUniform('volume', volume)
     prgs.currentPost2.setUniform('isAudio', isAudio)
@@ -869,12 +824,12 @@ function init () {
 
       // picture update
       useProgram(prgs.picture)
-      bindFramebuffer(framebuffers.picture[targetbufferIndex].framebuffer)
+      bindFramebuffer(textures.picture[targetbufferIndex].framebuffer)
       prgs.picture.setAttribute('position')
       prgs.picture.setUniform('resolution', [POINT_RESOLUTION, POINT_RESOLUTION])
-      prgs.picture.setUniform('videoTexture', bufferIndex.video + targetbufferIndex)
-      prgs.picture.setUniform('prevVideoTexture', bufferIndex.video + prevbufferIndex)
-      prgs.picture.setUniform('prevPictureTexture', bufferIndex.picture + prevbufferIndex)
+      prgs.picture.setUniform('videoTexture', textures.videoBuffer[targetbufferIndex].index)
+      prgs.picture.setUniform('prevVideoTexture', textures.videoBuffer[prevbufferIndex].index)
+      prgs.picture.setUniform('prevPictureTexture', textures.picture[prevbufferIndex].index)
       gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
       if (settings.animation === 'normal' || settings.animation === 'warp') {
@@ -882,11 +837,11 @@ function init () {
 
         // velocity update
         useProgram(prgs.velocity)
-        bindFramebuffer(framebuffers.velocity[targetbufferIndex].framebuffer)
+        bindFramebuffer(textures.velocity[targetbufferIndex].framebuffer)
         prgs.velocity.setAttribute('position')
         prgs.velocity.setUniform('resolution', [POINT_RESOLUTION, POINT_RESOLUTION])
-        prgs.velocity.setUniform('prevVelocityTexture', bufferIndex.velocity + prevbufferIndex)
-        prgs.velocity.setUniform('pictureTexture', bufferIndex.picture + targetbufferIndex)
+        prgs.velocity.setUniform('prevVelocityTexture', textures.velocity[prevbufferIndex].index)
+        prgs.velocity.setUniform('pictureTexture', textures.picture[targetbufferIndex].index)
         prgs.velocity.setUniform('animation', animation)
         prgs.velocity.setUniform('isAccel', settings.accel)
         prgs.velocity.setUniform('isRotation', settings.rotation)
@@ -894,23 +849,23 @@ function init () {
 
         // position update
         useProgram(prgs.position)
-        bindFramebuffer(framebuffers.position[targetbufferIndex].framebuffer)
+        bindFramebuffer(textures.position[targetbufferIndex].framebuffer)
         prgs.position.setAttribute('position')
         prgs.position.setUniform('resolution', [POINT_RESOLUTION, POINT_RESOLUTION])
-        prgs.position.setUniform('prevPositionTexture', bufferIndex.position + prevbufferIndex)
-        prgs.position.setUniform('velocityTexture', bufferIndex.velocity + targetbufferIndex)
-        prgs.position.setUniform('pictureTexture', bufferIndex.picture + targetbufferIndex)
+        prgs.position.setUniform('prevPositionTexture', textures.position[prevbufferIndex].index)
+        prgs.position.setUniform('velocityTexture', textures.velocity[targetbufferIndex].index)
+        prgs.position.setUniform('pictureTexture', textures.picture[targetbufferIndex].index)
         prgs.position.setUniform('animation', animation)
         gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
         if (isCapture) {
           useProgram(prgs.position)
-          bindFramebuffer(framebuffers.position[2].framebuffer)
+          bindFramebuffer(textures.position[capturedbufferIndex].framebuffer)
           prgs.position.setAttribute('position')
           prgs.position.setUniform('resolution', [POINT_RESOLUTION, POINT_RESOLUTION])
-          prgs.position.setUniform('prevPositionTexture', bufferIndex.position + prevbufferIndex)
-          prgs.position.setUniform('velocityTexture', bufferIndex.velocity + targetbufferIndex)
-          prgs.position.setUniform('pictureTexture', bufferIndex.picture + targetbufferIndex)
+          prgs.position.setUniform('prevPositionTexture', textures.position[prevbufferIndex].index)
+          prgs.position.setUniform('velocityTexture', textures.velocity[targetbufferIndex].index)
+          prgs.position.setUniform('pictureTexture', textures.picture[targetbufferIndex].index)
           prgs.position.setUniform('animation', animation)
           gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
         }
@@ -918,7 +873,7 @@ function init () {
         gl.enable(gl.BLEND)
 
         useProgram(prgs.particleScene)
-        bindFramebuffer(framebuffers.particleScene.framebuffer)
+        bindFramebuffer(textures.particleScene.framebuffer)
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
         gl.viewport(0, 0, canvasWidth, canvasHeight)
 
@@ -929,8 +884,8 @@ function init () {
         prgs.particleScene.setAttribute('data', vbo)
         prgs.particleScene.setUniform('mvpMatrix', mvpMatrix)
         prgs.particleScene.setUniform('pointSize', settings.pointSize * canvasHeight / 930)
-        prgs.particleScene.setUniform('videoTexture', bufferIndex.video + capturedbufferIndex)
-        prgs.particleScene.setUniform('positionTexture', bufferIndex.position + capturedbufferIndex)
+        prgs.particleScene.setUniform('videoTexture', textures.videoBuffer[capturedbufferIndex].index)
+        prgs.particleScene.setUniform('positionTexture', textures.position[capturedbufferIndex].index)
         prgs.particleScene.setUniform('bgColor', settings.bgColor)
         prgs.particleScene.setUniform('volume', volume)
         prgs.particleScene.setUniform('isAudio', isAudio)
@@ -947,27 +902,27 @@ function init () {
 
         // velocity update
         useProgram(prgs.popVelocity)
-        bindFramebuffer(framebuffers.popVelocity[targetbufferIndex].framebuffer)
+        bindFramebuffer(textures.popVelocity[targetbufferIndex].framebuffer)
         prgs.popVelocity.setAttribute('position')
         prgs.popVelocity.setUniform('resolution', [POP_RESOLUTION, POP_RESOLUTION])
-        prgs.popVelocity.setUniform('prevVelocityTexture', bufferIndex.popVelocity + prevbufferIndex)
-        prgs.popVelocity.setUniform('pictureTexture', bufferIndex.picture + targetbufferIndex)
+        prgs.popVelocity.setUniform('prevVelocityTexture', textures.popVelocity[prevbufferIndex].index)
+        prgs.popVelocity.setUniform('pictureTexture', textures.picture[targetbufferIndex].index)
         gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
         // position update
         useProgram(prgs.popPosition)
-        bindFramebuffer(framebuffers.popPosition[targetbufferIndex].framebuffer)
+        bindFramebuffer(textures.popPosition[targetbufferIndex].framebuffer)
         prgs.popPosition.setAttribute('position')
         prgs.popPosition.setUniform('resolution', [POP_RESOLUTION, POP_RESOLUTION])
-        prgs.popPosition.setUniform('prevPositionTexture', bufferIndex.popPosition + prevbufferIndex)
-        prgs.popPosition.setUniform('velocityTexture', bufferIndex.popVelocity + targetbufferIndex)
-        prgs.popPosition.setUniform('pictureTexture', bufferIndex.picture + targetbufferIndex)
+        prgs.popPosition.setUniform('prevPositionTexture', textures.popPosition[prevbufferIndex].index)
+        prgs.popPosition.setUniform('velocityTexture', textures.popVelocity[targetbufferIndex].index)
+        prgs.popPosition.setUniform('pictureTexture', textures.picture[targetbufferIndex].index)
         gl.drawElements(gl.TRIANGLES, planeIndex.length, gl.UNSIGNED_SHORT, 0)
 
         gl.enable(gl.BLEND)
 
         useProgram(prgs.popScene)
-        bindFramebuffer(framebuffers.particleScene.framebuffer)
+        bindFramebuffer(textures.particleScene.framebuffer)
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
         gl.viewport(0, 0, canvasWidth, canvasHeight)
 
@@ -979,9 +934,9 @@ function init () {
         prgs.popScene.setUniform('mvpMatrix', mvpMatrix)
         prgs.popScene.setUniform('resolution', [canvasWidth, canvasHeight])
         prgs.popScene.setUniform('pointSize', settings.pointSize * canvasHeight / 930)
-        prgs.popScene.setUniform('videoTexture', bufferIndex.video + targetbufferIndex)
-        prgs.popScene.setUniform('positionTexture', bufferIndex.popPosition + targetbufferIndex)
-        prgs.popScene.setUniform('velocityTexture', bufferIndex.popVelocity + targetbufferIndex)
+        prgs.popScene.setUniform('videoTexture', textures.videoBuffer[targetbufferIndex].index)
+        prgs.popScene.setUniform('positionTexture', textures.popPosition[targetbufferIndex].index)
+        prgs.popScene.setUniform('velocityTexture', textures.popVelocity[targetbufferIndex].index)
         prgs.popScene.setUniform('bgColor', settings.bgColor)
         prgs.popScene.setUniform('volume', volume)
         prgs.popScene.setUniform('isAudio', isAudio)
@@ -993,13 +948,13 @@ function init () {
 
     // mix video and particle
     useProgram(prgs.scene)
-    bindFramebuffer(framebuffers.lastPost.framebuffer)
+    bindFramebuffer(textures.lastPost.framebuffer)
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     gl.viewport(0, 0, canvasWidth, canvasHeight)
 
     prgs.scene.setAttribute('position')
-    prgs.scene.setUniform('particleTexture', bufferIndex.particleScene)
-    prgs.scene.setUniform('postTexture', bufferIndex.postScene2)
+    prgs.scene.setUniform('particleTexture', textures.particleScene.index)
+    prgs.scene.setUniform('postTexture', textures.postSceneLast.index)
     prgs.scene.setUniform('resolution', [canvasWidth, canvasHeight])
     prgs.scene.setUniform('pointResolution', [POINT_RESOLUTION, POINT_RESOLUTION])
     prgs.scene.setUniform('videoAlpha', settings.videoAlpha)
@@ -1020,7 +975,7 @@ function init () {
 
     prgs.lastPost.setAttribute('position')
     prgs.lastPost.setUniform('resolution', [canvasWidth, canvasHeight])
-    prgs.lastPost.setUniform('texture', bufferIndex.lastPost)
+    prgs.lastPost.setUniform('texture', textures.lastPost.index)
     prgs.lastPost.setUniform('time', time)
     prgs.lastPost.setUniform('volume', volume)
     prgs.lastPost.setUniform('isAudio', isAudio)

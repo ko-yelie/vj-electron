@@ -1,4 +1,5 @@
 let canvas, gl
+let textureCount = 0
 
 export function initWebGL (myCanvas) {
   canvas = myCanvas
@@ -101,23 +102,106 @@ export function createIbo (data) {
   return ibo
 }
 
-export function bindTexture (texture, index = 0) {
-  gl.activeTexture(gl.TEXTURE0 + index)
-  gl.bindTexture(gl.TEXTURE_2D, texture)
-  // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-  // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-}
-
-export function createTexture (img, index) {
+export function createTexture (img) {
   const texture = gl.createTexture()
-  bindTexture(texture, index)
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img)
+  const index = textureCount++
+  gl.activeTexture(gl[`TEXTURE${index}`])
+  gl.bindTexture(gl.TEXTURE_2D, texture)
   // gl.generateMipmap(gl.TEXTURE_2D)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img)
   // gl.bindTexture(gl.TEXTURE_2D, null)
+
+  return { index }
+}
+
+/**
+ * フレームバッファを生成して返す。
+ * @param {number} width - フレームバッファの幅
+ * @param {number} height - フレームバッファの高さ
+ * @return {object} 生成した各種オブジェクトはラップして返却する
+ * @property {WebGLFramebuffer} framebuffer - フレームバッファ
+ * @property {WebGLRenderbuffer} renderbuffer - 深度バッファとして設定したレンダーバッファ
+ * @property {WebGLTexture} texture - カラーバッファとして設定したテクスチャ
+ */
+export function createFramebuffer (width, height) {
+  let framebuffer = gl.createFramebuffer()
+  gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer)
+  let depthRenderBuffer = gl.createRenderbuffer()
+  gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBuffer)
+  gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height)
+  gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderBuffer)
+  let fTexture = gl.createTexture()
+  const index = textureCount++
+  gl.activeTexture(gl[`TEXTURE${index}`])
+  gl.bindTexture(gl.TEXTURE_2D, fTexture)
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, fTexture, 0)
+  gl.bindRenderbuffer(gl.RENDERBUFFER, null)
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  // gl.bindTexture(gl.TEXTURE_2D, null)
+
+  return { framebuffer, index }
+}
+
+/**
+ * フレームバッファを生成して返す。（フロートテクスチャ版）
+ * @param {object} ext - getWebGLExtensions の戻り値
+ * @param {number} width - フレームバッファの幅
+ * @param {number} height - フレームバッファの高さ
+ * @return {object} 生成した各種オブジェクトはラップして返却する
+ * @property {WebGLFramebuffer} framebuffer - フレームバッファ
+ * @property {WebGLTexture} texture - カラーバッファとして設定したテクスチャ
+ */
+export function createFramebufferFloat (ext, width, height) {
+  if (ext == null || (ext.textureFloat == null && ext.textureHalfFloat == null)) {
+    console.log('float texture not support')
+    return
+  }
+  let flg = (ext.textureFloat != null) ? gl.FLOAT : ext.textureHalfFloat.HALF_FLOAT_OES
+  let framebuffer = gl.createFramebuffer()
+  gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer)
+  let fTexture = gl.createTexture()
+  const index = textureCount++
+  gl.activeTexture(gl[`TEXTURE${index}`])
+  gl.bindTexture(gl.TEXTURE_2D, fTexture)
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, flg, null)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, fTexture, 0)
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  // gl.bindTexture(gl.TEXTURE_2D, null)
+
+  return { framebuffer, index }
+}
+
+/**
+ * 主要な WebGL の拡張機能を取得する。
+ * @return {object} 取得した拡張機能
+ * @property {object} elementIndexUint - Uint32 フォーマットを利用できるようにする
+ * @property {object} textureFloat - フロートテクスチャを利用できるようにする
+ * @property {object} textureHalfFloat - ハーフフロートテクスチャを利用できるようにする
+ */
+export function getWebGLExtensions () {
+  return {
+    elementIndexUint: gl.getExtension('OES_element_index_uint'),
+    textureFloat: gl.getExtension('OES_texture_float'),
+    textureHalfFloat: gl.getExtension('OES_texture_half_float')
+  }
+}
+
+export function updateTexture (index = 0, img) {
+  gl.activeTexture(gl[`TEXTURE${index}`])
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img)
 }
 
 export function useProgram (prg) {

@@ -13,3 +13,4 @@ thumbs.db
 src/renderer/assets/thumbnail/
 src/visualRenderer/assets/video/
 src/visualRenderer/assets/iframe/
+src/visualRenderer/assets/_*/
