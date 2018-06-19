@@ -1,9 +1,13 @@
 precision highp float;
 uniform sampler2D videoTexture;
+uniform sampler2D logoTexture;
 uniform float     bgColor;
 uniform float     mode;
 uniform float     pointShape;
 uniform float     animation;
+uniform float prevDeformation;
+uniform float nextDeformation;
+uniform float deformationProgress;
 varying vec2 vTexCoord;
 varying vec4 vPosition;
 
@@ -14,19 +18,28 @@ float lengthN(vec2 v, float n) {
 
 void main(){
   vec4 video = texture2D(videoTexture, vTexCoord);
-  float rate = vPosition.z / vPosition.w;
+  float rate = max(vPosition.z / vPosition.w, 0.);
 
   vec2 pointCoord = gl_PointCoord.st * 2. - 1.;
   float circle = smoothstep(0.9, 1., length(pointCoord));
   float star = smoothstep(0.9, 1., lengthN(pointCoord, 0.5));
-  float shape = mix(1., 1. - mix(circle, star, step(2., pointShape)), pointShape);
-  vec4 shapeColor = vec4(vec3(1.), mix(1., shape, step(mode, 0.)));
+  float shape = 1. - (
+    (pointShape == 2.) ? star :
+    (pointShape == 1.) ? circle :
+    0.);
+  vec4 shapeColor = vec4(vec3(1.), (mode == 0.) ? shape : 1.);
   vec4 thumbColor = texture2D(videoTexture, vec2(gl_PointCoord.s, 1. - gl_PointCoord.t));
-  vec4 particleColor = mix(shapeColor, thumbColor, step(3., pointShape));
+  vec4 particleColor = (pointShape == 3.) ? thumbColor : shapeColor;
 
-  float minCurrentColor = mix(mix(0.2, 0.3, animation), 0.4, bgColor);
-  float maxCurrentColor = mix(0.95, 0.95, bgColor);
+  float minCurrentColor = (bgColor == 1.) ? 0.4 : (animation == 1.) ? 0.3 : 0.2;
+  float maxCurrentColor = (bgColor == 1.) ? 0.95 : 0.95;
   vec4 currentColor = mix(vec4(minCurrentColor), vec4(maxCurrentColor), video);
+  vec4 videoColor = vec4(currentColor.rgb, sqrt(rate)) * particleColor;
 
-  gl_FragColor = vec4(currentColor.rgb, sqrt(rate)) * particleColor;
+  vec4 logoColor = texture2D(logoTexture, vec2(vTexCoord.x, 1. - vTexCoord.y));
+
+  gl_FragColor = mix(
+    (prevDeformation == 2.) ? logoColor : videoColor,
+    (nextDeformation == 2.) ? logoColor : videoColor,
+    deformationProgress);
 }

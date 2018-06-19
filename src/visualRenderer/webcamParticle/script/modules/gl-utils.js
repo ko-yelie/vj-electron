@@ -216,13 +216,17 @@ export function clearColor (...args) {
   gl.clearColor(...args)
 }
 
-export function loadImage (src, callback) {
-  const img = new Image()
-  img.addEventListener('load', () => {
-    callback(img)
+export function loadImage (src, { width, height } = {}) {
+  return new Promise(resolve => {
+    const img = new Image()
+    img.addEventListener('load', () => {
+      resolve(img)
+    })
+    img.crossOrigin = 'anonymous'
+    img.src = src
+    width && (img.width = width)
+    height && (img.height = height)
   })
-  img.crossOrigin = 'anonymous'
-  img.src = src
 }
 
 export function setSize (width = window.innerWidth, height = window.innerHeight) {

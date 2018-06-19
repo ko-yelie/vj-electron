@@ -79,7 +79,8 @@ export default async function (argConfig, store) {
     lineFolder.add(settings, 'lineShape', lineShapeMap).onChange(dispatchVisual)
 
     // deformation
-    particleFolder.add(settings, 'deformation').onChange(dispatchVisual)
+    const deformationMap = { video: 0, circle: 1, logo: 2 }
+    particleFolder.add(settings, 'deformation', deformationMap).onChange(dispatchVisual)
 
     // canvas folder
     const canvasFolder = particleFolder.addFolder('canvas')
@@ -138,7 +139,6 @@ export default async function (argConfig, store) {
         ipcRenderer.send('dispatch-webcam-particle', 'update', 'particleAlpha', settings.particleAlpha)
         ipcRenderer.send('dispatch-webcam-particle', 'update', 'videoAlpha', settings.videoAlpha)
         store.commit('UPDATE_ALPHA', settings.videoAlpha)
-
         break
       case 'mode':
         pointFolder.close()

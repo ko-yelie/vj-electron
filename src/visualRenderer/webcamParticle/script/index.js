@@ -30,6 +30,8 @@ import {
 import { clamp } from './modules/utils.js'
 import Tween from './modules/tween.js'
 
+const POINT_RESOLUTION_RATE = POINT_RESOLUTION / BASE_RESOLUTION
+
 let options
 let canvas
 let canvasWidth
@@ -39,8 +41,6 @@ let ext
 let mat
 
 let planeIndex
-let planeVBO
-let planeIBO
 let pointVBO
 let meshPointVBO
 let popPointVBO
@@ -86,9 +86,12 @@ let isCapture = false
 let isAudio = 0
 let volume = 1
 let defaultFocus = [0, 0, 1, 1]
+let pointSize = 7
+let prevDeformation = 0
+let nextDeformation = 0
 let deformationProgressTl
 let stopMotionTimer
-let logoImg
+let logo
 
 export function run (argOptions) {
   options = argOptions
@@ -245,13 +248,9 @@ export function run (argOptions) {
     if (!prgs.scene) return
   }
 
-  loadImage('/src/visualRenderer/assets/_img/luminous101/4c7111_f7526816f93c430dbaa71b416325430e_mv2.png', img => {
-    logoImg = img
-
-    initMedia()
-    initGlsl()
-    init()
-  })
+  const promiseMedia = initMedia()
+  const promiseGlsl = initGlsl()
+  Promise.all([promiseMedia, promiseGlsl]).then(init)
 }
 
 function initMedia () {
@@ -263,46 +262,49 @@ function initMedia () {
   // textures
   textures.video = createTexture(video)
 
-  textures.logoImg = createTexture(logoImg)
+  return loadImage('/src/visualRenderer/assets/_img/luminous101/4c7111_f7526816f93c430dbaa71b416325430e_mv2.png').then(img => {
+    logo = img
+    textures.logo = createTexture(logo)
+  })
 }
 
 function initGlsl () {
-  const interval = BASE_RESOLUTION / POINT_RESOLUTION / BASE_RESOLUTION
-
-  pointVBO = getPointVbo(interval)
-
-  const pointTexCoord = []
-  for (let t = 0; t < 1 - interval; t += interval) {
-    for (let s = 0; s < 1; s += interval) {
-      if (s === BASE_RESOLUTION - interval) {
-        pointTexCoord.push(s, t, Math.random(), Math.random())
-        pointTexCoord.push(s, t + interval, Math.random(), Math.random())
-      } else {
-        pointTexCoord.push(s, t, Math.random(), Math.random())
-        pointTexCoord.push(s, t + interval, Math.random(), Math.random())
-        pointTexCoord.push(s + interval, t + interval, Math.random(), Math.random())
-        pointTexCoord.push(s, t, Math.random(), Math.random())
-      }
-    }
-  }
-  meshPointVBO = createVbo(pointTexCoord)
-
-  popPointVBO = getPointVbo(1 / POP_RESOLUTION)
-  popArrayLength = POP_RESOLUTION * POP_RESOLUTION
-
   // vertices
+  // plane
   let planeCoord = [1.0, 1.0, 0.0, -1.0, 1.0, 0.0, 1.0, -1.0, 0.0, -1.0, -1.0, 0.0]
   planeIndex = [0, 1, 2, 2, 1, 3]
-  planeVBO = createVbo(planeCoord)
-  planeIBO = createIbo(planeIndex)
 
   const planeAttribute = {
     position: {
       stride: 3,
-      vbo: planeVBO,
-      ibo: planeIBO
+      vbo: createVbo(planeCoord),
+      ibo: createIbo(planeIndex)
     }
   }
+
+  // point
+  const interval = 1 / POINT_RESOLUTION
+
+  pointVBO = getPointVbo(interval)
+
+  const meshTexCoord = []
+  for (let t = 0; t < 1 - interval; t += interval) {
+    for (let s = 0; s < 1; s += interval) {
+      if (s === 1 - interval) {
+        meshTexCoord.push(s, t, Math.random(), Math.random())
+        meshTexCoord.push(s, t + interval, Math.random(), Math.random())
+      } else {
+        meshTexCoord.push(s, t, Math.random(), Math.random())
+        meshTexCoord.push(s, t + interval, Math.random(), Math.random())
+        meshTexCoord.push(s + interval, t + interval, Math.random(), Math.random())
+        meshTexCoord.push(s, t, Math.random(), Math.random())
+      }
+    }
+  }
+  meshPointVBO = createVbo(meshTexCoord)
+
+  popPointVBO = getPointVbo(1 / POP_RESOLUTION)
+  popArrayLength = POP_RESOLUTION * POP_RESOLUTION
 
   // video
   prgs.video.createAttribute(planeAttribute)
@@ -458,6 +460,9 @@ function initGlsl () {
     positionTexture: {
       type: '1i'
     },
+    logoTexture: {
+      type: '1i'
+    },
     bgColor: {
       type: '1f'
     },
@@ -471,6 +476,12 @@ function initGlsl () {
       type: '1f'
     },
     pointShape: {
+      type: '1f'
+    },
+    prevDeformation: {
+      type: '1f'
+    },
+    nextDeformation: {
       type: '1f'
     },
     deformationProgress: {
@@ -546,9 +557,6 @@ function initGlsl () {
       type: '1f'
     },
     isAudio: {
-      type: '1f'
-    },
-    deformationProgress: {
       type: '1f'
     },
     time: {
@@ -883,14 +891,17 @@ function init () {
 
         prgs.particleScene.setAttribute('data', vbo)
         prgs.particleScene.setUniform('mvpMatrix', mvpMatrix)
-        prgs.particleScene.setUniform('pointSize', settings.pointSize * canvasHeight / 930)
+        prgs.particleScene.setUniform('pointSize', pointSize)
         prgs.particleScene.setUniform('videoTexture', textures.videoBuffer[capturedbufferIndex].index)
         prgs.particleScene.setUniform('positionTexture', textures.position[capturedbufferIndex].index)
+        prgs.particleScene.setUniform('logoTexture', textures.logo.index)
         prgs.particleScene.setUniform('bgColor', settings.bgColor)
         prgs.particleScene.setUniform('volume', volume)
         prgs.particleScene.setUniform('isAudio', isAudio)
         prgs.particleScene.setUniform('mode', settings.mode)
         prgs.particleScene.setUniform('pointShape', settings.pointShape)
+        prgs.particleScene.setUniform('prevDeformation', prevDeformation)
+        prgs.particleScene.setUniform('nextDeformation', nextDeformation)
         prgs.particleScene.setUniform('deformationProgress', settings.deformationProgress)
         prgs.particleScene.setUniform('loopCount', loopCount)
         prgs.particleScene.setUniform('animation', animation)
@@ -933,14 +944,13 @@ function init () {
         prgs.popScene.setAttribute('data')
         prgs.popScene.setUniform('mvpMatrix', mvpMatrix)
         prgs.popScene.setUniform('resolution', [canvasWidth, canvasHeight])
-        prgs.popScene.setUniform('pointSize', settings.pointSize * canvasHeight / 930)
+        prgs.popScene.setUniform('pointSize', pointSize)
         prgs.popScene.setUniform('videoTexture', textures.videoBuffer[targetbufferIndex].index)
         prgs.popScene.setUniform('positionTexture', textures.popPosition[targetbufferIndex].index)
         prgs.popScene.setUniform('velocityTexture', textures.popVelocity[targetbufferIndex].index)
         prgs.popScene.setUniform('bgColor', settings.bgColor)
         prgs.popScene.setUniform('volume', volume)
         prgs.popScene.setUniform('isAudio', isAudio)
-        prgs.popScene.setUniform('deformationProgress', settings.deformationProgress)
         prgs.popScene.setUniform('time', time)
         gl.drawArrays(gl.POINTS, 0, popArrayLength)
       }
@@ -1005,7 +1015,7 @@ function updateCamera () {
 
   mat.identity(mMatrix)
   mat.lookAt(
-    [cameraPosition.x, cameraPosition.y, cameraPosition.z / (BASE_RESOLUTION / POINT_RESOLUTION)],
+    [cameraPosition.x, cameraPosition.y, cameraPosition.z],
     [cameraPosition.x, cameraPosition.y, 0.0],
     [0.0, 1.0, 0.0],
     vMatrix
@@ -1041,6 +1051,9 @@ export function update (property, value) {
           animation = -1
       }
       break
+    case 'pointSize':
+      pointSize = settings.pointSize * canvasHeight / 930 / Math.pow(POINT_RESOLUTION_RATE, 0.4)
+      break
     case 'lineShape':
       switch (settings.lineShape) {
         case 'mesh':
@@ -1054,7 +1067,9 @@ export function update (property, value) {
       }
       break
     case 'deformation':
-      settings.deformation ? deformationProgressTl.play() : deformationProgressTl.reverse()
+      prevDeformation = nextDeformation
+      nextDeformation = settings.deformation
+      deformationProgressTl.play()
       break
     case 'bgColor':
       let rgbInt = settings.bgColor * 255

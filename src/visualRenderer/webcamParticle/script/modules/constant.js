@@ -1,7 +1,7 @@
 export const VIDEO_RESOLUTION = 416
-export const POINT_RESOLUTION = 128
+export const POINT_RESOLUTION = 256
 export const POP_RESOLUTION = 16
-export const BASE_RESOLUTION = 256
+export const BASE_RESOLUTION = 128
 
 export const MIN_ZOOM = 2
 export const MAX_ZOOM = 10
