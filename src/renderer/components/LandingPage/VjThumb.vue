@@ -84,9 +84,10 @@ export default {
       }, this.maxSize)
     },
     wrapperStyle () {
+      const wrapperSize = this.wrapperSize
       return {
-        width: this.wrapperSize.width + 'px',
-        height: this.wrapperSize.height + 'px'
+        width: wrapperSize.width + 'px',
+        height: wrapperSize.height + 'px'
       }
     },
     scopeSize () {
@@ -98,9 +99,10 @@ export default {
       }
     },
     scopeStyle () {
+      const scopeSize = this.scopeSize
       return {
-        width: this.scopeSize.width + 'px',
-        height: this.scopeSize.height + 'px',
+        width: scopeSize.width + 'px',
+        height: scopeSize.height + 'px',
         top: this.scopePos.y + 'px',
         left: this.scopePos.x + 'px'
       }
@@ -228,10 +230,16 @@ export default {
           case 'videoZoom':
             const width = self.scopeSize.width
             const height = self.scopeSize.height
+            scopePos = self.scopePos
+            scopeSize = self.scopeSize
             self.videoZoom = value
-            self.scopePos.x += (width - self.scopeSize.width) / 2
-            self.scopePos.y += (height - self.scopeSize.height) / 2
-            setScopePos()
+            scopePos.x += (width - scopeSize.width) / 2
+            scopePos.y += (height - scopeSize.height) / 2
+            if (isWheel) {
+              isWheel = false
+            } else {
+              setScopePos()
+            }
             break
           case 'thumb':
             self.isShow = value
@@ -285,50 +293,51 @@ export default {
 
       // pointer
       let isDown = false
-      let startValue
-      const setScopePos = (x = this.scopePos.x, y = this.scopePos.y) => {
-        this.scopePos.x = clamp(
-          x,
+      let isWheel = false
+      let scopePos
+      let wrapperSize
+      let scopeSize
+      const setScopePos = (x, y) => {
+        scopePos = this.scopePos
+        wrapperSize = this.wrapperSize
+        scopeSize = this.scopeSize
+
+        if (x === void 0) x = scopePos.x + scopeSize.width / 2
+        if (y === void 0) y = scopePos.y + scopeSize.height / 2
+
+        scopePos.x = clamp(
+          x - scopeSize.width / 2,
           0,
-          this.wrapperSize.width - this.scopeSize.width
+          wrapperSize.width - scopeSize.width
         )
-        this.scopePos.y = clamp(
-          y,
+        scopePos.y = clamp(
+          y - scopeSize.height / 2,
           0,
-          this.wrapperSize.height - this.scopeSize.height
+          wrapperSize.height - scopeSize.height
         )
 
         ipcRenderer.send('dispatch-media', 'zoomPos', [
-          (this.scopePos.x + this.scopeSize.width / 2) / this.wrapperSize.width * 2.0 - 1.0,
-          (this.scopePos.y + this.scopeSize.height / 2) / this.wrapperSize.height * 2.0 - 1.0
+          (scopePos.x + scopeSize.width / 2) / wrapperSize.width * 2.0 - 1.0,
+          (scopePos.y + scopeSize.height / 2) / wrapperSize.height * 2.0 - 1.0
         ])
       }
       this.$refs.wrapper.addEventListener('pointerdown', e => {
         isDown = true
-        startValue = {
-          scope: {
-            x: this.scopePos.x,
-            y: this.scopePos.y
-          },
-          pointer: {
-            x: e.offsetX,
-            y: e.offsetY
-          }
-        }
+        setScopePos(e.offsetX, e.offsetY)
       })
       this.$refs.wrapper.addEventListener('pointermove', e => {
         if (!isDown) return
 
-        setScopePos(
-          startValue.scope.x + e.offsetX - startValue.pointer.x,
-          startValue.scope.y + e.offsetY - startValue.pointer.y
-        )
+        setScopePos(e.offsetX, e.offsetY)
       })
       this.$refs.wrapper.addEventListener('pointerup', e => {
         isDown = false
       })
+
       this.$refs.wrapper.addEventListener('wheel', e => {
+        isWheel = true
         settings.videoZoom = clamp(settings.videoZoom - e.deltaY * 0.001, MIN_VIDEO_ZOOM, MAX_VIDEO_ZOOM)
+        setScopePos(e.offsetX, e.offsetY)
         dispatchMedia(settings.videoZoom, 'videoZoom')
       })
 
@@ -336,9 +345,11 @@ export default {
         this.maxSize.width = this.$el.clientWidth
         this.maxSize.height = THUMB_HEIGHT
 
+        wrapperSize = this.wrapperSize
+        scopeSize = this.scopeSize
         this.scopePos = {
-          y: (this.wrapperSize.height - this.scopeSize.height) / 2,
-          x: (this.wrapperSize.width - this.scopeSize.width) / 2
+          y: (wrapperSize.height - scopeSize.height) / 2,
+          x: (wrapperSize.width - scopeSize.width) / 2
         }
       }, 0)
     })
