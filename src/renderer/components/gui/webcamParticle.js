@@ -79,7 +79,12 @@ export default async function (argConfig, store) {
     lineFolder.add(settings, 'lineShape', lineShapeMap).onChange(dispatchVisual)
 
     // deformation
-    const deformationMap = { video: 0, circle: 1, logo: 2 }
+    const deformationMap = {
+      video: 0,
+      circle: 1,
+      logo: 2,
+      logo2: 3
+    }
     particleFolder.add(settings, 'deformation', deformationMap).onChange(dispatchVisual)
 
     // canvas folder

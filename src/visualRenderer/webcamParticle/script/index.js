@@ -92,8 +92,9 @@ let nextDeformation = 0
 let deformationProgressTl
 let stopMotionTimer
 let logo
+let logo2
 
-export function run (argOptions) {
+export async function run (argOptions) {
   options = argOptions
   settings = options.settings
   media = options.media
@@ -248,12 +249,12 @@ export function run (argOptions) {
     if (!prgs.scene) return
   }
 
-  const promiseMedia = initMedia()
-  const promiseGlsl = initGlsl()
-  Promise.all([promiseMedia, promiseGlsl]).then(init)
+  await initMedia()
+  await initGlsl()
+  init()
 }
 
-function initMedia () {
+async function initMedia () {
   // init media value
   video = media.currentVideo
   videoZoom = settings.videoZoom
@@ -262,10 +263,10 @@ function initMedia () {
   // textures
   textures.video = createTexture(video)
 
-  return loadImage('/src/visualRenderer/assets/_img/luminous101/4c7111_f7526816f93c430dbaa71b416325430e_mv2.png').then(img => {
-    logo = img
-    textures.logo = createTexture(logo)
-  })
+  logo = await loadImage('/src/visualRenderer/assets/_img/luminous101/oZbSsm6C_400x400.jpg')
+  textures.logo = createTexture(logo)
+  logo2 = await loadImage('/src/visualRenderer/assets/_img/luminous101/4c7111_f7526816f93c430dbaa71b416325430e_mv2.png')
+  textures.logo2 = createTexture(logo2)
 }
 
 function initGlsl () {
@@ -461,6 +462,9 @@ function initGlsl () {
       type: '1i'
     },
     logoTexture: {
+      type: '1i'
+    },
+    logo2Texture: {
       type: '1i'
     },
     bgColor: {
@@ -748,10 +752,10 @@ function init () {
     focusCount = Math.min(focusPosList.length, 4)
 
     // update media value
-    videoZoom += (settings.videoZoom - videoZoom) * 0.1
+    videoZoom += (settings.videoZoom - videoZoom) * 0.02
 
     zoomPos.forEach((pos, i) => {
-      zoomPos[i] += (settings.zoomPos[i] - zoomPos[i]) * 0.1
+      zoomPos[i] += (settings.zoomPos[i] - zoomPos[i]) * 0.02
     })
 
     volume += (media.getVolume() - volume) * 0.1
@@ -895,6 +899,7 @@ function init () {
         prgs.particleScene.setUniform('videoTexture', textures.videoBuffer[capturedbufferIndex].index)
         prgs.particleScene.setUniform('positionTexture', textures.position[capturedbufferIndex].index)
         prgs.particleScene.setUniform('logoTexture', textures.logo.index)
+        prgs.particleScene.setUniform('logo2Texture', textures.logo2.index)
         prgs.particleScene.setUniform('bgColor', settings.bgColor)
         prgs.particleScene.setUniform('volume', volume)
         prgs.particleScene.setUniform('isAudio', isAudio)
@@ -1067,9 +1072,13 @@ export function update (property, value) {
       }
       break
     case 'deformation':
-      prevDeformation = nextDeformation
-      nextDeformation = settings.deformation
-      deformationProgressTl.play()
+      if (deformationProgressTl.target.deformationProgress === 1) {
+        prevDeformation = settings.deformation
+        deformationProgressTl.reverse()
+      } else {
+        nextDeformation = settings.deformation
+        deformationProgressTl.play()
+      }
       break
     case 'bgColor':
       let rgbInt = settings.bgColor * 255
