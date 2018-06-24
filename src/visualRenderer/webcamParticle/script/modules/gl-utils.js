@@ -102,7 +102,10 @@ export function createIbo (data) {
   return ibo
 }
 
-export function createTexture (img) {
+export async function createTexture (img) {
+  if (typeof img === 'string') {
+    img = await loadImage(img)
+  }
   const texture = gl.createTexture()
   const index = textureCount++
   gl.activeTexture(gl[`TEXTURE${index}`])

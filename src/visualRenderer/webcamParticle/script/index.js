@@ -24,8 +24,7 @@ import {
   useProgram,
   bindFramebuffer,
   clearColor,
-  getPointVbo,
-  loadImage
+  getPointVbo
 } from './modules/gl-utils.js'
 import { clamp } from './modules/utils.js'
 import Tween from './modules/tween.js'
@@ -91,8 +90,6 @@ let prevDeformation = 0
 let nextDeformation = 0
 let deformationProgressTl
 let stopMotionTimer
-let logo
-let logo2
 
 export async function run (argOptions) {
   options = argOptions
@@ -263,10 +260,9 @@ async function initMedia () {
   // textures
   textures.video = createTexture(video)
 
-  logo = await loadImage('/src/visualRenderer/assets/_img/luminous101/oZbSsm6C_400x400.jpg')
-  textures.logo = createTexture(logo)
-  logo2 = await loadImage('/src/visualRenderer/assets/_img/luminous101/4c7111_f7526816f93c430dbaa71b416325430e_mv2.png')
-  textures.logo2 = createTexture(logo2)
+  textures.logo = await createTexture('/src/visualRenderer/assets/_img/luminous101/oZbSsm6C_400x400.jpg')
+  textures.logo2 = await createTexture('/src/visualRenderer/assets/_img/luminous101/4c7111_f7526816f93c430dbaa71b416325430e_mv2.png')
+  textures.face = await createTexture('/src/visualRenderer/assets/_img/luminous101/C9dg3xVV0AERtu7.jpg')
 }
 
 function initGlsl () {
@@ -465,6 +461,9 @@ function initGlsl () {
       type: '1i'
     },
     logo2Texture: {
+      type: '1i'
+    },
+    faceTexture: {
       type: '1i'
     },
     bgColor: {
@@ -900,6 +899,7 @@ function init () {
         prgs.particleScene.setUniform('positionTexture', textures.position[capturedbufferIndex].index)
         prgs.particleScene.setUniform('logoTexture', textures.logo.index)
         prgs.particleScene.setUniform('logo2Texture', textures.logo2.index)
+        prgs.particleScene.setUniform('faceTexture', textures.face.index)
         prgs.particleScene.setUniform('bgColor', settings.bgColor)
         prgs.particleScene.setUniform('volume', volume)
         prgs.particleScene.setUniform('isAudio', isAudio)

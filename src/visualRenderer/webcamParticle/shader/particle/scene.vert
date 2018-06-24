@@ -4,6 +4,7 @@ uniform float pointSize;
 uniform sampler2D positionTexture;
 uniform sampler2D logoTexture;
 uniform sampler2D logo2Texture;
+uniform sampler2D faceTexture;
 uniform float volume;
 uniform float isAudio;
 uniform float pointShape;
@@ -44,21 +45,20 @@ void main(){
   vec4 circlePosition = vec4(cos(radian) * radius, sin(radian) * radius, data.z * 0.1, 1.);
 
   vec2 imageTexCoord = vec2(texCoord.x, 1. - texCoord.y);
-
-  vec4 logo = texture2D(logoTexture, imageTexCoord);
-  vec4 logoPosition = vec4(texCoord * 2. - 1., 0., logo.a);
-
-  vec4 logo2 = texture2D(logo2Texture, imageTexCoord);
-  vec4 logo2Position = vec4(texCoord * 2. - 1., 0., logo2.a);
+  vec4 logoPosition = vec4(texCoord * 2. - 1., 0., texture2D(logoTexture, imageTexCoord).a);
+  vec4 logo2Position = vec4(texCoord * 2. - 1., 0., texture2D(logo2Texture, imageTexCoord).a);
+  vec4 facePosition = vec4(texCoord * 2. - 1., 0., texture2D(faceTexture, imageTexCoord).a);
 
   vTexCoord = texCoord;
   vPosition = position;
   gl_Position = mvpMatrix * mix(
-    (prevDeformation == 3.) ? logo2Position :
+    (prevDeformation == 4.) ? logo2Position :
+    (prevDeformation == 3.) ? facePosition :
     (prevDeformation == 2.) ? logoPosition :
     (prevDeformation == 1.) ? circlePosition :
     videoPosition,
-    (nextDeformation == 3.) ? logo2Position :
+    (nextDeformation == 4.) ? logo2Position :
+    (nextDeformation == 3.) ? facePosition :
     (nextDeformation == 2.) ? logoPosition :
     (nextDeformation == 1.) ? circlePosition :
     videoPosition,

@@ -83,7 +83,8 @@ export default async function (argConfig, store) {
       video: 0,
       circle: 1,
       logo: 2,
-      logo2: 3
+      face: 3,
+      logo2: 4
     }
     particleFolder.add(settings, 'deformation', deformationMap).onChange(dispatchVisual)
 

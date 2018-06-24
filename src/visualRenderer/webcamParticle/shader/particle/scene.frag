@@ -2,6 +2,7 @@ precision highp float;
 uniform sampler2D videoTexture;
 uniform sampler2D logoTexture;
 uniform sampler2D logo2Texture;
+uniform sampler2D faceTexture;
 uniform float     bgColor;
 uniform float     mode;
 uniform float     pointShape;
@@ -37,14 +38,18 @@ void main(){
   vec4 currentColor = mix(vec4(minCurrentColor), vec4(maxCurrentColor), video);
   vec4 videoColor = vec4(currentColor.rgb, sqrt(rate)) * particleColor;
 
-  vec4 logoColor = texture2D(logoTexture, vec2(vTexCoord.x, 1. - vTexCoord.y));
-  vec4 logo2Color = texture2D(logo2Texture, vec2(vTexCoord.x, 1. - vTexCoord.y));
+  vec2 imageTexCoord = vec2(vTexCoord.x, 1. - vTexCoord.y);
+  vec4 logoColor = texture2D(logoTexture, imageTexCoord);
+  vec4 logo2Color = texture2D(logo2Texture, imageTexCoord);
+  vec4 faceColor = texture2D(faceTexture, imageTexCoord);
 
   gl_FragColor = mix(
-    (prevDeformation == 3.) ? logo2Color :
+    (prevDeformation == 4.) ? logo2Color :
+    (prevDeformation == 3.) ? faceColor :
     (prevDeformation == 2.) ? logoColor :
     videoColor,
-    (nextDeformation == 3.) ? logo2Color :
+    (nextDeformation == 4.) ? logo2Color :
+    (nextDeformation == 3.) ? faceColor :
     (nextDeformation == 2.) ? logoColor :
     videoColor,
     deformationProgress);
