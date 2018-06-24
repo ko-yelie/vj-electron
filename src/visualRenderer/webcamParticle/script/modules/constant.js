@@ -14,6 +14,7 @@ export const CAPTURE_FRAMEBUFFERS_COUNT = 3
 
 export const POST_LIST = [
   'none',
+  'binary',
   'rock',
   'toon',
   'water',
