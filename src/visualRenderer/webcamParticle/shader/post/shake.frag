@@ -14,18 +14,16 @@ const float PI = 3.1415926;
 const float PI2 = PI * 2.0;
 const float interval = 2.;
 const float count = 8.;
-const float shakeRate = 0.26;
+const float shakeRate = 0.36;
 
 void main(){
   float stepTime = floor(mod(time, interval) / interval * count) / count;
 
-  float rnd = random(vec2(time));
-
   vec4 video = texture2D(texture, vUv);
-  float noise = mix(stepTime, rnd, customSwitch);
+  float noise = stepTime;
   float rndX = random(vec2(noise, 0.));
   float rndY = random(vec2(0., noise));
-  vec4 shakeVideo = texture2D(texture, vUv + (vec2(rndX, rndY) * 2. - 1.) * mix(0.005, 0.01, customSwitch));
+  vec4 shakeVideo = texture2D(texture, vUv + (vec2(rndX, rndY) * 2. - 1.) * (customSwitch == 1. ? 0.05 : 0.005));
 
   gl_FragColor = video * (1. - shakeRate) + shakeVideo * shakeRate;
 }

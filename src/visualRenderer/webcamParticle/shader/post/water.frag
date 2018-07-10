@@ -1,15 +1,10 @@
 precision mediump float;
 uniform sampler2D texture;
 uniform float     time;
-uniform vec2      resolution;
-uniform float     volume;
-uniform float     custom;
 varying vec2      vUv;
 
-#pragma glslify: random = require(glsl-random)
-
 const float MAX_ITER = 4.;
-const float inten = 0.05;
+const float INTEN = 0.05;
 
 void main(){
   vec2 p = vUv * 8. - vec2(20.);
@@ -29,8 +24,8 @@ void main(){
     );
 
     bc = vec2(
-      (sin(i.x + t) / inten),
-      (cos(i.y + t) / inten)
+      (sin(i.x + t) / INTEN),
+      (cos(i.y + t) / INTEN)
     );
 
     c += 1.0 / length(p / bc);

@@ -42,7 +42,7 @@ void main(){
   vec2 uv = adjustRatio(mix(focusCoord, defaultCoord, step(focusCount, 0.)), videoResolution, resolution);
 
   vec4 videoColor = texture2D(videoTexture, uv);
-  videoColor = vec4(videoColor.rgb * 1.4, videoColor.a);
+  videoColor = vec4(videoColor.rgb * 1.8, videoColor.a);
 
   gl_FragColor = mix(
     videoColor,

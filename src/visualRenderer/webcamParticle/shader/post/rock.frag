@@ -28,7 +28,7 @@ void main(){
   vec3 binary = vec3(step(binalizationThreshold, average));
 
   float colorNTime = mod(time, colorInterval) / colorInterval;
-  vec3 rndColor = hsv(colorNTime * PI2, 1., 1.);
+  vec3 rndColor = hsv(colorNTime * PI2, 0.7, 1.);
 
   float rnd = random(vec2(time));
   float strength = sin(nTime * PI2);

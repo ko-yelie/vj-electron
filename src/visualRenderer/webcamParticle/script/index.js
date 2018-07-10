@@ -751,10 +751,10 @@ function init () {
     focusCount = Math.min(focusPosList.length, 4)
 
     // update media value
-    videoZoom += (settings.videoZoom - videoZoom) * 0.02
+    videoZoom += (settings.videoZoom - videoZoom) * 0.04
 
     zoomPos.forEach((pos, i) => {
-      zoomPos[i] += (settings.zoomPos[i] - zoomPos[i]) * 0.02
+      zoomPos[i] += (settings.zoomPos[i] - zoomPos[i]) * 0.04
     })
 
     volume += (media.getVolume() - volume) * 0.1
@@ -888,8 +888,8 @@ function init () {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
         gl.viewport(0, 0, canvasWidth, canvasHeight)
 
-        rotation.x += (pointer.x - rotation.x) * 0.05
-        rotation.y += (pointer.y - rotation.y) * 0.05
+        rotation.x += (pointer.x - rotation.x) * 0.01
+        rotation.y += (pointer.y - rotation.y) * 0.01
         updateCamera()
 
         prgs.particleScene.setAttribute('data', vbo)
