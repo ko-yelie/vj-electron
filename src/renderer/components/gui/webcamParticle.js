@@ -21,6 +21,8 @@ export default async function (argConfig, store) {
   let pointFolder
   let lineFolder
   let bgColorController
+  let deformationMap
+  let autoDeformationTimer
 
   const settings = config.remembered[preset][0]
   gui.remember(settings)
@@ -79,14 +81,28 @@ export default async function (argConfig, store) {
     lineFolder.add(settings, 'lineShape', lineShapeMap).onChange(dispatchVisual)
 
     // deformation
-    const deformationMap = {
+    deformationMap = {
       video: 0,
       circle: 1,
       logo: 2,
       face: 3,
       logo2: 4
     }
-    particleFolder.add(settings, 'deformation', deformationMap).onChange(dispatchVisual)
+    particleFolder.add(settings, 'deformation', deformationMap).onChange(dispatchVisual).listen()
+
+    // changeDeformation
+    settings.changeDeformation = () => {
+      const array = Object.keys(deformationMap)
+      array.some((v, i) => {
+        if (deformationMap[v] === settings.deformation) array.splice(i, 1)
+      })
+      settings.deformation = deformationMap[array[Math.floor(Math.random() * array.length)]]
+      ipcRenderer.send('dispatch-webcam-particle', 'update', 'deformation', settings.deformation)
+    }
+    particleFolder.add(settings, 'changeDeformation').onChange(dispatchVisual)
+
+    // autoDeformation
+    particleFolder.add(settings, 'autoDeformation').onChange(dispatchVisual)
 
     // canvas folder
     const canvasFolder = particleFolder.addFolder('canvas')
@@ -158,6 +174,13 @@ export default async function (argConfig, store) {
           case POINTS:
           default:
             pointFolder.open()
+        }
+        break
+      case 'autoDeformation':
+        if (settings.autoDeformation) {
+          autoDeformationTimer = setInterval(settings.changeDeformation, 1000)
+        } else {
+          clearTimeout(autoDeformationTimer)
         }
         break
     }
